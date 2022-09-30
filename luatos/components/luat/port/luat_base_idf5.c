@@ -30,7 +30,7 @@ static const luaL_Reg loadedlibs[] = {
   {"log", luaopen_log},               // 日志库
   {"timer", luaopen_timer},           // 延时库
 //   {"uart",    luaopen_uart},
-//   {"gpio",   luaopen_gpio},
+  {"gpio",   luaopen_gpio},
   {"pack", luaopen_pack},             // pack.pack/pack.unpack
   {"json", luaopen_cjson},             // json
 //   {"zbuff", luaopen_zbuff},            // 
