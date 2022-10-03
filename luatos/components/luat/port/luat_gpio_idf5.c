@@ -10,6 +10,13 @@
 #define LUAT_LOG_TAG "luat.gpio"
 #include "luat_log.h"
 
+#if CONFIG_IDF_TARGET_ESP32C3
+#define GPIO_MAX (21)
+#else
+#define GPIO_MAX (-1)
+#endif
+
+#define GPIO_CHECK(pin) ((pin<0||pin>GPIO_MAX)?-1:0)
 
 static void IRAM_ATTR gpio_isr_handler(void *arg){
     uint32_t pin = (uint32_t)arg;
@@ -18,6 +25,9 @@ static void IRAM_ATTR gpio_isr_handler(void *arg){
 
 int luat_gpio_setup(luat_gpio_t *gpio){
     static uint8_t gpio_isr_sta = 0;
+    if (GPIO_CHECK(gpio->pin)){
+        return -1;
+    }
     gpio_reset_pin(gpio->pin);
     if (gpio->mode == Luat_GPIO_OUTPUT){
         gpio_set_direction(gpio->pin, GPIO_MODE_OUTPUT);
@@ -62,14 +72,23 @@ int luat_gpio_setup(luat_gpio_t *gpio){
 }
 
 int luat_gpio_set(int pin, int level){
+    if (GPIO_CHECK(pin)){
+        return -1;
+    }
     return gpio_set_level(pin, level);
 }
 
 int luat_gpio_get(int pin){
+    if (GPIO_CHECK(pin)){
+        return -1;
+    }
     return gpio_get_level(pin);
 }
 
 void luat_gpio_close(int pin){
+    if (GPIO_CHECK(pin)){
+        return;
+    }
     gpio_reset_pin(pin);
 }
 
