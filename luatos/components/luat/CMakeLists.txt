@@ -16,6 +16,6 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                  ${LUATOS_ROOT}/components/lfs
                                  ${LUATOS_ROOT}/components/lua-cjson
                                  ${LUATOS_ROOT}/components/crypto
-                    REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver
+                    REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap
                     )
 
