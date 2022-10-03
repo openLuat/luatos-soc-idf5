@@ -23,27 +23,164 @@ static const luaL_Reg loadedlibs[] = {
   {LUA_MATHLIBNAME, luaopen_math},    // math 数值计算
   {LUA_UTF8LIBNAME, luaopen_utf8},
   {LUA_DBLIBNAME, luaopen_debug},     // debug库,已精简
+#ifdef LUAT_USE_DBG
+#ifndef LUAT_USE_SHELL
+#define LUAT_USE_SHELL
+#endif
+  {"dbg",  luaopen_dbg},               // 调试库
+#endif
 #if defined(LUA_COMPAT_BITLIB)
   {LUA_BITLIBNAME, luaopen_bit32},    // 不太可能启用
 #endif
-  {"rtos", luaopen_rtos},             // rtos底层库, 核心功能是队列和定时器
-  {"log", luaopen_log},               // 日志库
-  {"timer", luaopen_timer},           // 延时库
-//   {"uart",    luaopen_uart},
-  {"gpio",   luaopen_gpio},
-  {"pack", luaopen_pack},             // pack.pack/pack.unpack
-  {"json", luaopen_cjson},             // json
-//   {"zbuff", luaopen_zbuff},            // 
-  {"crypto", luaopen_crypto},
+// 往下是LuatOS定制的库, 如需精简请仔细测试
+//----------------------------------------------------------------------
+// 核心支撑库, 不可禁用!!
+  {"rtos",    luaopen_rtos},              // rtos底层库, 核心功能是队列和定时器
+  {"log",     luaopen_log},               // 日志库
+  {"timer",   luaopen_timer},             // 延时库
+//-----------------------------------------------------------------------
+// 设备驱动类, 可按实际情况删减. 即使最精简的固件, 也强烈建议保留uart库
+#ifdef LUAT_USE_UART
+  {"uart",    luaopen_uart},              // 串口操作
+#endif
+#ifdef LUAT_USE_GPIO
+  {"gpio",    luaopen_gpio},              // GPIO脚的操作
+#endif
+#ifdef LUAT_USE_I2C
+  {"i2c",     luaopen_i2c},               // I2C操作
+#endif
+#ifdef LUAT_USE_SPI
+  {"spi",     luaopen_spi},               // SPI操作
+#endif
+#ifdef LUAT_USE_ADC
+  {"adc",     luaopen_adc},               // ADC模块
+#endif
+#ifdef LUAT_USE_SDIO
+  {"sdio",     luaopen_sdio},             // SDIO模块
+#endif
+#ifdef LUAT_USE_PWM
+  {"pwm",     luaopen_pwm},               // PWM模块
+#endif
+#ifdef LUAT_USE_WDT
+  {"wdt",     luaopen_wdt},               // watchdog模块
+#endif
+#ifdef LUAT_USE_PM
+  {"pm",      luaopen_pm},                // 电源管理模块
+#endif
+#ifdef LUAT_USE_MCU
+  {"mcu",     luaopen_mcu},               // MCU特有的一些操作
+#endif
+#ifdef LUAT_USE_HWTIMER
+  {"hwtimer", luaopen_hwtimer},           // 硬件定时器
+#endif
+#ifdef LUAT_USE_RTC
+  {"rtc", luaopen_rtc},                   // 实时时钟
+#endif
+#ifdef LUAT_USE_OTP
+  {"otp", luaopen_otp},                   // OTP
+#endif
+#ifdef LUAT_USE_TOUCHKEY
+  {"touchkey", luaopen_touchkey},              // OTP
+#endif
+  // {"pin", luaopen_pin},                   // pin
+//-----------------------------------------------------------------------
+// 工具库, 按需选用
+#ifdef LUAT_USE_CRYPTO
+  {"crypto",luaopen_crypto},            // 加密和hash模块
+#endif
+#ifdef LUAT_USE_CJSON
+  {"json",    luaopen_cjson},          // json的序列化和反序列化
+#endif
+#ifdef LUAT_USE_ZBUFF
+  {"zbuff",   luaopen_zbuff},             // 像C语言语言操作内存块
+#endif
+#ifdef LUAT_USE_PACK
+  {"pack",    luaopen_pack},              // pack.pack/pack.unpack
+#endif
+  // {"mqttcore",luaopen_mqttcore},          // MQTT 协议封装
+  // {"libcoap", luaopen_libcoap},           // 处理COAP消息
+
+#ifdef LUAT_USE_LIBGNSS
+  {"libgnss", luaopen_libgnss},           // 处理GNSS定位数据
+#endif
+#ifdef LUAT_USE_FS
+  {"fs",      luaopen_fs},                // 文件系统库,在io库之外再提供一些方法
+#endif
+#ifdef LUAT_USE_SENSOR
+  {"sensor",  luaopen_sensor},            // 传感器库,支持DS18B20
+#endif
+#ifdef LUAT_USE_SFUD
+  {"sfud", luaopen_sfud},              // sfud
+#endif
+#ifdef LUAT_USE_DISP
+  {"disp",  luaopen_disp},              // OLED显示模块,支持SSD1306
+#endif
+#ifdef LUAT_USE_U8G2
+  {"u8g2", luaopen_u8g2},              // u8g2
+#endif
+
+#ifdef LUAT_USE_EINK
+  {"eink",  luaopen_eink},              // 电子墨水屏,试验阶段
+#endif
+
+#ifdef LUAT_USE_LVGL
+// #ifndef LUAT_USE_LCD
+// #define LUAT_USE_LCD
+// #endif
+  {"lvgl",   luaopen_lvgl},
+#endif
+
 #ifdef LUAT_USE_LCD
   {"lcd",    luaopen_lcd},
 #endif
-#ifdef LUAT_USE_LVGL
-  {"lvgl",   luaopen_lvgl},
+#ifdef LUAT_USE_STATEM
+  {"statem",    luaopen_statem},
 #endif
+#ifdef LUAT_USE_GTFONT
+  {"gtfont",    luaopen_gtfont},
+#endif
+#ifdef LUAT_USE_NIMBLE
+  {"nimble",    luaopen_nimble},
+#endif
+#ifdef LUAT_USE_FDB
+  {"fdb",       luaopen_fdb},
+#endif
+#ifdef LUAT_USE_VMX
+  {"vmx",       luaopen_vmx},
+#endif
+#ifdef LUAT_USE_COREMARK
+  {"coremark", luaopen_coremark},
+#endif
+#ifdef LUAT_USE_FONTS
+  {"fonts", luaopen_fonts},
+#endif
+#ifdef LUAT_USE_ZLIB
+  {"zlib", luaopen_zlib},
+#endif
+#ifdef LUAT_USE_MLX90640
+  {"mlx90640", luaopen_mlx90640},
+#endif
+#ifdef LUAT_USE_IR
+  {"ir", luaopen_ir},
+#endif
+#ifdef LUAT_USE_YMODEM
+  {"ymodem", luaopen_ymodem},
+#endif
+#ifdef LUAT_USE_I2S
+  {"i2s", luaopen_i2s},
+#endif
+#ifdef LUAT_USE_LORA
+  {"lora", luaopen_lora},
+#endif
+#ifdef LUAT_USE_MINIZ
+  {"miniz", luaopen_miniz},
+#endif
+#ifdef LUAT_USE_PROTOBUF
+  {"protobuf", luaopen_protobuf},
+#endif
+#ifdef LUAT_USE_IOTAUTH
   {"iotauth", luaopen_iotauth},
-//   {"miniz", luaopen_miniz},
-//   {"protobuf", luaopen_protobuf},
+#endif
   {NULL, NULL}
 };
 
