@@ -24,9 +24,11 @@
 static uint8_t vmheap[LUAT_HEAP_SIZE];
 
 extern int luat_main (void);
+extern void bootloader_random_enable(void);
 
 void app_main(void)
 {
+    bootloader_random_enable();
     ESP_ERROR_CHECK( nvs_flash_init() );
     bpool(vmheap, LUAT_HEAP_SIZE);
     luat_main();

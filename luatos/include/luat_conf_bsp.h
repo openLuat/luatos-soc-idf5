@@ -6,6 +6,7 @@
 
 #define LUAT_USE_FS_VFS 1
 #define LUAT_USE_VFS_INLINE_LIB 1
+#define LUAT_COMPILER_NOWEAK
 
 // 内存优化: 减少内存消耗, 会稍微减低性能
 // #define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1

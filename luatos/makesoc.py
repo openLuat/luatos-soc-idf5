@@ -1,8 +1,8 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
 
 import os
-import sys
 import shutil
-import urllib
 import re
 
 bootloader_bin = './build/bootloader/bootloader.bin'
@@ -17,7 +17,7 @@ bsp='ESP32C3'
 cwd_path = os.getcwd()
 if __name__=='__main__':
 
-    fo = open("./include/luat_conf_bsp.h", "r")
+    fo = open("./include/luat_conf_bsp.h", "r", encoding="UTF-8")
     for line in fo.readlines():                          #依次读取每行  
         find_data = re.findall(r'#define LUAT_BSP_VERSION "(.+?)"', line)#[0]
         if find_data:
@@ -37,4 +37,4 @@ if __name__=='__main__':
     shutil.make_archive(out_path+out_file, 'zip', root_dir=pack_path)
     os.rename(out_path+out_file+'.zip',out_file+'.soc')
     
-    print('end')
+    print('done', out_file)

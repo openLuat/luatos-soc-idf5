@@ -49,3 +49,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+build/
+luatos/sdkconfig
+luatos/sdkconfig.old
+luatos/build
+luatos/*.soc
+luatos/.vscode
+.vscode

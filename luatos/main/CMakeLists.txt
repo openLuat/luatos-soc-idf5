@@ -1,3 +1,3 @@
-idf_component_register(SRCS "smartconfig_main.c"
+idf_component_register(SRCS "idf5_main.c"
                     INCLUDE_DIRS ".")
 
