@@ -46,7 +46,7 @@
 #define LUAT_USE_ZBUFF  1
 #define LUAT_USE_PACK  1
 // #define LUAT_USE_LIBGNSS  1
-// #define LUAT_USE_FS  1
+#define LUAT_USE_FS  1
 // #define LUAT_USE_SENSOR  1
 // #define LUAT_USE_SFUD  1
 // #define LUAT_USE_STATEM 1
@@ -55,7 +55,7 @@
 // #define LUAT_USE_ZLIB 1 
 // #define LUAT_USE_IR 1
 // FDB 提供kv数据库, 与nvm库类似
-// #define LUAT_USE_FDB 1
+#define LUAT_USE_FDB 1
 // #define LUAT_USE_OTA 1
 // #define LUAT_USE_I2CTOOLS 1
 // #define LUAT_USE_LORA 1

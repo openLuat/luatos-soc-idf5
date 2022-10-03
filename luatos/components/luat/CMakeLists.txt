@@ -9,6 +9,9 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/miniz
                                 ${LUATOS_ROOT}/components/serialization/protobuf
                                 ${LUATOS_ROOT}/components/coremark
+                                ${LUATOS_ROOT}/components/fal/src
+                                ${LUATOS_ROOT}/components/flashdb/src
+                                ${LUATOS_ROOT}/components/minmea
                     EXCLUDE_SRCS
                                 ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
@@ -22,6 +25,9 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/miniz
                                 ${LUATOS_ROOT}/components/serialization/protobuf
                                 ${LUATOS_ROOT}/components/coremark
+                                ${LUATOS_ROOT}/components/fal/inc
+                                ${LUATOS_ROOT}/components/flashdb/inc
+                                ${LUATOS_ROOT}/components/minmea
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap
                     )
 

@@ -181,6 +181,7 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_IOTAUTH
   {"iotauth", luaopen_iotauth},
 #endif
+  {"http2", luaopen_http},
   {NULL, NULL}
 };
 
