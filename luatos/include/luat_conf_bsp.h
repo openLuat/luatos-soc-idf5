@@ -35,8 +35,8 @@
 // OTP
 // #define LUAT_USE_OTP 1
 // #define LUAT_USE_TOUCHKEY 1
-// i2s
-//#define LUAt_USE_I2S 1
+
+#define LUAT_USE_WLAN 1
 
 #define LUAT_USE_IOTAUTH 1
 

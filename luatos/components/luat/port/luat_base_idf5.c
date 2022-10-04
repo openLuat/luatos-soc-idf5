@@ -182,6 +182,9 @@ static const luaL_Reg loadedlibs[] = {
   {"iotauth", luaopen_iotauth},
 #endif
   {"http2", luaopen_http},
+#ifdef LUAT_USE_WLAN
+  {"wlan", luaopen_wlan},
+#endif
   {NULL, NULL}
 };
 

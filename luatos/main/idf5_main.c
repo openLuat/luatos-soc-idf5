@@ -23,5 +23,6 @@ void app_main(void)
     bootloader_random_enable();
     nvs_flash_init();
     luat_heap_init();
+    esp_event_loop_create_default();
     luat_main();
 }
