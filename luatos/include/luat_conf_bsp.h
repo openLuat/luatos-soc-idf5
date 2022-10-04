@@ -20,7 +20,7 @@
 
 //----------------------------
 // 外设,按需启用, 最起码启用uart和wdt库
-// #define LUAT_USE_UART 1
+#define LUAT_USE_UART 1
 #define LUAT_USE_GPIO 1
 // #define LUAT_USE_I2C  1
 // #define LUAT_USE_SPI  1
