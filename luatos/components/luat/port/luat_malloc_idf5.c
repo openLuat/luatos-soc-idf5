@@ -6,6 +6,8 @@
 #include <string.h>//add for memset
 #include "bget.h"
 #include "luat_malloc.h"
+#include "esp_system.h"
+#include "esp_attr.h"
 
 #define LUAT_LOG_TAG "vmheap"
 #include "luat_log.h"
@@ -26,37 +28,26 @@ void* luat_heap_realloc(void* ptr, size_t len) {
 }
 
 void* luat_heap_calloc(size_t count, size_t _size) {
-    void *ptr = luat_heap_malloc(count * _size);
-    if (ptr) {
-        memset(ptr, 0, _size);
-    }
-    return ptr;
+    return calloc(count, _size);
 }
 //------------------------------------------------
 
 //------------------------------------------------
 // ---------- 管理 LuaVM所使用的内存----------------
-void* luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
-    if (0) {
-        if (ptr) {
-            if (nsize) {
-                // 缩放内存块
-                LLOGD("realloc %p from %d to %d", ptr, osize, nsize);
-            }
-            else {
-                // 释放内存块
-                LLOGD("free %p ", ptr);
-                brel(ptr);
-                return NULL;
-            }
-        }
-        else {
-            // 申请内存块
-            ptr = bget(nsize);
-            LLOGD("malloc %p type=%d size=%d", ptr, osize, nsize);
-            return ptr;
+
+#if 1
+void* IRAM_ATTR luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+    if (ptr == NULL && nsize == 0)
+        return NULL;
+#if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
+    if (ptr != NULL && nsize == 0) {
+        uint32_t addr = (uint32_t) ptr;
+        if (addr >= 0x3C000000 && addr <= 0x3CFFFFFF) {
+            //LLOGD("skip ROM free %p", ptr);
+            return NULL;
         }
     }
+#endif
 
     if (nsize)
     {
@@ -80,6 +71,31 @@ void luat_meminfo_luavm(size_t *total, size_t *used, size_t *max_used) {
     *total = curalloc + totfree;
 }
 
+#else
+#include "heap_tlsf.h"
+static tlsf_t vm_tlfs;
+
+void* luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+    if (ptr == NULL && nsize == 0)
+        return NULL;
+#if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
+    if (ptr != NULL && nsize == 0) {
+        uint32_t addr = (uint32_t) ptr;
+        if (addr >= 0x3C000000 && addr <= 0x3CFFFFFF) {
+            LLOGD("skip ROM free %p", ptr);
+            return NULL;
+        }
+    }
+#endif
+    return tlsf_realloc(ptr, nsize);
+}
+void luat_meminfo_luavm(size_t *total, size_t *used, size_t *max_used) {
+    *total = 0;
+    *used = 0;
+    *max_used = 0;
+}
+#endif
+
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 
@@ -90,3 +106,10 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used) {
 }
 
 //-----------------------------------------------------------------------------
+
+
+#define LUAT_HEAP_SIZE (96*1024)
+static uint8_t vmheap[LUAT_HEAP_SIZE];
+void luat_heap_init(void) {
+    bpool(vmheap, LUAT_HEAP_SIZE);
+}

@@ -9,7 +9,7 @@
 #define LUAT_COMPILER_NOWEAK
 
 // 内存优化: 减少内存消耗, 会稍微减低性能
-// #define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
+#define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
 
 //----------------------------------
 // 使用VFS(虚拟文件系统)和内置库文件, 必须启用
@@ -46,7 +46,7 @@
 #define LUAT_USE_CJSON  1
 #define LUAT_USE_ZBUFF  1
 #define LUAT_USE_PACK  1
-// #define LUAT_USE_LIBGNSS  1
+#define LUAT_USE_LIBGNSS  1
 #define LUAT_USE_FS  1
 // #define LUAT_USE_SENSOR  1
 // #define LUAT_USE_SFUD  1
