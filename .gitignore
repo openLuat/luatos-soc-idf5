@@ -56,3 +56,4 @@ luatos/build
 luatos/*.soc
 luatos/.vscode
 .vscode
+luatos/pack/*.bin
