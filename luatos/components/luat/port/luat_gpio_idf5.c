@@ -10,13 +10,7 @@
 #define LUAT_LOG_TAG "gpio"
 #include "luat_log.h"
 
-#if CONFIG_IDF_TARGET_ESP32C3
-#define GPIO_MAX (21)
-#else
-#define GPIO_MAX (32)
-#endif
-
-#define GPIO_CHECK(pin) ((pin<0 || pin>GPIO_MAX) ? -1:0)
+#define GPIO_CHECK(pin) ((pin<0 || pin>=SOC_GPIO_PIN_COUNT) ? -1:0)
 
 static uint8_t warn_gpio18 = 0;
 static uint8_t warn_gpio19 = 0;
