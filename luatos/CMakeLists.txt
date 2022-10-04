@@ -2,7 +2,7 @@
 # in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.16)
 
-set(LUATOS_ROOT "D://github/LuatOS/")
+set(LUATOS_ROOT "E://code/codeup/LuatOS/")
 
 set(EXTRA_COMPONENT_DIRS
              ./components/luat
@@ -10,3 +10,12 @@ set(EXTRA_COMPONENT_DIRS
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(luatos)
+
+idf_build_get_property(target IDF_TARGET)
+
+add_custom_command(
+    TARGET app
+    POST_BUILD
+    COMMAND ${python} "${CMAKE_CURRENT_LIST_DIR}/makesoc.py" "${target}"
+    )
+
