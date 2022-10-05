@@ -13,6 +13,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/flashdb/src
                                 ${LUATOS_ROOT}/components/minmea
                                 ${LUATOS_ROOT}/components/wlan
+                                ${LUATOS_ROOT}/components/statem
                     EXCLUDE_SRCS
                                 ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
@@ -30,6 +31,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/flashdb/inc
                                 ${LUATOS_ROOT}/components/minmea
                                 ${LUATOS_ROOT}/components/wlan
+                                ${LUATOS_ROOT}/components/statem
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom
                     )
