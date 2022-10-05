@@ -22,7 +22,7 @@ static char sta_ip[32];
 static int l_wlan_handler(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     int32_t event_id = msg->arg1;
-    esp_netif_ip_info_t ip_info;
+    //esp_netif_ip_info_t ip_info;
     lua_getglobal(L, "sys_pub");
     if (msg->arg2 == 0) {
 
@@ -58,6 +58,8 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             break;
         case WIFI_EVENT_SCAN_DONE:
             LLOGD("wifi scan done");
+            lua_pushstring(L, "WLAN_SCAN_DONE");
+            lua_call(L, 1, 0);
             break;
         default:
             LLOGI("unkown event %d", event_id);
@@ -182,3 +184,21 @@ int luat_wlan_scan(void) {
     static const wifi_scan_config_t conf = {0};
     return esp_wifi_scan_start(&conf, false);
 }
+
+int luat_wlan_scan_get_result(luat_wlan_scan_result_t *results, int ap_limit) {
+    uint16_t num = ap_limit;
+    luat_wlan_scan_result_t *tmp = results;
+    wifi_ap_record_t *ap_info = luat_heap_malloc(sizeof(wifi_ap_record_t) * ap_limit);
+    if (ap_info == NULL)
+        return 0;
+    esp_wifi_scan_get_ap_records(&num, ap_info);
+    for (size_t i = 0; i < num; i++)
+    {
+        memcpy(tmp[i].ssid, ap_info[i].ssid, strlen((const char*)ap_info[i].ssid));
+        memcpy(tmp[i].bssid, ap_info[i].bssid, 6);
+        tmp[i].rssi = ap_info[i].rssi;
+    }
+    luat_heap_free(ap_info);
+    return num;
+}
+
