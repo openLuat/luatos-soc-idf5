@@ -17,7 +17,11 @@
 static uint8_t wlan_inited = 0;
 static uint8_t wlan_is_ready = 0;
 
+static smartconfig_event_got_ssid_pswd_t *sc_evt;
+
 static char sta_ip[32];
+
+static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
 
 static int l_wlan_handler(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
@@ -74,6 +78,57 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             lua_call(L, 2, 0);
         }
     }
+    else if (msg->arg2 == 2) {
+        if (event_id == SC_EVENT_SCAN_DONE) {
+            LLOGD("smartconfig Scan done");
+        }
+        else if (event_id == SC_EVENT_SCAN_DONE) {
+            LLOGD("smartconfig Found channel");
+        }
+        else if (event_id == SC_EVENT_GOT_SSID_PSWD) {
+            LLOGD("smartconfig Got ssid and password");
+            smartconfig_event_got_ssid_pswd_t *evt = sc_evt;
+            wifi_config_t wifi_config;
+            uint8_t ssid[33] = { 0 };
+            uint8_t password[65] = { 0 };
+            // uint8_t rvd_data[33] = { 0 };
+
+            bzero(&wifi_config, sizeof(wifi_config_t));
+            memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
+            memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
+            wifi_config.sta.bssid_set = evt->bssid_set;
+            if (wifi_config.sta.bssid_set == true) {
+                memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
+            }
+
+            memcpy(ssid, evt->ssid, sizeof(evt->ssid));
+            memcpy(password, evt->password, sizeof(evt->password));
+            LLOGD("SSID [%s] PASSWORD [%s]", ssid, password);
+            // ESP_LOGI(TAG, "SSID:%s", ssid);
+            // ESP_LOGI(TAG, "PASSWORD:%s", password);
+            // if (evt->type == SC_TYPE_ESPTOUCH_V2) {
+            //     ESP_ERROR_CHECK( esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)) );
+            //     ESP_LOGI(TAG, "RVD_DATA:");
+            //     for (int i=0; i<33; i++) {
+            //         printf("%02x ", rvd_data[i]);
+            //     }
+            //     printf("\n");
+            // }
+
+            esp_wifi_disconnect();
+            esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+            esp_wifi_connect();
+
+            lua_pushstring(L, "SC_RESULT");
+            lua_pushstring(L, (const char*)ssid);
+            lua_pushstring(L, (const char*)password);
+            lua_call(L, 3, 0);
+        }
+        else if (event_id == SC_EVENT_SEND_ACK_DONE) {
+            esp_smartconfig_stop();
+            smartconfig_state = 0;
+        }
+    }
     return 0;
 }
 
@@ -107,6 +162,21 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     luat_msgbus_put(&msg, 0);
 }
 
+static void sc_event_handler(void *arg, esp_event_base_t event_base,
+                          int32_t event_id, void *event_data) {
+    rtos_msg_t msg = {0};
+    msg.handler = l_wlan_handler;
+    msg.arg1 = event_id;
+    msg.arg2 = 2;
+    
+    if (event_id == SC_EVENT_GOT_SSID_PSWD && sc_evt != NULL) {
+        memcpy(sc_evt, event_data, sizeof(smartconfig_event_got_ssid_pswd_t));
+    }
+
+    LLOGD("sc event %d", event_id);
+    luat_msgbus_put(&msg, 0);
+}
+
 int luat_wlan_init(luat_wlan_config_t *conf) {
     if (wlan_inited != 0) {
         LLOGI("wlan is ready!!");
@@ -115,8 +185,8 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 
     esp_netif_init();
     esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
-    esp_event_handler_register(IP_EVENT,   ESP_EVENT_ANY_ID,   &ip_event_handler, NULL);
-    esp_event_handler_register(SC_EVENT,   ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
+    esp_event_handler_register(IP_EVENT,   ESP_EVENT_ANY_ID, &ip_event_handler,   NULL);
+    esp_event_handler_register(SC_EVENT,   ESP_EVENT_ANY_ID, &sc_event_handler,   NULL);
 
     esp_netif_create_default_wifi_sta();
 
@@ -202,3 +272,40 @@ int luat_wlan_scan_get_result(luat_wlan_scan_result_t *results, int ap_limit) {
     return num;
 }
 
+int luat_wlan_smartconfig_start(int tp) {
+    if (smartconfig_state != 0) {
+        LLOGI("smartconfig is running");
+        return 0;
+    }
+    switch (tp)
+    {
+    case LUAT_SC_TYPE_ESPTOUCH:
+        esp_smartconfig_set_type(SC_TYPE_ESPTOUCH);
+        break;
+    case LUAT_SC_TYPE_ESPTOUCH_AIRKISS:
+        esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_AIRKISS);
+        break;
+    case LUAT_SC_TYPE_AIRKISS:
+        esp_smartconfig_set_type(SC_TYPE_AIRKISS);
+        break;
+    case LUAT_SC_TYPE_ESPTOUCH_V2:
+        esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_V2);
+        break;
+    default:
+        esp_smartconfig_set_type(SC_TYPE_ESPTOUCH);
+        break;
+    }
+    if (sc_evt == NULL) {
+        sc_evt = luat_heap_malloc(sizeof(smartconfig_event_got_ssid_pswd_t));
+    }
+    smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+    esp_smartconfig_start(&cfg);
+    smartconfig_state = 1;
+    return 0;
+}
+
+int luat_wlan_smartconfig_stop(void) {
+    esp_smartconfig_stop();
+    smartconfig_state = 0;
+    return 0;
+}
