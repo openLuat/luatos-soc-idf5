@@ -7,6 +7,7 @@
 #define LUAT_USE_FS_VFS 1
 #define LUAT_USE_VFS_INLINE_LIB 1
 #define LUAT_COMPILER_NOWEAK
+#define LUAT_GPIO_PIN_MAX (CONFIG_SOC_GPIO_PIN_COUNT+1)
 
 // 内存优化: 减少内存消耗, 会稍微减低性能
 #define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
@@ -32,9 +33,7 @@
 // #define LUAT_USE_RTC 1
 // SDIO 仅支持TF/SD卡的挂载
 // #define LUAT_USE_SDIO 1
-// OTP
 // #define LUAT_USE_OTP 1
-// #define LUAT_USE_TOUCHKEY 1
 
 #define LUAT_USE_WLAN 1
 
@@ -50,14 +49,13 @@
 #define LUAT_USE_FS  1
 #define LUAT_USE_SENSOR  1
 // #define LUAT_USE_SFUD  1
-// #define LUAT_USE_STATEM 1
-// 性能测试,跑完就是玩,不要与lvgl一起启用,生产环境的固件别加这个库
+#define LUAT_USE_STATEM 1
+// 性能测试
 #define LUAT_USE_COREMARK 1
-// #define LUAT_USE_ZLIB 1 
-// #define LUAT_USE_IR 1
+#define LUAT_USE_IR 1
 // FDB 提供kv数据库, 与nvm库类似
 #define LUAT_USE_FDB 1
-// #define LUAT_USE_OTA 1
+#define LUAT_USE_OTA 1
 // #define LUAT_USE_I2CTOOLS 1
 // #define LUAT_USE_LORA 1
 // #define LUAT_USE_MLX90640 1
