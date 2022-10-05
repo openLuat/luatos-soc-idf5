@@ -204,12 +204,7 @@ void luat_openlibs(lua_State *L) {
     }
 }
 
-#include "sys/unistd.h"
 #include "esp_system.h"
-
-void luat_timer_us_delay(size_t us){
-    usleep(us);
-}
 
 const char* luat_os_bsp(void) {
     return "ESP32C3";
