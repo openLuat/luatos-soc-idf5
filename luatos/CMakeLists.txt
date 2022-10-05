@@ -11,6 +11,8 @@ set(EXTRA_COMPONENT_DIRS
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(luatos)
 
+idf_build_set_property(COMPILE_OPTIONS "-D__LUATOS__=1" APPEND)
+
 idf_build_get_property(config_json SDKCONFIG_JSON)
 
 add_custom_command(

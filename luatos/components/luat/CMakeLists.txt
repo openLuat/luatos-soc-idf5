@@ -1,3 +1,6 @@
+
+
+
 idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/luat/vfs
                                 ${LUATOS_ROOT}/lua/src
@@ -14,6 +17,13 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/minmea
                                 ${LUATOS_ROOT}/components/wlan
                                 ${LUATOS_ROOT}/components/statem
+                                ${LUATOS_ROOT}/components/u8g2
+                                ${LUATOS_ROOT}/components/gtfont
+                                ${LUATOS_ROOT}/components/qrcode
+                                ${LUATOS_ROOT}/components/lcd
+                                ${LUATOS_ROOT}/components/eink
+                                ${LUATOS_ROOT}/components/epaper
+                                ${LUATOS_ROOT}/components/tjpgd
                     EXCLUDE_SRCS
                                 ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
@@ -32,6 +42,13 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/minmea
                                 ${LUATOS_ROOT}/components/wlan
                                 ${LUATOS_ROOT}/components/statem
+                                ${LUATOS_ROOT}/components/u8g2
+                                ${LUATOS_ROOT}/components/gtfont
+                                ${LUATOS_ROOT}/components/qrcode
+                                ${LUATOS_ROOT}/components/lcd
+                                ${LUATOS_ROOT}/components/eink
+                                ${LUATOS_ROOT}/components/epaper
+                                ${LUATOS_ROOT}/components/tjpgd
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom
                     )
