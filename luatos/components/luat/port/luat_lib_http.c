@@ -35,7 +35,6 @@ typedef struct http_header {
 } http_header_t;
 
 typedef struct{
-    esp_http_client_config_t http_conf;
     esp_http_client_handle_t http_client;
 	const char *req_body;
 	size_t req_body_len;
@@ -45,6 +44,7 @@ typedef struct{
 	http_header_t* resp_headers;//headers
     char *resp_buff;//body
 	uint32_t resp_buff_len;
+    uint32_t resp_buff_offset;
 	FILE* fd;
 	uint32_t fd_writed;
 	uint8_t fd_ok;
@@ -101,12 +101,12 @@ static int32_t l_http_callback(lua_State *L, void* ptr){
 
 	// 处理body, 需要区分下载模式和非下载模式
 	if (http_ctrl->is_download) {
-        lua_pushinteger(L, http_ctrl->resp_buff_len);
+        lua_pushinteger(L, luat_fs_fsize(http_ctrl->dst));
         luat_cbcwait(L, idp, 3); // code, headers, body
         return 0;
 	} else {
 		// 非下载模式
-		lua_pushlstring(L, http_ctrl->resp_buff, http_ctrl->resp_buff_len);
+		lua_pushlstring(L, http_ctrl->resp_buff, http_ctrl->resp_buff_offset);
 		luat_cbcwait(L, idp, 3); // code, headers, body
 	}
 	http_close(http_ctrl);
@@ -130,9 +130,11 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
     http_header_t** temp = &(http_ctrl->resp_headers);
     int mbedtls_err = 0;
     esp_err_t err;
+    LLOGD("http event %d", evt->event_id);
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             // LLOGD("HTTP_EVENT_ERROR");
+            http_resp_error(http_ctrl, HTTP_ERROR_CLOSE);
             break;
         case HTTP_EVENT_ON_CONNECTED:
             // LLOGD("HTTP_EVENT_ON_CONNECTED");
@@ -153,58 +155,50 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
             (*temp)->next = NULL;
             break;
         case HTTP_EVENT_ON_DATA:
-            // LLOGD("HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-            // LLOGD("content_length=%d", esp_http_client_get_content_length(evt->client));
-            if (evt->data_len>0){
-                if (esp_http_client_get_content_length(evt->client)<0){
-                    if (http_ctrl->resp_buff == NULL) {
-                        if (http_ctrl->is_download) {
-                            luat_fs_remove(http_ctrl->dst);
-                            http_ctrl->fd = luat_fs_fopen(http_ctrl->dst, "w+");
-                            if (http_ctrl->fd == NULL) {
-                                LLOGE("open download file fail %s", http_ctrl->dst);
-                            }
-                        }else{
-                            http_ctrl->resp_buff = (char *) luat_heap_malloc(evt->data_len);
-                            http_ctrl->resp_buff_len = 0;
-                            if (http_ctrl->resp_buff == NULL) {
-                                LLOGE("Failed to malloc memory for http_ctrl->resp_buff");
-                                return ESP_FAIL;
-                            }
-                        }
-                    }else{
-                        if (http_ctrl->is_download) {
-                            luat_fs_remove(http_ctrl->dst);
-                            http_ctrl->fd = luat_fs_fopen(http_ctrl->dst, "w+");
-                            if (http_ctrl->fd == NULL) {
-                                LLOGE("open download file fail %s", http_ctrl->dst);
-                                return ESP_FAIL;
-                            }
-                        }else{
-                            http_ctrl->resp_buff = (char *) luat_heap_realloc(http_ctrl->resp_buff,http_ctrl->resp_buff_len + evt->data_len);
-                            if (http_ctrl->resp_buff == NULL) {
-                                LLOGE("Failed to realloc memory for http_ctrl->resp_buff");
-                                return ESP_FAIL;
-                            }
-                        }
+            int status_code = esp_http_client_get_status_code(evt->client);
+            if (status_code > 299) {
+                return ESP_FAIL;
+            }
+            int content_length = esp_http_client_get_content_length(evt->client);
+            // LLOGD("HTTP_EVENT_ON_DATA, len %d", evt->data_len);
+            // LLOGD("content_length %d", content_length);
+            if (evt->data_len > 0){
+                if (http_ctrl->is_download) {
+                    if (http_ctrl->fd == NULL) {
+                        luat_fs_remove(http_ctrl->dst);
+                        http_ctrl->fd = luat_fs_fopen(http_ctrl->dst, "w+");
                     }
-                }else if(esp_http_client_get_content_length(evt->client)>0){
+                    if (http_ctrl->fd == NULL) {
+                        LLOGE("open download file fail %s", http_ctrl->dst);
+                        return ESP_FAIL;
+                    }
+                    luat_fs_fwrite(evt->data, evt->data_len, 1, http_ctrl->fd);
+                }
+                else {
                     if (http_ctrl->resp_buff == NULL) {
-                        http_ctrl->resp_buff = (char *) luat_heap_malloc(esp_http_client_get_content_length(evt->client));
-                        http_ctrl->resp_buff_len = 0;
-                        if (http_ctrl->resp_buff == NULL) {
+                        int malloc_size = evt->data_len;
+                        if (content_length > 0)
+                            malloc_size = content_length;
+                        http_ctrl->resp_buff = (char *) luat_heap_malloc(malloc_size);
+                        http_ctrl->resp_buff_len = malloc_size;
+                        http_ctrl->resp_buff_offset = 0;
+                    }
+                    if (http_ctrl->resp_buff == NULL) {
+                        LLOGE("Failed to malloc memory for http_ctrl->resp_buff");
+                        return ESP_FAIL;
+                    }
+                    char* tmp = http_ctrl->resp_buff;
+                    if (http_ctrl->resp_buff_offset + evt->data_len > http_ctrl->resp_buff_len) {
+                        // LLOGD("realloc buff %d", http_ctrl->resp_buff_offset + evt->data_len);
+                        tmp = luat_heap_realloc(http_ctrl->resp_buff, http_ctrl->resp_buff_offset + evt->data_len);
+                        if (tmp == NULL) {
                             LLOGE("Failed to malloc memory for http_ctrl->resp_buff");
                             return ESP_FAIL;
                         }
+                        http_ctrl->resp_buff = tmp;
                     }
-                }
-                if (http_ctrl->is_download) {
-                    if (http_ctrl->fd != NULL) {
-                        luat_fs_fwrite(evt->data, evt->data_len, 1, http_ctrl->fd);
-                    }
-                }else{
-                    memcpy(http_ctrl->resp_buff + http_ctrl->resp_buff_len, evt->data, evt->data_len);
-                    http_ctrl->resp_buff_len += evt->data_len;
+                    memcpy(http_ctrl->resp_buff + http_ctrl->resp_buff_offset, evt->data, evt->data_len);
+                    http_ctrl->resp_buff_offset += evt->data_len;
                 }
             }
             break;
@@ -233,6 +227,16 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
     return ESP_OK;
 }
 
+static void luat_http_task_entry(void* arg) {
+    luat_http_ctrl_t *http_ctrl = (luat_http_ctrl_t *)arg;
+    esp_err_t err = esp_http_client_perform(http_ctrl->http_client);
+    LLOGD("esp_http_client_perform %d", err);
+    if (err != ESP_OK){
+        http_resp_error(http_ctrl, HTTP_ERROR_CONNECT);
+    }
+    vTaskDelete(NULL);
+}
+
 
 /*
 http2客户端
@@ -251,8 +255,9 @@ local code, headers, body = http2.request("GET","http://site0.cn/api/httptest/si
 log.info("http2.get", code, headers, body)
 */
 static int l_http_request(lua_State *L) {
-    esp_err_t err;
-	size_t len;
+    esp_err_t err = 0;
+	size_t len = 0;
+    esp_http_client_config_t http_conf = {0};
     luat_http_ctrl_t *http_ctrl = (luat_http_ctrl_t *)luat_heap_malloc(sizeof(luat_http_ctrl_t));
     if (!http_ctrl){
 		LLOGE("out of memory when malloc http_ctrl");
@@ -263,23 +268,33 @@ static int l_http_request(lua_State *L) {
     http_ctrl->resp_headers = NULL;
     const char *method = luaL_optlstring(L, 1, "GET", &len);
 	if (!strncmp("GET", method, strlen("GET"))) {
-        http_ctrl->http_conf.method = HTTP_METHOD_GET;
+        http_conf.method = HTTP_METHOD_GET;
         LLOGI("HTTP GET");
     }
     else if (!strncmp("POST", method, strlen("POST"))) {
-        http_ctrl->http_conf.method = HTTP_METHOD_POST;
+        http_conf.method = HTTP_METHOD_POST;
         LLOGI("HTTP POST");
-    }else {
+    }
+    else if (!strncmp("PUT", method, strlen("PUT"))) {
+        http_conf.method = HTTP_METHOD_PUT;
+        LLOGI("HTTP PUT");
+    }
+    else if (!strncmp("DELETE", method, strlen("DELETE"))) {
+        http_conf.method = HTTP_METHOD_DELETE;
+        LLOGI("HTTP DELETE");
+    }
+    else {
         LLOGI("only GET/POST supported %s", method);
         goto error;
     }
 
-    http_ctrl->http_conf.url = luaL_checkstring(L, 2);
-    http_ctrl->http_conf.event_handler = l_http_event_handler;
-    http_ctrl->http_conf.keep_alive_enable = false;
-    http_ctrl->http_conf.is_async = true;
-    http_ctrl->http_conf.user_data = (void*)http_ctrl;
-    http_ctrl->http_client = esp_http_client_init(&(http_ctrl->http_conf));
+    http_conf.url = luaL_checkstring(L, 2);
+    http_conf.event_handler = l_http_event_handler;
+    http_conf.keep_alive_enable = false;
+    http_conf.is_async = true;
+    http_conf.user_data = (void*)http_ctrl;
+    http_conf.disable_auto_redirect = true;
+    http_ctrl->http_client = esp_http_client_init(&http_conf);
     
 	if (lua_istable(L, 3)) {
 		lua_pushnil(L);
@@ -325,9 +340,14 @@ static int l_http_request(lua_State *L) {
 		lua_pop(L, 1);
 	}
 
-    esp_http_client_perform(http_ctrl->http_client);
-
     http_ctrl->idp = luat_pushcwait(L);
+    if (pdPASS == xTaskCreate(luat_http_task_entry, "http", 16*1024, (void*)http_ctrl, tskIDLE_PRIORITY + 5, NULL)) {
+        //return 1;
+    }
+    else {
+        LLOGE("fail to create http task!!");
+        http_resp_error(http_ctrl, HTTP_ERROR_CONNECT);
+    }
     return 1;
 error:
 	http_close(http_ctrl);
@@ -343,7 +363,7 @@ static const rotable_Reg_t reg_http[] =
 	{ NULL,             ROREG_INT(0)}
 };
 
-LUAMOD_API int luaopen_http( lua_State *L ) {
+int luaopen_http( lua_State *L ) {
     luat_newlib2(L, reg_http);
     return 1;
 }
