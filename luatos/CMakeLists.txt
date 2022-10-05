@@ -11,11 +11,11 @@ set(EXTRA_COMPONENT_DIRS
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(luatos)
 
-idf_build_get_property(target IDF_TARGET)
+idf_build_get_property(config_json SDKCONFIG_JSON)
 
 add_custom_command(
     TARGET app
     POST_BUILD
-    COMMAND ${python} "${CMAKE_CURRENT_LIST_DIR}/makesoc.py" "${target}"
+    COMMAND ${python} "${CMAKE_CURRENT_LIST_DIR}/makesoc.py" "${config_json}"
     )
 
