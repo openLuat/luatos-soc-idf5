@@ -206,6 +206,10 @@ void luat_openlibs(lua_State *L) {
 
 #include "esp_system.h"
 
+void luat_os_reboot(int code){
+    esp_restart();
+}
+
 const char* luat_os_bsp(void) {
     return "ESP32C3";
 }
