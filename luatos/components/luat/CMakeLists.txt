@@ -31,6 +31,6 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/minmea
                                 ${LUATOS_ROOT}/components/wlan
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
-                             esp_wifi
+                             esp_wifi esp_rom
                     )
 

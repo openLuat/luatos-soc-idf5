@@ -225,4 +225,18 @@ void luat_ota_reboot(int timeout_ms) {
   esp_restart();
 }
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_rom_sys.h"
 
+void luat_os_entry_cri(void) {
+  vPortEnterCritical();
+}
+
+void luat_os_exit_cri(void) {
+  vPortExitCritical();
+}
+
+void luat_timer_us_delay(size_t us) {
+  esp_rom_delay_us(us);
+}
