@@ -69,6 +69,20 @@ static int http_close(luat_http_ctrl_t *http_ctrl){
 	return 0;
 }
 
+// 这个是启动线程失败后, 主动回调cbcwait的中转函数
+static int32_t l_http_cb_eaily(lua_State *L, void* ptr){
+    rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
+    luat_http_ctrl_t *http_ctrl =(luat_http_ctrl_t *)msg->ptr;
+    if (http_ctrl->idp) {
+        lua_pushinteger(L, msg->arg1); // 把错误码返回去
+	    luat_cbcwait(L, http_ctrl->idp, 1);
+        // 只需要cwait回调一次
+        http_ctrl->idp = 0;
+    }
+    http_close(http_ctrl);
+    return 0;
+}
+
 static int32_t l_http_callback(lua_State *L, void* ptr){
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     luat_http_ctrl_t *http_ctrl =(luat_http_ctrl_t *)msg->ptr;
@@ -78,7 +92,7 @@ static int32_t l_http_callback(lua_State *L, void* ptr){
 	if (msg->arg1){
 		lua_pushinteger(L, msg->arg1); // 把错误码返回去
 		luat_cbcwait(L, idp, 1);
-		http_close(http_ctrl);
+		http_ctrl->idp = 0;
 		return 0;
 	}
 
@@ -103,13 +117,12 @@ static int32_t l_http_callback(lua_State *L, void* ptr){
 	if (http_ctrl->is_download) {
         lua_pushinteger(L, luat_fs_fsize(http_ctrl->dst));
         luat_cbcwait(L, idp, 3); // code, headers, body
-        return 0;
 	} else {
 		// 非下载模式
 		lua_pushlstring(L, http_ctrl->resp_buff, http_ctrl->resp_buff_offset);
 		luat_cbcwait(L, idp, 3); // code, headers, body
 	}
-	http_close(http_ctrl);
+	http_ctrl->idp = 0;
 	return 0;
 }
 
@@ -231,8 +244,12 @@ static void luat_http_task_entry(void* arg) {
     luat_http_ctrl_t *http_ctrl = (luat_http_ctrl_t *)arg;
     esp_err_t err = esp_http_client_perform(http_ctrl->http_client);
     LLOGD("esp_http_client_perform %d", err);
-    if (err != ESP_OK){
-        http_resp_error(http_ctrl, HTTP_ERROR_CONNECT);
+    rtos_msg_t msg = {0};
+    if (http_ctrl->idp) {
+        msg.handler = l_http_cb_eaily;
+        msg.arg1 = err;
+        msg.ptr = http_ctrl;
+        luat_msgbus_put(&msg, 0);
     }
     vTaskDelete(NULL);
 }
@@ -346,7 +363,11 @@ static int l_http_request(lua_State *L) {
     }
     else {
         LLOGE("fail to create http task!!");
-        http_resp_error(http_ctrl, HTTP_ERROR_CONNECT);
+        rtos_msg_t msg = {0};
+        msg.handler = l_http_cb_eaily;
+        msg.arg1 = HTTP_ERROR_CONNECT;
+        msg.ptr = http_ctrl;
+        luat_msgbus_put(&msg, 0);
     }
     return 1;
 error:
