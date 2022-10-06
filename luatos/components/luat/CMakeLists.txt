@@ -21,6 +21,33 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/gtfont
                                 ${LUATOS_ROOT}/components/qrcode
                                 ${LUATOS_ROOT}/components/lcd
+                                ${LUATOS_ROOT}/components/lvgl/gen/lv_core
+                                ${LUATOS_ROOT}/components/lvgl/gen/lv_draw
+                                ${LUATOS_ROOT}/components/lvgl/gen/lv_font
+                                ${LUATOS_ROOT}/components/lvgl/gen/lv_misc
+                                ${LUATOS_ROOT}/components/lvgl/gen/lv_widgets
+                                ${LUATOS_ROOT}/components/lvgl/font
+                                ${LUATOS_ROOT}/components/lvgl/binding
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_core
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_draw
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_font
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_hal
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_misc
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_themes
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_widgets
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_qrcode
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_bmp
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_png
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_sjpg
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/assets
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_demo_benchmark
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_demo_keypad_encoder
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_demo_music
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_demo_printer
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_demo_stress
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_demo_widgets
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_ex_get_started
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos/src/lv_ex_style
                                 ${LUATOS_ROOT}/components/eink
                                 ${LUATOS_ROOT}/components/epaper
                                 ${LUATOS_ROOT}/components/tjpgd
@@ -47,6 +74,18 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/gtfont
                                 ${LUATOS_ROOT}/components/qrcode
                                 ${LUATOS_ROOT}/components/lcd
+                                ${LUATOS_ROOT}/components/lvgl
+                                ${LUATOS_ROOT}/components/lvgl/src
+                                ${LUATOS_ROOT}/components/lvgl/binding
+                                ${LUATOS_ROOT}/components/lvgl/gen
+                                ${LUATOS_ROOT}/components/lvgl/font
+                                ${LUATOS_ROOT}/components/lvgl/src/lv_font
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_bmp
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_sjpg
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_gif
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_png
+                                ${LUATOS_ROOT}/components/lvgl/exts/lv_qrcode
+                                ${LUATOS_ROOT}/components/lvgl/lv_demos
                                 ${LUATOS_ROOT}/components/eink
                                 ${LUATOS_ROOT}/components/epaper
                                 ${LUATOS_ROOT}/components/tjpgd

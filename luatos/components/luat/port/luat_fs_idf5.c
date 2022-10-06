@@ -16,6 +16,12 @@
 #define LUAT_LOG_TAG "fs"
 #include "luat_log.h"
 
+#ifdef LUAT_USE_LVGL
+#include "lvgl.h"
+#include "luat_lvgl.h"
+#include "lv_sjpg.h"
+#endif
+
 extern const struct luat_vfs_filesystem vfs_fs_posix;
 extern const struct luat_vfs_filesystem vfs_fs_luadb;
 
@@ -60,5 +66,11 @@ int luat_fs_init(void) {
 	else {
 		LLOGE("script partition NOT Found !!!");
 	}
+#ifdef LUAT_USE_LVGL
+	luat_lv_fs_init();
+	// lv_bmp_init();
+	// lv_png_init();
+	lv_split_jpeg_init();
+#endif
     return 0;
 }
