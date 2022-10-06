@@ -185,6 +185,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_WLAN
   {"wlan", luaopen_wlan},
 #endif
+#ifdef LUAT_USE_HTTPSRV
+  {"httpsrv", luaopen_httpsrv},
+#endif
   {NULL, NULL}
 };
 
