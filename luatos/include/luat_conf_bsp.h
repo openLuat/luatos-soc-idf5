@@ -29,7 +29,7 @@
 // #define LUAT_USE_PWM  1
 // #define LUAT_USE_WDT  1
 // #define LUAT_USE_PM  1
-// #define LUAT_USE_MCU  1
+#define LUAT_USE_MCU  1
 // #define LUAT_USE_RTC 1
 // SDIO 仅支持TF/SD卡的挂载
 // #define LUAT_USE_SDIO 1
@@ -48,19 +48,19 @@
 #define LUAT_USE_LIBGNSS  1
 #define LUAT_USE_FS  1
 #define LUAT_USE_SENSOR  1
-// #define LUAT_USE_SFUD  1
-#define LUAT_USE_STATEM 1
+#define LUAT_USE_SFUD  1
+// #define LUAT_USE_STATEM 1
 // 性能测试
-#define LUAT_USE_COREMARK 1
-#define LUAT_USE_IR 1
+// #define LUAT_USE_COREMARK 1
+// #define LUAT_USE_IR 1
 // FDB 提供kv数据库, 与nvm库类似
 #define LUAT_USE_FDB 1
-#define LUAT_USE_OTA 1
+// #define LUAT_USE_OTA 1
 // #define LUAT_USE_I2CTOOLS 1
 // #define LUAT_USE_LORA 1
 // #define LUAT_USE_MLX90640 1
 // zlib压缩,更快更小的实现
-#define LUAT_USE_MINIZ 1
+// #define LUAT_USE_MINIZ 1
 
 // // 使用 TLSF 内存池, 实验性, 内存利用率更高一些
 // #define LUAT_USE_TLSF 1
@@ -82,7 +82,7 @@
 // #define LUAT_USE_DBG
 // 多虚拟机支持,实验性,一般不启用
 // #define LUAT_USE_VMX 1
-#define LUAT_USE_PROTOBUF 1
+// #define LUAT_USE_PROTOBUF 1
 
 //---------------------
 // UI
