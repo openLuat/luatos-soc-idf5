@@ -10,6 +10,7 @@
 #include "esp_wifi.h"
 #include "esp_wifi_types.h"
 #include "esp_smartconfig.h"
+#include "esp_mac.h"
 
 #define LUAT_LOG_TAG "wlan"
 #include "luat_log.h"
@@ -308,4 +309,15 @@ int luat_wlan_smartconfig_stop(void) {
     esp_smartconfig_stop();
     smartconfig_state = 0;
     return 0;
+}
+
+int luat_wlan_get_mac(int id, char* mac) {
+    if (id >= 0 && id <= ESP_MAC_IEEE802154) {
+        esp_read_mac((uint8_t*)mac, id);
+        return 0;
+    }
+    else {
+        LLOGW("no such mac id %d", id);
+        return -1;
+    }
 }
