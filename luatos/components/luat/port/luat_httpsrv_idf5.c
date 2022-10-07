@@ -2,6 +2,7 @@
 #include "luat_msgbus.h"
 #include "luat_malloc.h"
 #include "luat_httpsrv.h"
+#include "luat_fs.h"
 
 
 #include "freertos/FreeRTOS.h"
@@ -79,6 +80,7 @@ static void client_resp(client_socket_ctx_t* client, int code, const char* heade
     sprintf(buff, "Content-Length: %d\r\n", body_size);
     tcp_send(client->client_fd, buff, strlen(buff));
     tcp_send(client->client_fd, "Connection: close\r\n", strlen("Connection: close\r\n"));
+    tcp_send(client->client_fd, "X-Powered-By: LuatOS\r\n", strlen("X-Powered-By: LuatOS\r\n"));
     if (strlen(headers)) {
         LLOGD("send headers");
         tcp_send(client->client_fd, (const char*)headers, strlen(headers));
@@ -199,12 +201,12 @@ static int my_on_status(http_parser* parser, const char *at, size_t length) {
 }
 
 static int my_on_header_field(http_parser* parser, const char *at, size_t length) {
-    LLOGD("on_header_field %p %d", at, length);
+    // LLOGD("on_header_field %p %d", at, length);
     return 0;
 }
 
 static int my_on_header_value(http_parser* parser, const char *at, size_t length) {
-    LLOGD("on_header_value %p %d", at, length);
+    // LLOGD("on_header_value %p %d", at, length);
     return 0;
 }
 
@@ -262,6 +264,90 @@ static void client_cleanup(client_socket_ctx_t *client) {
     LLOGD("client cleanup!!!");
 }
 
+
+static int client_send_static_file(client_socket_ctx_t *client, char* path, size_t len, uint8_t is_gz) {
+    // 发送文件, 需要区分gz, 还得解析出content-type
+    char buff[1024] = {0};
+    int s = client->client_fd;
+    // 首先, 发送状态行
+    tcp_send(s, "HTTP/1.0 200 OK\r\n", strlen("HTTP/1.0 200 OK\r\n"));
+    // 发送长度
+    sprintf(buff, "Content-Length: %d\r\n", len);
+    tcp_send(s, buff, strlen(buff));
+    tcp_send(client->client_fd, "X-Powered-By: LuatOS\r\n", strlen("X-Powered-By: LuatOS\r\n"));
+    // 如果是gz, 发送压缩头部
+    if (is_gz) {
+        tcp_send(s, "Content-Encoding: gzip\r\n", strlen("Content-Encoding: gzip\r\n"));
+    }
+    // 解析content-type, 并发送
+    size_t path_size = strlen(path);
+    buff[0] = 0x00;
+    for (size_t i = 0; i < sizeof(ct_regs)/sizeof(ct_regs[0]); i++)
+    {
+        const char* suff = ct_regs[i].suff;
+        size_t suff_size = strlen(suff);
+        // 判断后缀,不含.gz
+        if (path_size > suff_size + 2) {
+            if (!memcmp(path + path_size - suff_size, suff, suff_size)) {
+                sprintf(buff, "Content-Type: %s\r\n", ct_regs[i].value);
+                break;
+            }
+        }
+        if (is_gz && path_size > suff_size + 5) {
+            if (!memcmp(path + path_size - suff_size - 3, suff, suff_size)) {
+                sprintf(buff, "Content-Type: %s\r\n", ct_regs[i].value);
+                break;
+            }
+        }
+    }
+    if (buff[0] == 0) {
+        tcp_send(s, "Content-Type: application/octet-stream\r\n", strlen("Content-Type: application/octet-stream\r\n"));
+    }
+    else {
+        tcp_send(s, buff, strlen(buff));
+    }
+    
+    // 头部发送完成
+    tcp_send(s, "\r\n", 2);
+
+    // 发送body
+    FILE*  fd = luat_fs_fopen(path, "rb");
+    if (fd == NULL) {
+        LLOGE("open %s FAIL!!", path);
+        return 1;
+    }
+    while (1) {
+        int slen = luat_fs_fread(buff, 1024, 1, fd);
+        if (slen < 1)
+            break;
+        tcp_send(s, buff, slen);
+    }
+    return 0;
+}
+
+static int handle_static_file(client_socket_ctx_t *client) {
+    //处理静态文件
+    if (strlen(client->uri) < 1 || strlen(client->uri) > 20) {
+        // 太长就不支持了
+        return 0;
+    }
+    char path[64] = {0};
+    uint8_t is_gz = 0;
+    sprintf(path, "/luadb%s", strlen(client->uri) == 1 ? "/index.html" : client->uri);
+    size_t fz = luat_fs_fsize(path);
+    if (fz < 1) {
+        sprintf(path, "/luadb%s.gz", strlen(client->uri) == 1 ? "/index.html" : client->uri);
+        fz = luat_fs_fsize(path);
+        if (fz < 1) {
+            return 0;
+        }
+        is_gz = 1;
+    }
+
+    client_send_static_file(client, path, fz, is_gz);
+    return 1;
+}
+
 static void httpsrv_client_task(void* arg) {
     client_socket_ctx_t *client = (client_socket_ctx_t *)arg;
     client->parser.data = client;
@@ -309,6 +395,13 @@ static void httpsrv_client_task(void* arg) {
     if (client->parser.http_errno != HPE_OK) {
         LLOGI("bad request, return http 400");
         client_resp(client, 403, "", "Bad Request", strlen("Bad Request"));
+        client_cleanup(client);
+        vTaskDelete(NULL);
+        return;
+    }
+
+    // 看看是不是静态文件
+    if (client->parser.method == HTTP_GET && handle_static_file(client)) {
         client_cleanup(client);
         vTaskDelete(NULL);
         return;
