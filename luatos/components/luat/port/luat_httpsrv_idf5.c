@@ -322,6 +322,7 @@ static int client_send_static_file(client_socket_ctx_t *client, char* path, size
             break;
         tcp_send(s, buff, slen);
     }
+    luat_fs_fclose(fd);
     return 0;
 }
 
