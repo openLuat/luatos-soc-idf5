@@ -23,6 +23,7 @@ static smartconfig_event_got_ssid_pswd_t *sc_evt;
 static char sta_ip[32];
 
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
+static uint8_t auto_reconnection = 0;
 
 static int l_wlan_handler(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
@@ -54,17 +55,33 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             lua_pushstring(L, "WLAN_READY");
             lua_pushinteger(L, 0);
             lua_call(L, 2, 0);
+            if (auto_reconnection && smartconfig_state == 0) {
+                LLOGD("auto reconnecting ...");
+                esp_wifi_connect();
+            }
             break;
         case WIFI_EVENT_STA_START:
-            //LLOGD("wifi station start");
+            LLOGD("wifi station start");
             break;
         case WIFI_EVENT_STA_STOP:
-            //LLOGD("wifi station stop");
+            LLOGD("wifi station stop");
             break;
         case WIFI_EVENT_SCAN_DONE:
             LLOGD("wifi scan done");
             lua_pushstring(L, "WLAN_SCAN_DONE");
             lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_AP_START:
+            LLOGD("wifi ap start");
+            break;
+        case WIFI_EVENT_AP_STOP:
+            LLOGD("wifi ap stop");
+            break;
+        case WIFI_EVENT_AP_STACONNECTED :
+            LLOGD("wifi ap sta connected");
+            break;
+        case WIFI_EVENT_AP_STADISCONNECTED :
+            LLOGD("wifi ap sta disconnected");
             break;
         default:
             LLOGI("unkown event %d", event_id);
@@ -231,14 +248,16 @@ int luat_wlan_ready(void) {
 
 int luat_wlan_connect(luat_wlan_conninfo_t* info) {
     int ret = 0;
-
     wifi_config_t cfg = {0};
-
-    // LLOGD("connect %s %s", info->ssid, info->password);
-
-    memcpy(cfg.sta.ssid, info->ssid, strlen(info->ssid));
-    memcpy(cfg.sta.password, info->password, strlen(info->password));
-    esp_wifi_set_config(WIFI_IF_STA, &cfg);
+    // 允许重用一起的ssid和passwd数据直接重连
+    if (strlen(info->ssid)) {
+        // LLOGD("connect %s %s", info->ssid, info->password);
+        memcpy(cfg.sta.ssid, info->ssid, strlen(info->ssid));
+        memcpy(cfg.sta.password, info->password, strlen(info->password));
+        esp_wifi_set_config(WIFI_IF_STA, &cfg);
+    }
+    auto_reconnection = 1;
+    
     ret = esp_wifi_connect();
     LLOGD("esp_wifi_connect ret %d", ret);
     return 0;
@@ -246,6 +265,7 @@ int luat_wlan_connect(luat_wlan_conninfo_t* info) {
 
 int luat_wlan_disconnect(void) {
     int ret = 0;
+    auto_reconnection = 0;
     ret = esp_wifi_disconnect();
     LLOGD("esp_wifi_disconnect ret %d", ret);
     return 0;
@@ -320,4 +340,47 @@ int luat_wlan_get_mac(int id, char* mac) {
         LLOGW("no such mac id %d", id);
         return -1;
     }
+}
+
+static uint8_t ap_stack_inited = 0;
+
+int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
+    wifi_mode_t mode = 0;
+    int ret = 0;
+    wifi_config_t cfg = {0};
+
+    cfg.ap.channel = 1;
+    cfg.ap.max_connection = 5;
+
+    memcpy(cfg.ap.ssid, apinfo->ssid, strlen(apinfo->ssid));
+    cfg.ap.ssid_len = strlen(apinfo->ssid);
+    if (strlen(apinfo->password) >= 6) {
+        memcpy(cfg.ap.password, apinfo->password, strlen(apinfo->password));
+        cfg.ap.authmode = WIFI_AUTH_WPA2_PSK;
+    }
+    else {
+        cfg.ap.authmode = WIFI_AUTH_OPEN;
+    }
+
+    LLOGD("softap %s %s", apinfo->ssid, apinfo->password);
+
+    ret = esp_wifi_stop();
+    LLOGD("esp_wifi_stop ret %d", ret);
+
+    if (ap_stack_inited == 0) {
+        ap_stack_inited = 1;
+        esp_netif_create_default_wifi_ap();
+    }
+
+    ret = esp_wifi_get_mode(&mode);
+    if (mode == WIFI_MODE_NULL || mode == WIFI_MODE_STA) {
+        LLOGI("auto set to APSTA mode");
+        ret = esp_wifi_set_mode(WIFI_MODE_APSTA);
+        LLOGD("esp_wifi_set_mode ret %d", ret);
+    }
+    ret = esp_wifi_set_config(WIFI_IF_AP, &cfg);
+    LLOGD("esp_wifi_set_config ret %d", ret);
+    ret = esp_wifi_start();
+    LLOGD("esp_wifi_start ret %d", ret);
+    return 0;
 }

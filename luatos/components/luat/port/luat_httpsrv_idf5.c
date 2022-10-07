@@ -108,8 +108,8 @@ static int luat_client_cb(lua_State* L, void* ptr) {
     lua_pushlstring(L, client->body, client->body_size);
     lua_call(L, 5, 3);
 
-    int code = luaL_optinteger(L, -3, 200);
-    if (code < 0)
+    int code = luaL_optinteger(L, -3, 404);
+    if (code < 100)
         code = 200;
     size_t body_size = 0;
     const char* body = luaL_optlstring(L, -1, "", &body_size);
@@ -392,9 +392,9 @@ static void httpsrv_client_task(void* arg) {
     }
 
     // 拦截一下非法请求
-    if (client->parser.http_errno != HPE_OK) {
+    if (client->parser.http_errno != HPE_OK || client->uri == NULL) {
         LLOGI("bad request, return http 400");
-        client_resp(client, 403, "", "Bad Request", strlen("Bad Request"));
+        client_resp(client, 400, "", "Bad Request", strlen("Bad Request"));
         client_cleanup(client);
         vTaskDelete(NULL);
         return;
