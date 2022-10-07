@@ -401,7 +401,8 @@ static void httpsrv_client_task(void* arg) {
     }
 
     // 看看是不是静态文件
-    if (client->parser.method == HTTP_GET && handle_static_file(client)) {
+    // if (client->parser.method == HTTP_GET && handle_static_file(client)) {
+    if (handle_static_file(client)) {
         client_cleanup(client);
         vTaskDelete(NULL);
         return;
