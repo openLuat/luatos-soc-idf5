@@ -11,6 +11,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
 
+#include <time.h>
+#include <sys/time.h>
 
 #ifdef LUAT_USE_LVGL
 #include "lvgl.h"
@@ -38,6 +40,10 @@ void app_main(void){
         nvs_flash_erase();
         r = nvs_flash_init();
     }
+
+    setenv("TZ", "CST-8", 1);
+    tzset();
+
     luat_heap_init();
     esp_event_loop_create_default();
 #ifdef LUAT_USE_LVGL

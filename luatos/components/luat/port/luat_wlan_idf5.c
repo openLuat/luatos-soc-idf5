@@ -195,6 +195,7 @@ static void sc_event_handler(void *arg, esp_event_base_t event_base,
     luat_msgbus_put(&msg, 0);
 }
 
+extern void luat_ntp_autosync(void);
 int luat_wlan_init(luat_wlan_config_t *conf) {
     if (wlan_inited != 0) {
         LLOGI("wlan is ready!!");
@@ -218,6 +219,10 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
     ret = esp_wifi_start();
     LLOGD("esp_wifi_start ret %d", ret);
     wlan_inited = 1;
+
+    // 自动开启ntp
+    luat_ntp_autosync();
+
     return 0;
 }
 
