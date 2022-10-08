@@ -112,7 +112,7 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
         luat_pwm_idf[channel] = 1;
     }
     ledc_set_freq(LEDC_LOW_SPEED_MODE, channel, conf->period);
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, 8192 *conf->pulse/100 );
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, 8192 * conf->pulse / conf->precision );
     ledc_update_duty(LEDC_LOW_SPEED_MODE, channel);
     return 0;
 }
