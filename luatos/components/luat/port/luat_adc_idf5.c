@@ -7,6 +7,9 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
+#include "luat_log.h"
+#define LUAT_LOG_TAG "adc"
+
 #define ADC_CHECK(id) ((id<0||id>=ADC1_CHANNEL_MAX)?-1:0)
 
 static adc_oneshot_unit_handle_t adc1_handle = NULL;
