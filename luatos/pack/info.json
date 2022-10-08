@@ -47,7 +47,7 @@
     "user" : {
         "project" : "",
         "version" : "",
-        "log_br" : "115200"
+        "log_br" : "921600"
     },
 	"download" : {
 		"bl_addr" : "00000000",
