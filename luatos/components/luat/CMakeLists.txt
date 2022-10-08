@@ -93,6 +93,6 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/sfud
                                 ${LUATOS_ROOT}/components/network/httpsrv/inc
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
-                             esp_wifi esp_rom http_parser
+                             esp_wifi esp_rom http_parser esp_adc
                     )
 
