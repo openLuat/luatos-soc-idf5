@@ -57,8 +57,7 @@ int luat_spi_close(int spi_id){
     esp_err_t ret = -1;
     if (spi_id == 2){
         ret = spi_bus_remove_device(spi_handle);
-        if (ret != 0)
-        {
+        if (ret != 0){
             return ret;
         }
         ret = spi_bus_free(SPI2_HOST);

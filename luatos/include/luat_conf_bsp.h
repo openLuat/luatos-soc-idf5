@@ -26,7 +26,7 @@
 #define LUAT_USE_I2C  1
 #define LUAT_USE_SPI  1
 // #define LUAT_USE_ADC  1
-// #define LUAT_USE_PWM  1
+#define LUAT_USE_PWM  1
 // #define LUAT_USE_WDT  1
 // #define LUAT_USE_PM  1
 #define LUAT_USE_MCU  1
