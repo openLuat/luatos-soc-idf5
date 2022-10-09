@@ -6,6 +6,8 @@
 #include "luat_log.h"
 #define LUAT_LOG_TAG "rtc"
 
+extern int Base_year;
+
 int luat_rtc_set(struct tm *tblock){
     tblock->tm_year -= Base_year;
     tblock->tm_mon--;
