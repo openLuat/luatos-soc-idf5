@@ -53,7 +53,16 @@ typedef struct{
 }luat_http_ctrl_t;
 
 static int http_close(luat_http_ctrl_t *http_ctrl){
-    esp_http_client_cleanup(http_ctrl->http_client);
+    if (http_ctrl->http_client) {
+        esp_http_client_cleanup(http_ctrl->http_client);
+        http_ctrl->http_client = NULL;
+    }
+
+    if (http_ctrl->is_download) {
+        if (http_ctrl->fd != NULL) {
+            luat_fs_fclose(http_ctrl->fd);
+        }
+    }
     if (http_ctrl->req_body != NULL) {
         luat_heap_free(http_ctrl->req_body);
         http_ctrl->req_body = NULL;
@@ -130,6 +139,7 @@ static int32_t l_http_callback(lua_State *L, void* ptr){
 }
 
 static void http_resp_error(luat_http_ctrl_t *http_ctrl, int error_code) {
+    //LLOGD("CALL http_resp_error");
 	if (http_ctrl->close_state==0){
 		http_ctrl->close_state=1;
 		rtos_msg_t msg = {0};
@@ -145,11 +155,11 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
     http_header_t** temp = &(http_ctrl->resp_headers);
     int mbedtls_err = 0;
     esp_err_t err;
-    // LLOGD("http event %d", evt->event_id);
+    LLOGD("http event %d", evt->event_id);
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             // LLOGD("HTTP_EVENT_ERROR");
-            http_resp_error(http_ctrl, HTTP_ERROR_CLOSE);
+            // http_resp_error(http_ctrl, HTTP_ERROR_CLOSE);
             break;
         case HTTP_EVENT_ON_CONNECTED:
             // LLOGD("HTTP_EVENT_ON_CONNECTED");
@@ -219,21 +229,17 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
             break;
         case HTTP_EVENT_ON_FINISH:
             // LLOGD("HTTP_EVENT_ON_FINISH");
-            if (http_ctrl->is_download) {
-                if (http_ctrl->fd != NULL) {
-                    luat_fs_fclose(http_ctrl->fd);
-                }
-            }
-            http_resp_error(http_ctrl, HTTP_ERROR_OK);
+            
+            // http_resp_error(http_ctrl, HTTP_ERROR_OK);
             break;
         case HTTP_EVENT_DISCONNECTED:
             // LLOGI("HTTP_EVENT_DISCONNECTED");
-            err = esp_tls_get_and_clear_last_error(evt->data, &mbedtls_err, NULL);
-            if (err != 0) {
-                LLOGI("Last esp error code: 0x%x", err);
-                LLOGI("Last mbedtls failure: 0x%x", mbedtls_err);
-            }
-            http_resp_error(http_ctrl, HTTP_ERROR_CLOSE);
+            // err = esp_tls_get_and_clear_last_error(evt->data, &mbedtls_err, NULL);
+            // if (err != 0) {
+            //     LLOGI("Last esp error code: 0x%x", err);
+            //     LLOGI("Last mbedtls failure: 0x%x", mbedtls_err);
+            // }
+            // http_resp_error(http_ctrl, HTTP_ERROR_CLOSE);
             break;
         case HTTP_EVENT_REDIRECT:
             // LLOGI("HTTP_EVENT_REDIRECT");
@@ -245,9 +251,12 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
 static void luat_http_task_entry(void* arg) {
     luat_http_ctrl_t *http_ctrl = (luat_http_ctrl_t *)arg;
     esp_err_t err = esp_http_client_perform(http_ctrl->http_client);
+    LLOGD("esp_http_client_perform %d", err);
     if (err){
-        LLOGD("esp_http_client_perform %d", err);
-        http_resp_error(http_ctrl, err);
+        http_resp_error(http_ctrl, -1);
+    }
+    else {
+        http_resp_error(http_ctrl, HTTP_ERROR_OK);
     }
     vTaskDelete(NULL);
 }
