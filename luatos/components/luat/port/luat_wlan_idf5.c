@@ -197,27 +197,27 @@ static void sc_event_handler(void *arg, esp_event_base_t event_base,
 
 extern void luat_ntp_autosync(void);
 int luat_wlan_init(luat_wlan_config_t *conf) {
-    if (wlan_inited != 0) {
-        LLOGI("wlan is ready!!");
-        return 0;
+    int ret = 0;
+    if (wlan_inited == 0) {
+        esp_netif_init();
+        esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
+        esp_event_handler_register(IP_EVENT,   ESP_EVENT_ANY_ID, &ip_event_handler,   NULL);
+        esp_event_handler_register(SC_EVENT,   ESP_EVENT_ANY_ID, &sc_event_handler,   NULL);
+
+        esp_netif_create_default_wifi_sta();
+
+        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+        cfg.static_rx_buf_num = 2;
+        cfg.static_tx_buf_num = 2;
+
+        ret = esp_wifi_init(&cfg);
+        esp_wifi_set_mode(WIFI_MODE_STA);
+        LLOGD("esp_wifi_init ret %d", ret);
     }
 
-    esp_netif_init();
-    esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
-    esp_event_handler_register(IP_EVENT,   ESP_EVENT_ANY_ID, &ip_event_handler,   NULL);
-    esp_event_handler_register(SC_EVENT,   ESP_EVENT_ANY_ID, &sc_event_handler,   NULL);
-
-    esp_netif_create_default_wifi_sta();
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    cfg.static_rx_buf_num = 2;
-    cfg.static_tx_buf_num = 2;
-
-    int ret = esp_wifi_init(&cfg);
-    esp_wifi_set_mode(WIFI_MODE_STA);
-    LLOGD("esp_wifi_init ret %d", ret);
     ret = esp_wifi_start();
     LLOGD("esp_wifi_start ret %d", ret);
+    esp_wifi_set_ps(WIFI_PS_NONE);
     wlan_inited = 1;
 
     // 自动开启ntp
