@@ -53,6 +53,7 @@ typedef struct{
 }luat_http_ctrl_t;
 
 static int http_close(luat_http_ctrl_t *http_ctrl){
+    esp_http_client_cleanup(http_ctrl->http_client);
     if (http_ctrl->req_body != NULL) {
         luat_heap_free(http_ctrl->req_body);
         http_ctrl->req_body = NULL;
@@ -93,6 +94,7 @@ static int32_t l_http_callback(lua_State *L, void* ptr){
 		lua_pushinteger(L, msg->arg1); // 把错误码返回去
 		luat_cbcwait(L, idp, 1);
 		http_ctrl->idp = 0;
+        http_close(http_ctrl);
 		return 0;
 	}
 
@@ -123,13 +125,13 @@ static int32_t l_http_callback(lua_State *L, void* ptr){
 		luat_cbcwait(L, idp, 3); // code, headers, body
 	}
 	http_ctrl->idp = 0;
+    http_close(http_ctrl);
 	return 0;
 }
 
 static void http_resp_error(luat_http_ctrl_t *http_ctrl, int error_code) {
 	if (http_ctrl->close_state==0){
 		http_ctrl->close_state=1;
-		esp_http_client_cleanup(http_ctrl->http_client);
 		rtos_msg_t msg = {0};
 		msg.handler = l_http_callback;
 		msg.ptr = http_ctrl;
@@ -143,7 +145,7 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
     http_header_t** temp = &(http_ctrl->resp_headers);
     int mbedtls_err = 0;
     esp_err_t err;
-    LLOGD("http event %d", evt->event_id);
+    // LLOGD("http event %d", evt->event_id);
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             // LLOGD("HTTP_EVENT_ERROR");
@@ -243,13 +245,9 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
 static void luat_http_task_entry(void* arg) {
     luat_http_ctrl_t *http_ctrl = (luat_http_ctrl_t *)arg;
     esp_err_t err = esp_http_client_perform(http_ctrl->http_client);
-    LLOGD("esp_http_client_perform %d", err);
-    rtos_msg_t msg = {0};
-    if (http_ctrl->idp) {
-        msg.handler = l_http_cb_eaily;
-        msg.arg1 = err;
-        msg.ptr = http_ctrl;
-        luat_msgbus_put(&msg, 0);
+    if (err){
+        LLOGD("esp_http_client_perform %d", err);
+        http_resp_error(http_ctrl, err);
     }
     vTaskDelete(NULL);
 }
@@ -308,7 +306,6 @@ static int l_http_request(lua_State *L) {
     http_conf.url = luaL_checkstring(L, 2);
     http_conf.event_handler = l_http_event_handler;
     http_conf.keep_alive_enable = false;
-    http_conf.is_async = true;
     http_conf.user_data = (void*)http_ctrl;
     http_conf.disable_auto_redirect = true;
     http_ctrl->http_client = esp_http_client_init(&http_conf);
@@ -320,6 +317,7 @@ static int l_http_request(lua_State *L) {
 			const char *value = lua_tostring(L, -1);
             err = esp_http_client_set_header(http_ctrl->http_client, name, value);
             if (err){
+                LLOGI("esp_http_client_set_header error:%d",err);
                 goto error;
             }
 			lua_pop(L, 1);
@@ -332,6 +330,7 @@ static int l_http_request(lua_State *L) {
 		memcpy(http_ctrl->req_body, body, (http_ctrl->req_body_len));
         err = esp_http_client_set_post_field(http_ctrl->http_client, http_ctrl->req_body, http_ctrl->req_body_len);
         if (err){
+            LLOGI("esp_http_client_set_post_field error:%d",err);
             goto error;
         }
     }
@@ -341,6 +340,7 @@ static int l_http_request(lua_State *L) {
 		if (LUA_TNUMBER == lua_gettable(L, 5)) {
             err = esp_http_client_set_timeout_ms(http_ctrl->http_client, luaL_optinteger(L, -1, 0));
             if (err){
+                LLOGI("esp_http_client_set_timeout_ms error:%d",err);
                 goto error;
             }
 		}
@@ -358,16 +358,8 @@ static int l_http_request(lua_State *L) {
 	}
 
     http_ctrl->idp = luat_pushcwait(L);
-    if (pdPASS == xTaskCreate(luat_http_task_entry, "http", 16*1024, (void*)http_ctrl, tskIDLE_PRIORITY + 5, NULL)) {
-        //return 1;
-    }
-    else {
-        LLOGE("fail to create http task!!");
-        rtos_msg_t msg = {0};
-        msg.handler = l_http_cb_eaily;
-        msg.arg1 = HTTP_ERROR_CONNECT;
-        msg.ptr = http_ctrl;
-        luat_msgbus_put(&msg, 0);
+    if (pdPASS != xTaskCreate(luat_http_task_entry, "http", 16*1024, (void*)http_ctrl, tskIDLE_PRIORITY + 5, NULL)) {
+        goto error;
     }
     return 1;
 error:
