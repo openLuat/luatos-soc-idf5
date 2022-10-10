@@ -98,7 +98,7 @@ int luat_uart_setup(luat_uart_t *uart){
     }
     uart_config.stop_bits = uart->stop_bits;
     uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
-    uart_config.source_clk = UART_SCLK_APB;
+    uart_config.source_clk = UART_SCLK_XTAL;
     switch (id){
     case 0:
         if (uart_port[id].xHandle==NULL){
