@@ -128,9 +128,11 @@ void luat_gpio_close(int pin) {
 #include "soc/gpio_reg.h"
 #define GPIO_OUT_PULSE	(*(volatile unsigned int*)(GPIO_OUT_REG))
 
+static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+
 void IRAM_ATTR luat_gpio_pulse(int pin, uint8_t *level, uint16_t len, uint16_t delay_ns) {
     volatile uint32_t tmp = delay_ns > 1024 ? 1024 : delay_ns;
-    vPortEnterCritical();
+    portENTER_CRITICAL_SAFE(&mux);
     for(int i=0; i<len; i++) {
         if(level[i/8]&(0x80>>(i%8)))
             GPIO_OUT_PULSE |= (0x00000001<<pin); // TODO 预先计算会不会更好一些, 也更快
@@ -139,5 +141,5 @@ void IRAM_ATTR luat_gpio_pulse(int pin, uint8_t *level, uint16_t len, uint16_t d
         tmp = delay_ns > 1024 ? 1024 : delay_ns;
         while(tmp--); // nop
     }
-    vPortExitCritical();
+    portEXIT_CRITICAL_SAFE(&mux);
 }
