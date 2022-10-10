@@ -155,7 +155,7 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
     http_header_t** temp = &(http_ctrl->resp_headers);
     int mbedtls_err = 0;
     esp_err_t err;
-    LLOGD("http event %d", evt->event_id);
+    // LLOGD("http event %d", evt->event_id);
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             // LLOGD("HTTP_EVENT_ERROR");
