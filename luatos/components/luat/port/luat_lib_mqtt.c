@@ -22,6 +22,7 @@
 typedef struct{
 	esp_mqtt_client_config_t mqtt_cfg;
 	esp_mqtt_client_handle_t client;
+	const char *uri; 			// mqtt uri
 	int mqtt_cb;				// mqtt lua回调函数
 	uint8_t adapter_index; 		// 适配器索引号, 似乎并没有什么用
 	uint8_t mqtt_state;    		// mqtt状态
@@ -63,6 +64,9 @@ static void mqtt_close(luat_mqtt_ctrl_t *mqtt_ctrl){
 }
 
 static void mqtt_release(luat_mqtt_ctrl_t *mqtt_ctrl){
+	if (mqtt_ctrl->uri){
+		luat_heap_free(mqtt_ctrl->uri);
+	}
 	rtos_msg_t msg = {0};
 	msg.handler = l_mqtt_callback;
 	msg.ptr = mqtt_ctrl;
@@ -249,6 +253,7 @@ mqtt客户端创建
 mqttc = mqtt.create(nil,"120.55.137.106", 1884)
 */
 static int l_mqtt_create(lua_State *L) {
+	uint8_t is_tls = 0;
 	size_t client_cert_len, client_key_len, client_password_len;
 	const char *client_cert = NULL;
 	const char *client_key = NULL;
@@ -261,15 +266,26 @@ static int l_mqtt_create(lua_State *L) {
 	}
 	memset(mqtt_ctrl, 0, sizeof(luat_mqtt_ctrl_t));
 	mqtt_ctrl->adapter_index = adapter_index;
-
-	mqtt_ctrl->mqtt_cfg.broker.address.uri = luaL_checklstring(L, 2, &ip_len);
+	const char *uri = luaL_checklstring(L, 2, &ip_len);;
 	mqtt_ctrl->mqtt_cfg.session.keepalive = 240;
-
 	if (lua_isnumber(L, 3)){
 		mqtt_ctrl->mqtt_cfg.broker.address.port = luaL_checkinteger(L, 3);
 	}
-	mqtt_ctrl->mqtt_state = 0;
 	
+	if (lua_isboolean(L, 4)){
+		is_tls = lua_toboolean(L, 4);
+	}
+	if (is_tls){
+		mqtt_ctrl->uri = luat_heap_malloc(ip_len + 9);
+		memset(mqtt_ctrl->uri, 0, ip_len + 9);
+		snprintf_(mqtt_ctrl->uri, ip_len + 9, "%s%s", "mqtts://", uri);
+	}else{
+		mqtt_ctrl->uri = luat_heap_malloc(ip_len + 8);
+		memset(mqtt_ctrl->uri, 0, ip_len + 8);
+		snprintf_(mqtt_ctrl->uri, ip_len + 8, "%s%s", "mqtt://", uri);
+	}
+	mqtt_ctrl->mqtt_cfg.broker.address.uri = mqtt_ctrl->uri;
+	mqtt_ctrl->mqtt_state = 0;
 	luaL_setmetatable(L, LUAT_MQTT_CTRL_TYPE);
 	lua_pushvalue(L, -1);
 	mqtt_ctrl->mqtt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
