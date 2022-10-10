@@ -285,6 +285,17 @@ static int l_mqtt_create(lua_State *L) {
 		snprintf_(mqtt_ctrl->uri, ip_len + 8, "%s%s", "mqtt://", uri);
 	}
 	mqtt_ctrl->mqtt_cfg.broker.address.uri = mqtt_ctrl->uri;
+
+	if (lua_isstring(L, 5)){
+		mqtt_ctrl->mqtt_cfg.broker.verification.certificate = luaL_checklstring(L, 5, &client_cert_len);
+	}
+	if (lua_isstring(L, 6)){
+		mqtt_ctrl->mqtt_cfg.credentials.authentication.key = luaL_checklstring(L, 6, &client_key_len);
+	}
+	if (lua_isstring(L, 7)){
+		mqtt_ctrl->mqtt_cfg.credentials.authentication.key_password = luaL_checklstring(L, 7, &client_password_len);
+	}
+
 	mqtt_ctrl->mqtt_state = 0;
 	luaL_setmetatable(L, LUAT_MQTT_CTRL_TYPE);
 	lua_pushvalue(L, -1);
