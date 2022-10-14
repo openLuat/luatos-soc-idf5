@@ -46,22 +46,22 @@
 #define LUAT_USE_CJSON  1
 #define LUAT_USE_ZBUFF  1
 #define LUAT_USE_PACK  1
-// #define LUAT_USE_LIBGNSS  1
+#define LUAT_USE_LIBGNSS  1
 #define LUAT_USE_FS  1
-// #define LUAT_USE_SENSOR  1
-// #define LUAT_USE_SFUD  1
-// #define LUAT_USE_STATEM 1
+#define LUAT_USE_SENSOR  1
+#define LUAT_USE_SFUD  1
+#define LUAT_USE_STATEM 1
 // 性能测试
-// #define LUAT_USE_COREMARK 1
-// #define LUAT_USE_IR 1
+#define LUAT_USE_COREMARK 1
+#define LUAT_USE_IR 1
 // FDB 提供kv数据库, 与nvm库类似
 #define LUAT_USE_FDB 1
-// #define LUAT_USE_OTA 1
-// #define LUAT_USE_I2CTOOLS 1
-// #define LUAT_USE_LORA 1
-// #define LUAT_USE_MLX90640 1
+#define LUAT_USE_OTA 1
+#define LUAT_USE_I2CTOOLS 1
+#define LUAT_USE_LORA 1
+#define LUAT_USE_MLX90640 1
 // zlib压缩,更快更小的实现
-// #define LUAT_USE_MINIZ 1
+#define LUAT_USE_MINIZ 1
 
 // // 使用 TLSF 内存池, 实验性, 内存利用率更高一些
 // #define LUAT_USE_TLSF 1
@@ -88,8 +88,8 @@
 //---------------------
 // UI
 // LCD  是彩屏, 若使用LVGL就必须启用LCD
-// #define LUAT_USE_LCD
-// #define LUAT_USE_TJPGD
+#define LUAT_USE_LCD
+#define LUAT_USE_TJPGD
 // EINK 是墨水屏
 // #define LUAT_USE_EINK
 
@@ -97,16 +97,16 @@
 // U8G2
 // 单色屏, 支持i2c/spi
 // #define LUAT_USE_DISP
-// #define LUAT_USE_U8G2
+#define LUAT_USE_U8G2
 
 /**************FONT*****************/
 // #define LUAT_USE_FONTS
 /**********U8G2&LCD&EINK FONT*************/
-// #define USE_U8G2_OPPOSANSM_ENGLISH 1
-// #define USE_U8G2_OPPOSANSM8_CHINESE
-// #define USE_U8G2_OPPOSANSM10_CHINESE
-// #define USE_U8G2_OPPOSANSM12_CHINESE
-// #define USE_U8G2_OPPOSANSM16_CHINESE
+#define USE_U8G2_OPPOSANSM_ENGLISH 1
+#define USE_U8G2_OPPOSANSM8_CHINESE
+#define USE_U8G2_OPPOSANSM10_CHINESE
+#define USE_U8G2_OPPOSANSM12_CHINESE
+#define USE_U8G2_OPPOSANSM16_CHINESE
 // #define USE_U8G2_OPPOSANSM24_CHINESE
 // #define USE_U8G2_OPPOSANSM32_CHINESE
 /**********LVGL FONT*************/
@@ -119,7 +119,7 @@
 //---------------------
 // LVGL
 // 主推的UI库, 功能强大但API繁琐
-// #define LUAT_USE_LVGL
+#define LUAT_USE_LVGL
 #define LV_DISP_DEF_REFR_PERIOD 30
 #define LUAT_LV_DEBUG 0
 
