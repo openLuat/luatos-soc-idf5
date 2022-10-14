@@ -5,6 +5,10 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/luat/vfs
                                 ${LUATOS_ROOT}/lua/src
                                 port
+                                ${LUATOS_ROOT}/components/shell
+                                ${LUATOS_ROOT}/components/ymodem
+                                ${LUATOS_ROOT}/components/cmux
+                                ${LUATOS_ROOT}/components/i2c-tools
                                 ${LUATOS_ROOT}/components/lfs
                                 ${LUATOS_ROOT}/components/iotauth
                                 ${LUATOS_ROOT}/components/lua-cjson
@@ -61,7 +65,10 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                     INCLUDE_DIRS ../../include
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
+                                ${LUATOS_ROOT}/components/shell
+                                ${LUATOS_ROOT}/components/ymodem
                                 ${LUATOS_ROOT}/components/cmux
+                                ${LUATOS_ROOT}/components/i2c-tools
                                 ${LUATOS_ROOT}/components/fatfs
                                 ${LUATOS_ROOT}/components/lfs
                                 ${LUATOS_ROOT}/components/lua-cjson

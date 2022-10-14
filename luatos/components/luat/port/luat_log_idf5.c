@@ -27,8 +27,10 @@ void luat_nprint(char *s, size_t l) {
     if (cmux_ctx.state == 1 && cmux_ctx.log_state ==1){
         luat_cmux_write(LUAT_CMUX_CH_LOG,  CMUX_FRAME_UIH & ~ CMUX_CONTROL_PF,s, l);
     }else
-#endif
+    luat_uart_write(luat_log_uart_port, s, l);
+#else
     printf("%.*s", l, s);
+#endif
 }
 
 void luat_log_write(char *s, size_t l) {
@@ -36,8 +38,10 @@ void luat_log_write(char *s, size_t l) {
     if (cmux_ctx.state == 1 && cmux_ctx.log_state ==1){
         luat_cmux_write(LUAT_CMUX_CH_LOG,  CMUX_FRAME_UIH & ~ CMUX_CONTROL_PF,s, l);
     }else
-#endif
+    luat_uart_write(luat_log_uart_port, s, l);
+#else
     printf("%.*s", l, s);
+#endif
 }
 
 void luat_log_set_level(int level) {

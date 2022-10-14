@@ -33,6 +33,10 @@ static void luat_lvgl_callback(TimerHandle_t xTimer){
 #endif
 
 void app_main(void){
+#ifdef LUAT_USE_SHELL
+    extern void luat_shell_poweron(int _drv);
+	luat_shell_poweron(0);
+#endif
     bootloader_random_enable();
     esp_err_t r = nvs_flash_init();
     if (r == ESP_ERR_NVS_NO_FREE_PAGES || r == ESP_ERR_NVS_NEW_VERSION_FOUND) {
