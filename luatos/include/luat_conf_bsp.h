@@ -37,6 +37,7 @@
 
 #define LUAT_USE_WLAN 1
 #define LUAT_USE_HTTPSRV 1
+#define LUAT_USE_NIMBLE 1
 
 #define LUAT_USE_IOTAUTH 1
 

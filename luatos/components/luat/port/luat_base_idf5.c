@@ -12,6 +12,8 @@ void lv_png_init(void);
 void lv_split_jpeg_init(void);
 #endif
 
+LUAMOD_API int luaopen_nimble( lua_State *L );
+
 static const luaL_Reg loadedlibs[] = {
   {"_G", luaopen_base}, // _G
   {LUA_LOADLIBNAME, luaopen_package}, // require
@@ -188,6 +190,9 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_HTTPSRV
   {"httpsrv", luaopen_httpsrv},
+#endif
+#ifdef LUAT_USE_NIMBLE
+  {"nimble", luaopen_nimble},
 #endif
   {NULL, NULL}
 };
