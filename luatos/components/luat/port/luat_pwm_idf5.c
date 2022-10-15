@@ -7,7 +7,7 @@
 #include "luat_log.h"
 #define LUAT_LOG_TAG "pwm"
 
-static int luat_pwm_idf[LEDC_TIMER_MAX] = {0};
+static uint8_t luat_pwm_idf[LEDC_TIMER_MAX] = {0};
 
 int luat_pwm_setup(luat_pwm_conf_t *conf){
     int timer = -1;
@@ -17,6 +17,7 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
         }
     }
     if (timer < 0) {
+        LLOGE("too many PWM!!! only %d channels supported", LEDC_TIMER_MAX);
         return -1;
     }
     if (luat_pwm_idf[timer] == 0){
