@@ -43,7 +43,7 @@ static void uart0_irq_task(void *arg){
                     luat_msgbus_put(&msg, 0);
                 }
 #ifdef LUAT_USE_SHELL
-            if (shell_state==2){
+            if (shell_state){
                 int len = luat_uart_read(0, shell_buffer, 1024);
                 if (len < 1)
                     continue;
@@ -116,11 +116,9 @@ int luat_uart_setup(luat_uart_t *uart){
     switch (id){
     case 0:
 #ifdef LUAT_USE_SHELL
-        shell_state++;
-        if (shell_state==1){
+        if (shell_state){
             shell_state = 0;
-        }else if(shell_state==3){
-            shell_state = 0;
+            luat_uart_close(0);
         }
 #endif
         if (uart_port[id].xHandle==NULL){
@@ -186,18 +184,13 @@ int luat_setup_cb(int uartid, int received, int sent){
 
 #ifdef LUAT_USE_SHELL
 void luat_shell_poweron(int _drv) {
-    uart_set_baudrate(0, 921600);
     shell_state = 1;
-    luat_uart_t shell_uart = {
-        .id = _drv,
-        .baud_rate=921600,
-        .baud_rate=8,
-        .parity=LUAT_PARITY_NONE,
-        .bit_order=LUAT_BIT_ORDER_LSB,
-        .bufsz=1024,
-        .pin485=0xffffffff,
-    };
-    luat_uart_setup(&shell_uart);
+    uart_driver_install(0, 2048, 2048, 20, &(uart_port[0].xQueue), 0);
+    uart_set_pin(0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_set_baudrate(0, 921600);
+    // uart_param_config(0, &uart_config);
+    uart_pattern_queue_reset(0, 20);
+    xTaskCreate(uart0_irq_task, "uart0_irq_task", 2048, NULL, 10, &uart_port[0].xHandle);
 }
 #endif
 
