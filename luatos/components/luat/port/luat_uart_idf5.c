@@ -166,7 +166,6 @@ int luat_uart_close(int uartid){
     if (uart_port[uartid].xHandle){
         vTaskDelete(uart_port[uartid].xHandle);
         uart_port[uartid].xHandle = NULL;
-        vQueueDelete(uart_port[uartid].xQueue);
     }
     return uart_driver_delete(uartid)? -1 : 0;
 }
