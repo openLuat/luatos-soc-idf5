@@ -112,7 +112,11 @@ int luat_uart_setup(luat_uart_t *uart){
     }
     uart_config.stop_bits = uart->stop_bits;
     uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
+#ifndef CONFIG_IDF_TARGET_ESP32
     uart_config.source_clk = UART_SCLK_XTAL;
+#else
+    uart_config.source_clk = UART_SCLK_APB;
+#endif
     switch (id){
     case 0:
 #ifdef LUAT_USE_SHELL
