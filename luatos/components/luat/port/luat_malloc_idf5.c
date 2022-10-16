@@ -107,8 +107,11 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used) {
 
 //-----------------------------------------------------------------------------
 
-
+#ifdef CONFIG_IDF_TARGET_ESP32
+#define LUAT_HEAP_SIZE (64*1024)
+#else
 #define LUAT_HEAP_SIZE (96*1024)
+#endif
 static uint8_t vmheap[LUAT_HEAP_SIZE];
 void luat_heap_init(void) {
     bpool(vmheap, LUAT_HEAP_SIZE);
