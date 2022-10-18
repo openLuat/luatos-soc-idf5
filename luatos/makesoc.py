@@ -6,7 +6,7 @@ import shutil
 import re
 import json
 import csv
-
+import zipfile
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('config_json', type=str, help='the config_json of idf')
@@ -20,6 +20,17 @@ partition_table_bin = os.path.join(out_path,"build","partition_table","partition
 luatos_bin = os.path.join(out_path,"build","luatos.bin")
 info_json = os.path.join(pack_path,"info.json")
 soc_download_exe = os.path.join(pack_path,"soc_download.exe")
+
+def zip_dir(dirname,zipfilename):
+    filelist = []
+    for root, dirs, files in os.walk(dirname):
+        for name in files:
+            filelist.append(os.path.join(root, name))
+    zf = zipfile.ZipFile(zipfilename, "w", compression=zipfile.ZIP_LZMA)
+    for tar in filelist:
+        arcname = tar[len(dirname):]
+        zf.write(tar,arcname)
+    zf.close()
 
 if __name__=='__main__':
     args = parser.parse_args()
@@ -72,18 +83,15 @@ if __name__=='__main__':
         os.remove(out_file+'.soc')
     if os.path.exists(out_file+'_USB.soc'):
         os.remove(out_file+'_USB.soc')
-
+    
     # 首先, 生成不带USB后缀的soc文件
-    shutil.make_archive(out_file, 'zip', root_dir=temp)
-    os.rename(out_file+'.zip',out_file+'.soc')
+    zip_dir(temp, out_file+'.soc') 
     
     # 然后生成USB版本的soc文件
     with open(info_json_temp, "w") as f :
         info_json_data["download"]["force_br"] = "0"
         json.dump(info_json_data, f)
-
-    shutil.make_archive(out_file, 'zip', root_dir=temp)
-    os.rename(out_file+'.zip',out_file+'_USB.soc')
+    zip_dir(temp, out_file+'_USB.soc') 
     
     shutil.rmtree(temp)
 
