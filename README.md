@@ -14,7 +14,10 @@ demo地址: https://gitee.com/openLuat/LuatOS/tree/master/demo/wlan/esp32c3
 
 ## 编译说明
 
-本代码库需要idf5最新代码进行编译
+本代码库需要idf5最新代码进行编译, 且依赖LuatOS库.
+
+首先, 将LuatOS主库下载/clone下下来,
+然后, 修改本库的luatos目录下的`CMakeLists.txt`, 里面有 LUATOS_ROOT, 修改成本地正确的路径
 
 ### 关于工具链
 
