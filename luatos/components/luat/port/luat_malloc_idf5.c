@@ -12,6 +12,18 @@
 #define LUAT_LOG_TAG "vmheap"
 #include "luat_log.h"
 
+
+//-----------------------------------------------------------------------------
+
+#ifdef CONFIG_IDF_TARGET_ESP32
+#define LUAT_HEAP_SIZE (64*1024)
+#else
+#define LUAT_HEAP_SIZE (96*1024)
+#endif
+static uint8_t vmheap[LUAT_HEAP_SIZE];
+static const uint32_t heap_addr_start = (uint32_t) vmheap;
+static const uint32_t heap_addr_end = (uint32_t) vmheap + LUAT_HEAP_SIZE;
+
 //------------------------------------------------
 //  管理系统内存
 
@@ -42,7 +54,7 @@ void* IRAM_ATTR luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
     if (ptr != NULL && nsize == 0) {
         uint32_t addr = (uint32_t) ptr;
-        if (addr >= 0x3C000000 && addr <= 0x3CFFFFFF) {
+        if (addr < heap_addr_start || addr > heap_addr_end) {
             //LLOGD("skip ROM free %p", ptr);
             return NULL;
         }
@@ -81,7 +93,7 @@ void* luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
     if (ptr != NULL && nsize == 0) {
         uint32_t addr = (uint32_t) ptr;
-        if (addr >= 0x3C000000 && addr <= 0x3CFFFFFF) {
+        if (addr < heap_addr_start || addr > heap_addr_end) {
             LLOGD("skip ROM free %p", ptr);
             return NULL;
         }
@@ -105,14 +117,7 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used) {
 	*max_used = *total - heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
 }
 
-//-----------------------------------------------------------------------------
-
-#ifdef CONFIG_IDF_TARGET_ESP32
-#define LUAT_HEAP_SIZE (64*1024)
-#else
-#define LUAT_HEAP_SIZE (96*1024)
-#endif
-static uint8_t vmheap[LUAT_HEAP_SIZE];
 void luat_heap_init(void) {
     bpool(vmheap, LUAT_HEAP_SIZE);
+    LLOGD("vm heap range %08X %08X", heap_addr_start, heap_addr_end);
 }
