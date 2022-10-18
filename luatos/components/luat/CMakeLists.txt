@@ -11,6 +11,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/i2c-tools
                                 ${LUATOS_ROOT}/components/lfs
                                 ${LUATOS_ROOT}/components/iotauth
+                                ${LUATOS_ROOT}/components/cjson
                                 ${LUATOS_ROOT}/components/lua-cjson
                                 ${LUATOS_ROOT}/components/crypto
                                 ${LUATOS_ROOT}/components/miniz
@@ -71,6 +72,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/i2c-tools
                                 ${LUATOS_ROOT}/components/fatfs
                                 ${LUATOS_ROOT}/components/lfs
+                                ${LUATOS_ROOT}/components/cjson
                                 ${LUATOS_ROOT}/components/lua-cjson
                                 ${LUATOS_ROOT}/components/crypto
                                 ${LUATOS_ROOT}/components/miniz
