@@ -220,7 +220,19 @@ void luat_os_reboot(int code){
 }
 
 const char* luat_os_bsp(void) {
+#if defined(CONFIG_IDF_TARGET_ESP32)
+    return "ESP32";
+#elif defined(CONFIG_IDF_TARGET_ESP32C2)
+    return "ESP32C2";
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
     return "ESP32C3";
+#elif defined(CONFIG_IDF_TARGET_ESP32S2)
+    return "ESP32S2";
+#elif defined(CONFIG_IDF_TARGET_ESP32S3)
+    return "ESP32S3";
+#else
+    return "ESP32-UNKOWN";
+#endif
 }
 
 /** 设备进入待机模式 */
