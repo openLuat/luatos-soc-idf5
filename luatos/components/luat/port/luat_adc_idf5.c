@@ -7,24 +7,41 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
+#include "driver/temperature_sensor.h"
+
 #include "luat_log.h"
 #define LUAT_LOG_TAG "adc"
 
 #define ADC_CHECK(id) ((id<0||id>=ADC1_CHANNEL_MAX)?-1:0)
 
 static adc_oneshot_unit_handle_t adc1_handle = NULL;
+static adc_oneshot_unit_handle_t adc2_handle = NULL;
 static adc_cali_handle_t adc1_cali_handle = NULL;
 
 static uint8_t adc_init = 0;
+static temperature_sensor_handle_t temp_sensor = NULL;
 
 int luat_adc_open(int pin, void *args){
-    if (ADC_CHECK(pin)){
-        return -1;
-    }
     adc_oneshot_chan_cfg_t config = {
         .bitwidth = ADC_BITWIDTH_DEFAULT,
         .atten = ADC_ATTEN_DB_11,
     };
+    if (ADC_CHECK(pin)){
+        if (pin==10){
+            temperature_sensor_config_t temp_sensor_config = TEMPERAUTRE_SENSOR_CONFIG_DEFAULT(-10, 80);
+            temperature_sensor_install(&temp_sensor_config, &temp_sensor);
+            temperature_sensor_enable(temp_sensor);
+            return 0;
+        }else if(pin == 11){
+            adc_oneshot_unit_init_cfg_t init_config2 = {
+                .unit_id = ADC_UNIT_2,
+            };
+            adc_oneshot_new_unit(&init_config2, &adc2_handle);
+            adc_oneshot_config_channel(adc2_handle, ADC2_CHANNEL_MAX, &config);
+            return 0;
+        }
+        return -1;
+    }
     if (adc_init==0){
         adc_oneshot_unit_init_cfg_t init_config1 = {
             .unit_id = ADC_UNIT_1,
@@ -54,6 +71,16 @@ int luat_adc_open(int pin, void *args){
 
 int luat_adc_read(int pin, int *val, int *val2){
     if (ADC_CHECK(pin)){
+        if (pin == 10){
+            float tsens_value;
+            temperature_sensor_get_celsius(temp_sensor, &tsens_value);
+            *val = (int)(tsens_value*1000);
+            *val2 = (int)(tsens_value*1000);
+            return 0;
+        }else if(pin == 11){
+            adc_oneshot_read(adc2_handle, ADC2_CHANNEL_MAX, val);
+            return 0;
+        }
         return -1;
     }
     adc_oneshot_read(adc1_handle, pin, val);
@@ -63,6 +90,14 @@ int luat_adc_read(int pin, int *val, int *val2){
 
 int luat_adc_close(int pin){
     if (ADC_CHECK(pin)){
+        if (pin == 10){
+            temperature_sensor_disable(temp_sensor);
+            temperature_sensor_uninstall(temp_sensor);
+            return 0;
+        }else if(pin == 11){
+            adc_oneshot_del_unit(adc2_handle);
+            return 0;
+        }
         return -1;
     }
     gpio_reset_pin(pin);
