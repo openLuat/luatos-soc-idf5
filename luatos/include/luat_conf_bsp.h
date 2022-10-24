@@ -28,7 +28,7 @@
 #define LUAT_USE_ADC  1
 #define LUAT_USE_PWM  1
 #define LUAT_USE_WDT  1
-// #define LUAT_USE_PM  1
+#define LUAT_USE_PM  1
 #define LUAT_USE_MCU  1
 #define LUAT_USE_RTC 1
 // SDIO 仅支持TF/SD卡的挂载
@@ -80,8 +80,8 @@
 
 //----------------------------
 // 高级功能, 其中shell是推荐启用, 除非你打算uart0也读数据
-// #define LUAT_USE_SHELL 1
-// #define LUAT_USE_DBG
+#define LUAT_USE_SHELL 1
+#define LUAT_USE_DBG
 // 多虚拟机支持,实验性,一般不启用
 // #define LUAT_USE_VMX 1
 // #define LUAT_USE_PROTOBUF 1
@@ -104,10 +104,10 @@
 // #define LUAT_USE_FONTS
 /**********U8G2&LCD&EINK FONT*************/
 #define USE_U8G2_OPPOSANSM_ENGLISH 1
-#define USE_U8G2_OPPOSANSM8_CHINESE
+// #define USE_U8G2_OPPOSANSM8_CHINESE
 #define USE_U8G2_OPPOSANSM10_CHINESE
 #define USE_U8G2_OPPOSANSM12_CHINESE
-#define USE_U8G2_OPPOSANSM16_CHINESE
+// #define USE_U8G2_OPPOSANSM16_CHINESE
 // #define USE_U8G2_OPPOSANSM24_CHINESE
 // #define USE_U8G2_OPPOSANSM32_CHINESE
 /**********LVGL FONT*************/
