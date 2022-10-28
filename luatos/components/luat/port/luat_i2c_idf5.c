@@ -48,7 +48,7 @@ int luat_i2c_send(int id, int addr, void *buff, size_t len, uint8_t stop){
     }
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, addr, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, addr << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
     i2c_master_write(cmd, (const uint8_t *)buff, len, ACK_CHECK_EN);
     if (stop)
         i2c_master_stop(cmd);
@@ -63,7 +63,7 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len){
     }
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, addr, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, addr << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
     i2c_master_read(cmd, (uint8_t *)buff, len, I2C_MASTER_LAST_NACK);
     i2c_master_stop(cmd);
     i2c_master_cmd_begin(id, cmd, 1000 / portTICK_PERIOD_MS);
