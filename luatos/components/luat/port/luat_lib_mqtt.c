@@ -26,9 +26,6 @@ typedef struct{
 	int mqtt_cb;				// mqtt lua回调函数
 	uint8_t adapter_index; 		// 适配器索引号, 似乎并没有什么用
 	uint8_t mqtt_state;    		// mqtt状态
-	uint8_t reconnect;    		// mqtt是否重连
-	uint32_t reconnect_time;    // mqtt重连时间 单位ms
-	void* reconnect_timer;		// mqtt重连定时器
 	int mqtt_ref;				// 强制引用自身避免被GC
 }luat_mqtt_ctrl_t;
 
@@ -50,17 +47,9 @@ static luat_mqtt_ctrl_t * get_mqtt_ctrl(lua_State *L){
 	return 0;
 }
 
-static void reconnect_timer_cb(void *data, void *param){
-	luat_mqtt_ctrl_t * mqtt_ctrl = (luat_mqtt_ctrl_t *)param;
-	esp_mqtt_client_reconnect(mqtt_ctrl->client);
-}
 
 static void mqtt_close(luat_mqtt_ctrl_t *mqtt_ctrl){
 	mqtt_ctrl->mqtt_state = 0;
-	if (mqtt_ctrl->reconnect){
-		mqtt_ctrl->reconnect_timer = luat_create_rtos_timer(reconnect_timer_cb, mqtt_ctrl, NULL);
-		luat_start_rtos_timer(mqtt_ctrl->reconnect_timer, mqtt_ctrl->reconnect_time, 0);
-	}
 }
 
 static void mqtt_release(luat_mqtt_ctrl_t *mqtt_ctrl){
@@ -183,6 +172,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		case MQTT_EVENT_ERROR:
 			mqtt_close(mqtt_ctrl);
 			break;
+		case MQTT_EVENT_BEFORE_CONNECT:
+			// LLOGI("MQTT_EVENT_BEFORE_CONNECT");
+			break;
 		default:
 			LLOGW("Other event id:%d", event->event_id);
 			break;
@@ -266,7 +258,7 @@ static int l_mqtt_create(lua_State *L) {
 	}
 	memset(mqtt_ctrl, 0, sizeof(luat_mqtt_ctrl_t));
 	mqtt_ctrl->adapter_index = adapter_index;
-	const char *uri = luaL_checklstring(L, 2, &ip_len);;
+	const char *uri = luaL_checklstring(L, 2, &ip_len);
 	mqtt_ctrl->mqtt_cfg.session.keepalive = 240;
 	if (lua_isnumber(L, 3)){
 		mqtt_ctrl->mqtt_cfg.broker.address.port = luaL_checkinteger(L, 3);
@@ -381,9 +373,9 @@ mqttc:autoreconn(true)
 static int l_mqtt_autoreconn(lua_State *L) {
 	luat_mqtt_ctrl_t * mqtt_ctrl = get_mqtt_ctrl(L);
 	if (lua_isboolean(L, 2)){
-		mqtt_ctrl->reconnect = lua_toboolean(L, 2);
+		mqtt_ctrl->mqtt_cfg.network.disable_auto_reconnect = !lua_toboolean(L, 2);
 	}
-	mqtt_ctrl->reconnect_time = luaL_optinteger(L, 3, 3000);
+	mqtt_ctrl->mqtt_cfg.network.reconnect_timeout_ms = luaL_optinteger(L, 3, 3000);
 	return 0;
 }
 
