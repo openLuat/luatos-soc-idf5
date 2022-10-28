@@ -29,8 +29,8 @@
 #define HTTP_ERROR_RX 		(-6)
 
 typedef struct http_header {
-    char *key;   
-    char *value; 
+    char *key;
+    char *value;
     struct http_header *next;
 } http_header_t;
 
@@ -229,7 +229,7 @@ static esp_err_t l_http_event_handler(esp_http_client_event_t *evt) {
             break;
         case HTTP_EVENT_ON_FINISH:
             // LLOGD("HTTP_EVENT_ON_FINISH");
-            
+
             // http_resp_error(http_ctrl, HTTP_ERROR_OK);
             break;
         case HTTP_EVENT_DISCONNECTED:
@@ -272,9 +272,9 @@ http2客户端
 @tabal  额外配置 可选 包含dst:下载路径,可选 adapter:选择使用网卡,可选
 @string 证书 可选
 @return int code
-@return tabal headers 
+@return tabal headers
 @return string body
-@usage 
+@usage
 local code, headers, body = http2.request("GET","http://site0.cn/api/httptest/simple/time").wait()
 log.info("http2.get", code, headers, body)
 */
@@ -285,7 +285,8 @@ static int l_http_request(lua_State *L) {
     luat_http_ctrl_t *http_ctrl = (luat_http_ctrl_t *)luat_heap_malloc(sizeof(luat_http_ctrl_t));
     if (!http_ctrl){
 		LLOGE("out of memory when malloc http_ctrl");
-		luat_pushcwait_error(L,HTTP_ERROR_CONNECT);
+        lua_pushinteger(L,HTTP_ERROR_CONNECT);
+		luat_pushcwait_error(L,1);
 		return 1;
 	}
 	memset(http_ctrl, 0, sizeof(luat_http_ctrl_t));
@@ -318,7 +319,7 @@ static int l_http_request(lua_State *L) {
     http_conf.user_data = (void*)http_ctrl;
     http_conf.disable_auto_redirect = true;
     http_ctrl->http_client = esp_http_client_init(&http_conf);
-    
+
 	if (lua_istable(L, 3)) {
 		lua_pushnil(L);
 		while (lua_next(L, 3) != 0) {
@@ -373,7 +374,8 @@ static int l_http_request(lua_State *L) {
     return 1;
 error:
 	http_close(http_ctrl);
-	luat_pushcwait_error(L,HTTP_ERROR_CONNECT);
+    lua_pushinteger(L,HTTP_ERROR_CONNECT);
+	luat_pushcwait_error(L,1);
 	return 1;
 }
 
