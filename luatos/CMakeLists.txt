@@ -2,7 +2,8 @@
 # in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.16)
 
-set(LUATOS_ROOT "E://code/codeup/LuatOS/")
+# change it!!
+set(LUATOS_ROOT "D://github/LuatOS/")
 
 set(EXTRA_COMPONENT_DIRS
              ./components/luat
