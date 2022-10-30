@@ -141,9 +141,6 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_GTFONT
   {"gtfont",    luaopen_gtfont},
 #endif
-#ifdef LUAT_USE_NIMBLE
-  {"nimble",    luaopen_nimble},
-#endif
 #ifdef LUAT_USE_FDB
   {"fdb",       luaopen_fdb},
 #endif
@@ -192,7 +189,9 @@ static const luaL_Reg loadedlibs[] = {
   {"httpsrv", luaopen_httpsrv},
 #endif
 #ifdef LUAT_USE_NIMBLE
+#if CONFIG_BT_ENABLED
   {"nimble", luaopen_nimble},
+#endif
 #endif
   {NULL, NULL}
 };

@@ -1,10 +1,13 @@
 
-
+set(srcs "port")
+if(CONFIG_BT_ENABLED)
+    list(APPEND srcs "ble" "${LUATOS_ROOT}/components/nimble/src")
+endif()
 
 idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/luat/vfs
                                 ${LUATOS_ROOT}/lua/src
-                                port
+                                ${srcs}
                                 ${LUATOS_ROOT}/components/shell
                                 ${LUATOS_ROOT}/components/ymodem
                                 ${LUATOS_ROOT}/components/cmux
@@ -61,7 +64,6 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/src
-                                ${LUATOS_ROOT}/components/nimble/src
                     EXCLUDE_SRCS
                                 ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
