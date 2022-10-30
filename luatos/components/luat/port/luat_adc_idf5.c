@@ -39,19 +39,20 @@ int luat_adc_open(int pin, void *args){
             .unit_id = ADC_UNIT_1,
         };
         adc_oneshot_new_unit(&init_config1, &adc1_handle);
+        adc_oneshot_config_channel(adc1_handle, pin, &config);
 #if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
         adc_cali_curve_fitting_config_t cali_config = {
-#else
-        adc_cali_line_fitting_config_t cali_config = {
-#endif
             .unit_id = ADC_UNIT_1,
             .atten = ADC_ATTEN_DB_11,
             .bitwidth = ADC_BITWIDTH_DEFAULT,
         };
-        adc_oneshot_config_channel(adc1_handle, pin, &config);
-#if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
         adc_cali_create_scheme_curve_fitting(&cali_config, &adc1_cali_handle);
-#else
+#elif ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
+        adc_cali_line_fitting_config_t cali_config = {
+            .unit_id = ADC_UNIT_1,
+            .atten = ADC_ATTEN_DB_11,
+            .bitwidth = ADC_BITWIDTH_DEFAULT,
+        };
         adc_cali_create_scheme_line_fitting(&cali_config, &adc1_cali_handle);
 #endif
         adc_init = 1;
