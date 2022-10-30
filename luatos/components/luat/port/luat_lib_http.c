@@ -79,20 +79,6 @@ static int http_close(luat_http_ctrl_t *http_ctrl){
 	return 0;
 }
 
-// 这个是启动线程失败后, 主动回调cbcwait的中转函数
-static int32_t l_http_cb_eaily(lua_State *L, void* ptr){
-    rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
-    luat_http_ctrl_t *http_ctrl =(luat_http_ctrl_t *)msg->ptr;
-    if (http_ctrl->idp) {
-        lua_pushinteger(L, msg->arg1); // 把错误码返回去
-	    luat_cbcwait(L, http_ctrl->idp, 1);
-        // 只需要cwait回调一次
-        http_ctrl->idp = 0;
-    }
-    http_close(http_ctrl);
-    return 0;
-}
-
 static int32_t l_http_callback(lua_State *L, void* ptr){
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     luat_http_ctrl_t *http_ctrl =(luat_http_ctrl_t *)msg->ptr;
