@@ -15,10 +15,12 @@
 
 //-----------------------------------------------------------------------------
 
-#ifdef CONFIG_IDF_TARGET_ESP32
-#define LUAT_HEAP_SIZE (64*1024)
-#else
+#if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
 #define LUAT_HEAP_SIZE (96*1024)
+#elif defined(CONFIG_IDF_TARGET_ESP32C2)
+#define LUAT_HEAP_SIZE (48*1024)
+#else
+#define LUAT_HEAP_SIZE (64*1024)
 #endif
 static uint8_t vmheap[LUAT_HEAP_SIZE];
 static const uint32_t heap_addr_start = (uint32_t) vmheap;
@@ -119,5 +121,5 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used) {
 
 void luat_heap_init(void) {
     bpool(vmheap, LUAT_HEAP_SIZE);
-    LLOGD("vm heap range %08X %08X", heap_addr_start, heap_addr_end);
+    //LLOGD("vm heap range %08X %08X", heap_addr_start, heap_addr_end);
 }
