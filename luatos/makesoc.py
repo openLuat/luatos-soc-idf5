@@ -14,10 +14,13 @@ parser.add_argument('config_json', type=str, help='the config_json of idf')
 # 打包路径
 out_path = os.path.dirname(os.path.abspath(__file__))
 pack_path = os.path.join(out_path,"pack")
+
 # bin路径
 bootloader_bin = os.path.join(out_path,"build","bootloader","bootloader.bin")
 partition_table_bin = os.path.join(out_path,"build","partition_table","partition-table.bin")
 luatos_bin = os.path.join(out_path,"build","luatos.bin")
+
+luat_conf_bsp = os.path.join(out_path,"include","luat_conf_bsp.h")
 info_json = os.path.join(pack_path,"info.json")
 soc_download_exe = os.path.join(pack_path,"soc_download.exe")
 
@@ -67,6 +70,7 @@ if __name__=='__main__':
     shutil.copy(bootloader_bin, temp)
     shutil.copy(partition_table_bin, temp)
     shutil.copy(luatos_bin, temp)
+    shutil.copy(luat_conf_bsp, temp)
     shutil.copy(info_json, temp)
     shutil.copy(soc_download_exe, temp)
     info_json_temp = os.path.join(temp,"info.json")
