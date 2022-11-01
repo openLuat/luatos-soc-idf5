@@ -390,12 +390,12 @@ static int l_mqtt_autoreconn(lua_State *L) {
 mqttc:publish("/luatos/123456", "123")
 */
 static int l_mqtt_publish(lua_State *L) {
-	uint16_t payload_len= 0;
+	size_t payload_len= 0;
 	luat_mqtt_ctrl_t * mqtt_ctrl = get_mqtt_ctrl(L);
 	const char * topic = luaL_checkstring(L, 2);
 	const char * payload = luaL_checklstring(L, 3, &payload_len);
-	uint8_t qos = luaL_optinteger(L, 4, 0);
-	uint8_t retain = luaL_optinteger(L, 5, 0);
+	int qos = luaL_optinteger(L, 4, 0);
+	int retain = luaL_optinteger(L, 5, 0);
 	int message_id = esp_mqtt_client_publish(mqtt_ctrl->client, topic, payload, payload_len, qos, retain);
 	lua_pushinteger(L, message_id);
 	return 1;
