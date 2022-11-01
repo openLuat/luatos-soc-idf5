@@ -12,6 +12,17 @@ void lv_png_init(void);
 void lv_split_jpeg_init(void);
 #endif
 
+// C2需要强制关闭全部UI组件,否则2M的flash放不下
+#if defined(CONFIG_IDF_TARGET_ESP32C2)
+#undef LUAT_USE_LCD
+#undef LUAT_USE_LVGL
+#undef LUAT_USE_EINK
+#undef LUAT_USE_U8G2
+#undef LUAT_USE_DISP
+#undef LUAT_USE_FONTS
+#undef LUAT_USE_GTFONT
+#endif
+
 LUAMOD_API int luaopen_nimble( lua_State *L );
 
 static const luaL_Reg loadedlibs[] = {
