@@ -38,6 +38,9 @@ static const esp_vfs_spiffs_conf_t spiffs_conf = {
 
 int luat_fs_init(void) {
 	esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
+	if (ret) {
+		LLOGW("spiffs register ret %d", ret);
+	}
 	// vfs进行必要的初始化
 	luat_vfs_init(NULL);
 	// 注册vfs for posix 实现

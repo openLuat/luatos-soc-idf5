@@ -83,13 +83,13 @@ static void client_resp(client_socket_ctx_t* client, int code, const char* heade
     tcp_send(client->client_fd, "X-Powered-By: LuatOS\r\n", strlen("X-Powered-By: LuatOS\r\n"));
     if (strlen(headers)) {
         LLOGD("send headers");
-        tcp_send(client->client_fd, (const char*)headers, strlen(headers));
+        tcp_send(client->client_fd, (char*)headers, strlen(headers));
     }
     tcp_send(client->client_fd, "\r\n", 2);
     // 最后发送body
     if (body_size) {
         LLOGD("send body %d", body_size);
-        tcp_send(client->client_fd, (const char*)body, body_size);
+        tcp_send(client->client_fd, (char*)body, body_size);
     }
     tcp_send(client->client_fd, "", 0);
 }
