@@ -27,10 +27,12 @@ int luat_adc_open(int pin, void *args){
     };
     if (ADC_CHECK(pin)){
         if (pin==10 && temp_sensor == NULL){
+#if defined(CONFIG_IDF_TARGET_ESP32C2)||defined(CONFIG_IDF_TARGET_ESP32C3)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
             temperature_sensor_config_t temp_sensor_config = TEMPERAUTRE_SENSOR_CONFIG_DEFAULT(-10, 80);
             temperature_sensor_install(&temp_sensor_config, &temp_sensor);
             temperature_sensor_enable(temp_sensor);
             return 0;
+#endif
         }
         return -1;
     }
@@ -65,11 +67,13 @@ int luat_adc_open(int pin, void *args){
 int luat_adc_read(int pin, int *val, int *val2){
     if (ADC_CHECK(pin)){
         if (pin == 10){
+#if defined(CONFIG_IDF_TARGET_ESP32C2)||defined(CONFIG_IDF_TARGET_ESP32C3)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
             float tsens_value;
             temperature_sensor_get_celsius(temp_sensor, &tsens_value);
             *val = (int)(tsens_value*1000);
             *val2 = (int)(tsens_value*1000);
             return 0;
+#endif
         }
         return -1;
     }
@@ -81,10 +85,12 @@ int luat_adc_read(int pin, int *val, int *val2){
 int luat_adc_close(int pin){
     if (ADC_CHECK(pin)){
         if (pin == 10){
+#if defined(CONFIG_IDF_TARGET_ESP32C2)||defined(CONFIG_IDF_TARGET_ESP32C3)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
             temperature_sensor_disable(temp_sensor);
             temperature_sensor_uninstall(temp_sensor);
             temp_sensor = NULL;
             return 0;
+#endif
         }
         return -1;
     }
