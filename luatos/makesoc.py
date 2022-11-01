@@ -81,6 +81,12 @@ if __name__=='__main__':
         info_json_data["download"]["core_addr"] = core_addr.replace("0x", "00")
         info_json_data["download"]["script_addr"] = script_addr.replace("0x", "00")
         info_json_data["download"]["fs_addr"] = fs_addr.replace("0x", "00")
+        if bsp == "ESP32C3":
+            info_json_data["download"]["extra_param"] = "00ff0200"
+        elif bsp == "ESP32S3":
+            info_json_data["download"]["extra_param"] = "01ff0200"
+        elif bsp == "ESP32":
+            info_json_data["download"]["extra_param"] = "02ff0200"
         json.dump(info_json_data, f)
     
     if os.path.exists(out_file+'.soc'):
@@ -90,12 +96,12 @@ if __name__=='__main__':
     
     # 首先, 生成不带USB后缀的soc文件
     zip_dir(temp, out_file+'.soc') 
-    
-    # 然后生成USB版本的soc文件
-    with open(info_json_temp, "w") as f :
-        info_json_data["download"]["force_br"] = "0"
-        json.dump(info_json_data, f)
-    zip_dir(temp, out_file+'_USB.soc') 
+    if bsp == "ESP32C3":
+        # 然后生成USB版本的soc文件
+        with open(info_json_temp, "w") as f :
+            info_json_data["download"]["force_br"] = "0"
+            json.dump(info_json_data, f)
+        zip_dir(temp, out_file+'_USB.soc') 
     
     shutil.rmtree(temp)
 
