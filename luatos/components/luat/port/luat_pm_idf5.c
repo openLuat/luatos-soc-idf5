@@ -16,7 +16,7 @@ int luat_pm_request(int mode) {
             .mode = GPIO_MODE_INPUT,
         };
         gpio_config(&config);
-        esp_deep_sleep_enable_gpio_wakeup(BIT(DEFAULT_WAKEUP_PIN), ESP_GPIO_WAKEUP_GPIO_LOW);
+        esp_sleep_enable_gpio_wakeup(BIT(DEFAULT_WAKEUP_PIN), ESP_GPIO_WAKEUP_GPIO_LOW);
         esp_deep_sleep_start();
         return 0;
     }
