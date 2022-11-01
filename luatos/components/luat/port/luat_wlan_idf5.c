@@ -217,7 +217,7 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 
     ret = esp_wifi_start();
     LLOGD("esp_wifi_start ret %d", ret);
-    esp_wifi_set_ps(WIFI_PS_NONE);
+    //esp_wifi_set_ps(WIFI_PS_NONE);
     wlan_inited = 1;
 
     // 自动开启ntp
