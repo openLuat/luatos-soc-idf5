@@ -21,6 +21,7 @@ static uint8_t wlan_is_ready = 0;
 static smartconfig_event_got_ssid_pswd_t *sc_evt;
 
 static char sta_ip[32];
+static char sta_connected_bssid[6];
 
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
 static uint8_t auto_reconnection = 0;
@@ -159,6 +160,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     LLOGD("wifi event %d", event_id);
     if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
         wlan_is_ready = 0;
+        wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
+        memset(sta_connected_bssid, 0, sizeof(sta_connected_bssid));
+    }
+    if (event_id == WIFI_EVENT_STA_CONNECTED) {
+        wifi_event_sta_connected_t *sta = (wifi_event_sta_connected_t*)event_data;
+        memcpy(sta_connected_bssid, sta->bssid, 6);
     }
     luat_msgbus_put(&msg, 0);
 }
@@ -387,5 +394,38 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     LLOGD("esp_wifi_set_config ret %d", ret);
     ret = esp_wifi_start();
     LLOGD("esp_wifi_start ret %d", ret);
+    return 0;
+}
+
+int luat_wlan_get_ip(int type, char* data) {
+    memcpy(data, sta_ip, strlen(sta_ip) + 1);
+    return 0;
+}
+
+int luat_wlan_set_ps(int mode) {
+    if (mode == 0) {
+        esp_wifi_set_ps(WIFI_PS_NONE);
+    }
+    else if (mode == 1) {
+        esp_wifi_set_ps(WIFI_PS_MIN_MODEM);
+    }
+    else if (mode == 2) {
+        esp_wifi_set_ps(WIFI_PS_MAX_MODEM);
+    }
+    else {
+        LLOGE("unkown wifi ps mode %d", mode);
+        return -1;
+    }
+    return 0;
+}
+
+int luat_wlan_get_ps(void) {
+    wifi_ps_type_t mode = WIFI_PS_NONE;
+    esp_wifi_get_ps(&mode);
+    return mode;
+}
+
+int luat_wlan_get_ap_bssid(char* buff) {
+    memcpy(buff, sta_connected_bssid, 6);
     return 0;
 }
