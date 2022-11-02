@@ -21,6 +21,7 @@ void lv_split_jpeg_init(void);
 #undef LUAT_USE_DISP
 #undef LUAT_USE_FONTS
 #undef LUAT_USE_GTFONT
+#undef LUAT_USE_RSA
 #endif
 
 LUAMOD_API int luaopen_nimble( lua_State *L );
@@ -202,6 +203,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_NIMBLE
 #if CONFIG_BT_ENABLED
   {"nimble", luaopen_nimble},
+#endif
+#ifdef LUAT_USE_RSA
+  {"rsa", luaopen_rsa},
 #endif
 #endif
   {NULL, NULL}

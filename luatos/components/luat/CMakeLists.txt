@@ -64,6 +64,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/src
+                                ${LUATOS_ROOT}/components/rsa/binding
                     EXCLUDE_SRCS
                                 ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
@@ -110,6 +111,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/inc
                                 ${LUATOS_ROOT}/components/nimble/inc
+                                ${LUATOS_ROOT}/components/rsa/inc
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom http_parser mqtt esp_adc bt console
                     )

@@ -86,6 +86,8 @@
 // #define LUAT_USE_VMX 1
 // #define LUAT_USE_PROTOBUF 1
 
+#define LUAT_USE_RSA 1
+
 //---------------------
 // UI
 // LCD  是彩屏, 若使用LVGL就必须启用LCD
