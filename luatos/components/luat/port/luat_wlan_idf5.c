@@ -21,6 +21,7 @@ static uint8_t wlan_is_ready = 0;
 static smartconfig_event_got_ssid_pswd_t *sc_evt;
 
 static char sta_ip[32];
+static char sta_gw[32];
 static char sta_connected_bssid[6];
 
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
@@ -183,6 +184,7 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         wlan_is_ready = 1;
         event = (ip_event_got_ip_t*)event_data;
         sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
+        sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
     }
     luat_msgbus_put(&msg, 0);
 }
@@ -427,5 +429,16 @@ int luat_wlan_get_ps(void) {
 
 int luat_wlan_get_ap_bssid(char* buff) {
     memcpy(buff, sta_connected_bssid, 6);
+    return 0;
+}
+
+int luat_wlan_get_ap_rssi(void) {
+    wifi_ap_record_t ap;
+    esp_wifi_sta_get_ap_info(&ap);
+    return ap.rssi;
+}
+
+int luat_wlan_get_ap_gateway(char* buff) {
+    memcpy(buff, sta_gw, strlen(sta_gw) + 1);
     return 0;
 }
