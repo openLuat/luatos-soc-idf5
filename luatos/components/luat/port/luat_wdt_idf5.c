@@ -13,8 +13,12 @@ esp_task_wdt_config_t twdt_config = {
 };
 
 int luat_wdt_init(size_t timeout){
+#if CONFIG_ESP_TASK_WDT_INIT
+    luat_wdt_set_timeout(timeout);
+#else
     twdt_config.timeout_ms = timeout;
     esp_task_wdt_init(&twdt_config);
+#endif
     return esp_task_wdt_add(NULL);
 }
 
