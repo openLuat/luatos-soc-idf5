@@ -45,6 +45,8 @@ if __name__=='__main__':
         partition_table_name = config_json_data["PARTITION_TABLE_FILENAME"]
         partition_table_csv = os.path.join(out_path,partition_table_name)
 
+    script_size = "0x20000"
+
     with open(partition_table_csv) as f :
         reader = csv.DictReader(f)
         for row in reader:
@@ -52,8 +54,18 @@ if __name__=='__main__':
                 core_addr = row[' Offset']
             elif row['# Name']=="script":
                 script_addr = row[' Offset']
+                script_size = row['  Size']
             elif row['# Name']=="spiffs":
                 fs_addr = row[' Offset']
+
+    try :
+        script_size = str(script_size).strip()
+        if script_size.endswith("k"):
+            script_size = int(script_size[:-2])
+        else :
+            script_size = int(script_size) / 1024
+    except:
+        script_size = 128
 
     with open(os.path.join(out_path,"include","luat_conf_bsp.h"), "r", encoding="UTF-8") as f :
         for line in f.readlines():                          #依次读取每行  
@@ -78,6 +90,8 @@ if __name__=='__main__':
     with open(info_json_temp, "r") as f :
         info_json_data = json.load(f)
     with open(info_json_temp, "w") as f :
+        print("script_size", script_size)
+        info_json_data["rom"]["fs"]["script"]["size"] = script_size
         info_json_data["download"]["core_addr"] = core_addr.replace("0x", "00")
         info_json_data["download"]["script_addr"] = script_addr.replace("0x", "00")
         info_json_data["download"]["fs_addr"] = fs_addr.replace("0x", "00")
