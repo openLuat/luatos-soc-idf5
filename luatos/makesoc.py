@@ -101,6 +101,8 @@ if __name__=='__main__':
             info_json_data["download"]["extra_param"] = "01ff0200"
         elif bsp == "ESP32":
             info_json_data["download"]["extra_param"] = "02ff0200"
+        elif bsp == "ESP32C2":
+            info_json_data["download"]["extra_param"] = "03ff0200"
         json.dump(info_json_data, f)
     
     if os.path.exists(out_file+'.soc'):
