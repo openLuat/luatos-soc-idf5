@@ -15,7 +15,7 @@ int luat_i2c_exist(int id){
     return (I2C_CHECK(id)==0);
 }
 
-int luat_i2c_setup(int id, int speed, int slaveaddr){
+int luat_i2c_setup(int id, int speed){
     if (I2C_CHECK(id)){
         return -1;
     }
