@@ -16,6 +16,8 @@ static uint8_t warn_gpio18 = 0;
 static uint8_t warn_gpio19 = 0;
 static uint8_t gpio_isr_sta = 0;
 
+int luat_gpio_irq_default(int pin, void* args);
+
 static void IRAM_ATTR gpio_isr_handler(void *arg) {
     uint32_t pin = (uint32_t)arg;
     luat_gpio_irq_default(pin, (void*)luat_gpio_get(pin));

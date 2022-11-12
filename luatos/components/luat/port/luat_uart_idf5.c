@@ -6,6 +6,7 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "driver/uart.h"
+#include "luat_msgbus.h"
 
 #include "luat_log.h"
 #define LUAT_LOG_TAG "uart"
