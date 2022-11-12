@@ -119,10 +119,16 @@ int luat_vfs_spiffs_ferror(void* userdata, FILE *stream) {
     return ferror(stream);
 }
 size_t luat_vfs_spiffs_fread(void* userdata, void *ptr, size_t size, size_t nmemb, FILE *stream) {
-    return fread(ptr, size, nmemb, stream);
+    int ret = fread(ptr, size, nmemb, stream);
+	if (ret > 0)
+		return size * nmemb;
+	return 0;
 }
 size_t luat_vfs_spiffs_fwrite(void* userdata, const void *ptr, size_t size, size_t nmemb, FILE *stream) {
-    return fwrite(ptr, size, nmemb, stream);
+    int ret = fwrite(ptr, size, nmemb, stream);
+	if (ret > 0)
+		return size * nmemb;
+	return 0;
 }
 int luat_vfs_spiffs_remove(void* userdata, const char *filename) {
     char path[256] = {0};
