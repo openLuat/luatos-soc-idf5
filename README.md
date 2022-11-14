@@ -18,6 +18,13 @@ demo地址: https://gitee.com/openLuat/LuatOS/tree/master/demo/wlan/esp32c3
 
 https://wiki.luatos.com/develop/compile/ESP32C3.html
 
+## Espressif压缩包离线下载
+
+第一次使用idf5需要安装工具集, 数据量不小, 可用下面的链接下载, 并解压到C盘根目录
+
+链接：https://pan.baidu.com/s/1otvCXqIwtBmdUJzZTEuSlw 
+提取码：gjr9 
+
 
 ## 开源协议
 
