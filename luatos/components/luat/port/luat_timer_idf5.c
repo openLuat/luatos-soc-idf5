@@ -47,7 +47,7 @@ int luat_timer_start(luat_timer_t* timer) {
         LLOGE("too many timers");
         return 1; // too many timer!!
     }
-    os_timer = xTimerCreate("luat_timer", timer->timeout, timer->repeat, (void*)(timer->id), luat_timer_callback);
+    os_timer = xTimerCreate("luat_timer", timer->timeout, 0 == timer->repeat ? 0 : 1, (void*)(timer->id), luat_timer_callback);
     //LLOGD("timer id=%ld, osTimerNew=%p", timerIndex, os_timer);
     if (!os_timer) {
         LLOGE("xTimerCreate FAIL");
