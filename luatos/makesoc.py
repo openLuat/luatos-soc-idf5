@@ -66,12 +66,15 @@ if __name__=='__main__':
             script_size = int(script_size) / 1024
     except:
         script_size = 128
-
+    vm_64bit = False
     with open(os.path.join(out_path,"include","luat_conf_bsp.h"), "r", encoding="UTF-8") as f :
         for line in f.readlines():                          #依次读取每行  
-            find_data = re.findall(r'#define LUAT_BSP_VERSION "(.+?)"', line)#[0]
-            if find_data:
-                bsp_version = find_data[0]
+            version_data = re.findall(r'#define LUAT_BSP_VERSION "(.+?)"', line)#[0]
+            if version_data:
+                bsp_version = version_data[0]
+            if line == "#define LUAT_CONF_VM_64bit\r" or line == "#define LUAT_CONF_VM_64bit\n":
+                vm_64bit = True
+
     out_file_name="LuatOS-SoC_{}_{}".format(bsp_version, bsp)
     out_file = os.path.join(out_path,out_file_name)
 
@@ -103,6 +106,8 @@ if __name__=='__main__':
             info_json_data["download"]["extra_param"] = "02ff0200"
         elif bsp == "ESP32C2":
             info_json_data["download"]["extra_param"] = "03ff0200"
+        if vm_64bit:
+            info_json_data["script"]["bitw"] = 64
         json.dump(info_json_data, f)
     
     if os.path.exists(out_file+'.soc'):
