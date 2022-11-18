@@ -28,7 +28,7 @@ int luat_adc_open(int pin, void *args){
     if (ADC_CHECK(pin)){
         if (pin==10 && temp_sensor == NULL){
 #if defined(CONFIG_IDF_TARGET_ESP32C2)||defined(CONFIG_IDF_TARGET_ESP32C3)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
-            temperature_sensor_config_t temp_sensor_config = TEMPERAUTRE_SENSOR_CONFIG_DEFAULT(-10, 80);
+            temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-10, 80);
             temperature_sensor_install(&temp_sensor_config, &temp_sensor);
             temperature_sensor_enable(temp_sensor);
             return 0;
