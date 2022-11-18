@@ -10,6 +10,7 @@
 #include "esp_spiffs.h"
 #include "esp_system.h"
 #include "esp_partition.h"
+#include "esp_flash.h"
 
 #define LUAT_LOG_TAG "flash"
 #include "luat_log.h"

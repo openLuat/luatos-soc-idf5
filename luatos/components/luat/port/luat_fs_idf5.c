@@ -12,6 +12,8 @@
 #include "esp_spiffs.h"
 #include "esp_system.h"
 #include "esp_partition.h"
+#include "esp_flash.h"
+#include "spi_flash_mmap.h"
 
 #define LUAT_LOG_TAG "fs"
 #include "luat_log.h"
