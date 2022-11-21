@@ -309,12 +309,12 @@ static int l_mqtt_auth(lua_State *L) {
 		memcpy(mqtt_ctrl->clientId, tmp, len + 1);
 		mqtt_ctrl->mqtt_cfg.credentials.client_id = mqtt_ctrl->clientId;
 	}
-	tmp = luaL_optlstring(L, 2, "", &len);
+	tmp = luaL_optlstring(L, 3, "", &len);
 	if (tmp) {
 		memcpy(mqtt_ctrl->username, tmp, len + 1);
 		mqtt_ctrl->mqtt_cfg.credentials.username = mqtt_ctrl->username;
 	}
-	tmp = luaL_optlstring(L, 2, "", &len);
+	tmp = luaL_optlstring(L, 4, "", &len);
 	if (tmp) {
 		memcpy(mqtt_ctrl->password, tmp, len + 1);
 		mqtt_ctrl->mqtt_cfg.credentials.authentication.password = mqtt_ctrl->password;
