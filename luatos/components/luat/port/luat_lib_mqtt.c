@@ -22,11 +22,14 @@
 typedef struct{
 	esp_mqtt_client_config_t mqtt_cfg;
 	esp_mqtt_client_handle_t client;
-	const char *uri; 			// mqtt uri
 	int mqtt_cb;				// mqtt lua回调函数
 	uint8_t adapter_index; 		// 适配器索引号, 似乎并没有什么用
 	uint8_t mqtt_state;    		// mqtt状态
 	int mqtt_ref;				// 强制引用自身避免被GC
+	char uri[256]; 			// mqtt uri
+	char username[192];
+	char password[192];
+	char clientId[192];
 }luat_mqtt_ctrl_t;
 
 typedef struct{
@@ -53,9 +56,6 @@ static void mqtt_close(luat_mqtt_ctrl_t *mqtt_ctrl){
 }
 
 static void mqtt_release(luat_mqtt_ctrl_t *mqtt_ctrl){
-	if (mqtt_ctrl->uri){
-		luat_heap_free(mqtt_ctrl->uri);
-	}
 	rtos_msg_t msg = {0};
 	msg.handler = l_mqtt_callback;
 	msg.ptr = mqtt_ctrl;
@@ -251,6 +251,9 @@ static int l_mqtt_create(lua_State *L) {
 	const char *client_key = NULL;
 	const char *client_password = NULL;
 	int adapter_index = luaL_optinteger(L, 1, 0);
+	if (lua_isboolean(L, 4)){
+		is_tls = lua_toboolean(L, 4) == 1 ? 1 : 0;
+	}
 	size_t ip_len = 0;
 	luat_mqtt_ctrl_t *mqtt_ctrl = (luat_mqtt_ctrl_t *)lua_newuserdata(L, sizeof(luat_mqtt_ctrl_t));
 	if (!mqtt_ctrl){
@@ -258,33 +261,26 @@ static int l_mqtt_create(lua_State *L) {
 	}
 	memset(mqtt_ctrl, 0, sizeof(luat_mqtt_ctrl_t));
 	mqtt_ctrl->adapter_index = adapter_index;
-	const char *uri = luaL_checklstring(L, 2, &ip_len);
 	mqtt_ctrl->mqtt_cfg.session.keepalive = 240;
+	const char *uri = luaL_checklstring(L, 2, &ip_len);
 	if (lua_isnumber(L, 3)){
 		mqtt_ctrl->mqtt_cfg.broker.address.port = luaL_checkinteger(L, 3);
 	}
-	
-	if (lua_isboolean(L, 4)){
-		is_tls = lua_toboolean(L, 4);
-	}
+	//LLOGD("is_tls %d", is_tls);
 	if (is_tls){
-		mqtt_ctrl->uri = luat_heap_malloc(ip_len + 9);
-		memset(mqtt_ctrl->uri, 0, ip_len + 9);
 		snprintf_(mqtt_ctrl->uri, ip_len + 9, "%s%s", "mqtts://", uri);
 	}else{
-		mqtt_ctrl->uri = luat_heap_malloc(ip_len + 8);
-		memset(mqtt_ctrl->uri, 0, ip_len + 8);
 		snprintf_(mqtt_ctrl->uri, ip_len + 8, "%s%s", "mqtt://", uri);
 	}
 	mqtt_ctrl->mqtt_cfg.broker.address.uri = mqtt_ctrl->uri;
 
-	if (lua_isstring(L, 5)){
+	if (is_tls && lua_isstring(L, 5)){
 		mqtt_ctrl->mqtt_cfg.broker.verification.certificate = luaL_checklstring(L, 5, &client_cert_len);
 	}
-	if (lua_isstring(L, 6)){
+	if (is_tls && lua_isstring(L, 6)){
 		mqtt_ctrl->mqtt_cfg.credentials.authentication.key = luaL_checklstring(L, 6, &client_key_len);
 	}
-	if (lua_isstring(L, 7)){
+	if (is_tls && lua_isstring(L, 7)){
 		mqtt_ctrl->mqtt_cfg.credentials.authentication.key_password = luaL_checklstring(L, 7, &client_password_len);
 	}
 
@@ -306,9 +302,25 @@ mqttc:auth("123456789","username","password")
 */
 static int l_mqtt_auth(lua_State *L) {
 	luat_mqtt_ctrl_t * mqtt_ctrl = get_mqtt_ctrl(L);
-	mqtt_ctrl->mqtt_cfg.credentials.client_id = luaL_checkstring(L, 2);
-	mqtt_ctrl->mqtt_cfg.credentials.username = luaL_optstring(L, 3, "");
-	mqtt_ctrl->mqtt_cfg.credentials.authentication.password = luaL_optstring(L, 4, "");
+	//LLOGD("set auth %p", mqtt_ctrl);
+	size_t len = 0;
+	const char* tmp = luaL_checklstring(L, 2, &len);
+	if (tmp) {
+		memcpy(mqtt_ctrl->clientId, tmp, len + 1);
+		mqtt_ctrl->mqtt_cfg.credentials.client_id = mqtt_ctrl->clientId;
+	}
+	tmp = luaL_optlstring(L, 2, "", &len);
+	if (tmp) {
+		memcpy(mqtt_ctrl->username, tmp, len + 1);
+		mqtt_ctrl->mqtt_cfg.credentials.username = mqtt_ctrl->username;
+	}
+	tmp = luaL_optlstring(L, 2, "", &len);
+	if (tmp) {
+		memcpy(mqtt_ctrl->password, tmp, len + 1);
+		mqtt_ctrl->mqtt_cfg.credentials.authentication.password = mqtt_ctrl->password;
+	}
+	
+	//LLOGD("set auth ok %p", mqtt_ctrl);
 	return 0;
 }
 
