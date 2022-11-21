@@ -30,6 +30,7 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
     }
     int pin = gpio->pin;
 
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
     // 如果是GPIO18/19, 这两个2脚也用在USB, 在简约版会导致USB连接中断
     if (pin == 18 && warn_gpio18 == 0) {
         warn_gpio18 = 1;
@@ -39,6 +40,10 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
         warn_gpio19 = 1;
         LLOGI("GPIO 18/19 is use for USB too");
     }
+#elif defined(CONFIG_IDF_TARGET_ESP32S3)
+
+#endif
+
     // 重置管脚的功能为GPIO
     gpio_reset_pin(pin);
 
