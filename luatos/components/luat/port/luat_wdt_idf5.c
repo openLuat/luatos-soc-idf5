@@ -6,20 +6,15 @@
 #include "luat_log.h"
 #define LUAT_LOG_TAG "wdt"
 
-esp_task_wdt_config_t twdt_config = {
-    .timeout_ms = 0,
-    .idle_core_mask = 0,
-    .trigger_panic = false,
-};
+static uint32_t task_added = 0;
 
 int luat_wdt_init(size_t timeout){
-#if CONFIG_ESP_TASK_WDT_INIT
+    if (task_added != 0)
+        return 0;
     luat_wdt_set_timeout(timeout);
-#else
-    twdt_config.timeout_ms = timeout;
-    esp_task_wdt_init(&twdt_config);
-#endif
-    return esp_task_wdt_add(NULL);
+    esp_task_wdt_add(NULL);
+    task_added = 1;
+    return 0;
 }
 
 int luat_wdt_feed(void){
@@ -27,8 +22,14 @@ int luat_wdt_feed(void){
 }
 
 int luat_wdt_set_timeout(size_t timeout){
+    esp_task_wdt_config_t twdt_config = {
+        .timeout_ms = 0,
+        .idle_core_mask = 0,
+        .trigger_panic = false,
+    };
     twdt_config.timeout_ms = timeout;
-    return esp_task_wdt_reconfigure(&twdt_config);
+    esp_task_wdt_init(&twdt_config);
+    return 0;
 }
 
 int luat_wdt_close(void){
