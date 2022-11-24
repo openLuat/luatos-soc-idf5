@@ -18,7 +18,7 @@
 #if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
 #define LUAT_HEAP_SIZE (96*1024)
 #elif defined(CONFIG_IDF_TARGET_ESP32C2)
-#define LUAT_HEAP_SIZE (48*1024)
+#define LUAT_HEAP_SIZE (68*1024)
 #else
 #define LUAT_HEAP_SIZE (64*1024)
 #endif
