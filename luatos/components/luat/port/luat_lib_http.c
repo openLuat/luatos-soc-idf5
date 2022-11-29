@@ -375,14 +375,9 @@ static const rotable_Reg_t reg_http[] =
 
 int luaopen_http( lua_State *L ) {
     luat_newlib2(L, reg_http);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "http2"); 
     return 1;
 }
 
-LUAMOD_API int luaopen_http2( lua_State *L ) {
-    lua_getglobal(L, "http");
-    if (lua_isuserdata(L, -1))
-        return 1;
-    luaopen_http(L);
-    return 1;
-}
 
