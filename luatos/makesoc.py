@@ -63,9 +63,12 @@ if __name__=='__main__':
         if script_size.endswith("k"):
             script_size = int(script_size[:-2])
         else :
-            script_size = int(script_size) / 1024
+            script_size = int(script_size, 16) / 1024
     except:
         script_size = 128
+        import traceback
+        traceback.print_exc()
+    print("rom size " + str(script_size) + "k")
     vm_64bit = False
     with open(os.path.join(out_path,"include","luat_conf_bsp.h"), "r", encoding="UTF-8") as f :
         for line in f.readlines():                          #依次读取每行  
