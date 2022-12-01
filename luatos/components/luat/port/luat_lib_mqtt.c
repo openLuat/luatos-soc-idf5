@@ -239,21 +239,19 @@ mqtt客户端创建
 @int 适配器序号, 只能是network.ETH0,network.STA,network.AP,如果不填,会选择最后一个注册的适配器
 @string 服务器地址
 @int  	端口号
-@bool  	是否为ssl加密连接,默认不加密
-@string 证书
+@bool/table  是否为ssl加密连接,默认不加密,true为无证书最简单的加密，table为有证书的加密 <br>server_cert 服务器ca证书数据 <br>client_cert 客户端ca证书数据 <br>client_key 客户端私钥加密数据 <br>client_password 客户端私钥口令数据
+@return userdata 若成功会返回mqtt客户端实例,否则返回nil
 @usage 
 mqttc = mqtt.create(nil,"120.55.137.106", 1884)
 */
 static int l_mqtt_create(lua_State *L) {
 	uint8_t is_tls = 0;
-	size_t client_cert_len, client_key_len, client_password_len;
+	size_t server_cert_len,client_cert_len, client_key_len, client_password_len;
 	const char *client_cert = NULL;
 	const char *client_key = NULL;
 	const char *client_password = NULL;
 	int adapter_index = luaL_optinteger(L, 1, 0);
-	if (lua_isboolean(L, 4)){
-		is_tls = lua_toboolean(L, 4) == 1 ? 1 : 0;
-	}
+
 	size_t ip_len = 0;
 	luat_mqtt_ctrl_t *mqtt_ctrl = (luat_mqtt_ctrl_t *)lua_newuserdata(L, sizeof(luat_mqtt_ctrl_t));
 	if (!mqtt_ctrl){
@@ -266,6 +264,37 @@ static int l_mqtt_create(lua_State *L) {
 	if (lua_isnumber(L, 3)){
 		mqtt_ctrl->mqtt_cfg.broker.address.port = luaL_checkinteger(L, 3);
 	}
+	if (lua_isboolean(L, 4)){
+		is_tls = lua_toboolean(L, 4) == 1 ? 1 : 0;
+	}
+	if (lua_istable(L, 4)){
+		is_tls = 1;
+
+		lua_pushstring(L, "server_cert");
+		if (LUA_TSTRING == lua_gettable(L, 4)) {
+			mqtt_ctrl->mqtt_cfg.broker.verification.certificate = luaL_checklstring(L, -1, &server_cert_len);
+		}
+		lua_pop(L, 1);
+
+		lua_pushstring(L, "client_cert");
+		if (LUA_TSTRING == lua_gettable(L, 4)) {
+			mqtt_ctrl->mqtt_cfg.credentials.authentication.certificate = luaL_checklstring(L, -1, &client_cert_len);
+		}
+		lua_pop(L, 1);
+
+		lua_pushstring(L, "client_key");
+		if (LUA_TSTRING == lua_gettable(L, 4)) {
+			mqtt_ctrl->mqtt_cfg.credentials.authentication.key = luaL_checklstring(L, -1, &client_key_len);
+		}
+		lua_pop(L, 1);
+
+		lua_pushstring(L, "client_password");
+		if (LUA_TSTRING == lua_gettable(L, 4)) {
+			mqtt_ctrl->mqtt_cfg.credentials.authentication.key_password = luaL_checklstring(L, -1, &client_password_len);
+		}
+		lua_pop(L, 1);
+	}
+
 	//LLOGD("is_tls %d", is_tls);
 	if (is_tls){
 		snprintf_(mqtt_ctrl->uri, ip_len + 9, "%s%s", "mqtts://", uri);
@@ -273,16 +302,6 @@ static int l_mqtt_create(lua_State *L) {
 		snprintf_(mqtt_ctrl->uri, ip_len + 8, "%s%s", "mqtt://", uri);
 	}
 	mqtt_ctrl->mqtt_cfg.broker.address.uri = mqtt_ctrl->uri;
-
-	if (is_tls && lua_isstring(L, 5)){
-		mqtt_ctrl->mqtt_cfg.broker.verification.certificate = luaL_checklstring(L, 5, &client_cert_len);
-	}
-	if (is_tls && lua_isstring(L, 6)){
-		mqtt_ctrl->mqtt_cfg.credentials.authentication.key = luaL_checklstring(L, 6, &client_key_len);
-	}
-	if (is_tls && lua_isstring(L, 7)){
-		mqtt_ctrl->mqtt_cfg.credentials.authentication.key_password = luaL_checklstring(L, 7, &client_password_len);
-	}
 
 	mqtt_ctrl->mqtt_state = 0;
 	luaL_setmetatable(L, LUAT_MQTT_CTRL_TYPE);
