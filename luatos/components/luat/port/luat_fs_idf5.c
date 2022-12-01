@@ -23,13 +23,12 @@
 #include <dirent.h>
 
 #ifdef LUAT_USE_LVGL
-#include "lvgl.h"
-#include "luat_lvgl.h"
-#include "lv_sjpg.h"
+static void lvgl_fs_codec_init(void);
 #endif
 
 extern const struct luat_vfs_filesystem vfs_fs_spiffs;
 extern const struct luat_vfs_filesystem vfs_fs_luadb;
+extern const struct luat_vfs_filesystem vfs_fs_romfs;
 
 static const void *map_ptr;
 static spi_flash_mmap_handle_t map_handle;
@@ -59,27 +58,32 @@ int luat_fs_init(void) {
 	};
 	luat_fs_mount(&conf);
 	// 先注册luadb
-	luat_vfs_reg(&vfs_fs_luadb);
-	luat_fs_conf_t conf2 = {
-		.busname = (char*)NULL,
-		.type = "luadb",
-		.filesystem = "luadb",
-		.mount_point = "/luadb/",
-	};
+	luat_fs_conf_t conf2 = {0};
 	luadb_partition = esp_partition_find_first(0x5A, 0x5A, "script");
 	if (luadb_partition != NULL) {
 		esp_partition_mmap(luadb_partition, 0, luadb_partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
     	conf2.busname = (char*)map_ptr;
-    	luat_fs_mount(&conf2);
+        if (!memcmp(map_ptr, "-rom1fs-", 8)) {
+            LLOGI("script zone as romfs");
+            conf2.type = "romfs";
+		    conf2.filesystem = "romfs";
+		    conf2.mount_point = "/luadb/";
+	        luat_vfs_reg(&vfs_fs_romfs);
+        }
+        else {
+            LLOGI("script zone as luadb");
+		    conf2.type = "luadb",
+		    conf2.filesystem = "luadb",
+		    conf2.mount_point = "/luadb/",
+	        luat_vfs_reg(&vfs_fs_luadb);
+        }
+        luat_fs_mount(&conf2);
 	}
 	else {
 		LLOGE("script partition NOT Found !!!");
 	}
 #ifdef LUAT_USE_LVGL
-	luat_lv_fs_init();
-	// lv_bmp_init();
-	// lv_png_init();
-	lv_split_jpeg_init();
+    lvgl_fs_codec_init();
 #endif
     return 0;
 }
@@ -287,5 +291,17 @@ const struct luat_vfs_filesystem vfs_fs_spiffs = {
 
 
 
+#ifdef LUAT_USE_LVGL
+#include "lvgl.h"
+#include "luat_lvgl.h"
+#include "lv_sjpg.h"
+static void lvgl_fs_codec_init(void) {
+	luat_lv_fs_init();
+	// lv_bmp_init();
+	// lv_png_init();
+	lv_split_jpeg_init();
+}
+
+#endif
 
 
