@@ -69,6 +69,7 @@ if __name__=='__main__':
         import traceback
         traceback.print_exc()
     print("rom size " + str(script_size) + "k")
+    print("rom addr " + str(script_addr))
     vm_64bit = False
     with open(os.path.join(out_path,"include","luat_conf_bsp.h"), "r", encoding="UTF-8") as f :
         for line in f.readlines():                          #依次读取每行  
@@ -98,9 +99,9 @@ if __name__=='__main__':
     with open(info_json_temp, "w") as f :
         print("script_size", script_size)
         info_json_data["rom"]["fs"]["script"]["size"] = script_size
-        info_json_data["download"]["core_addr"] = core_addr.replace("0x", "00")
-        info_json_data["download"]["script_addr"] = script_addr.replace("0x", "00")
-        info_json_data["download"]["fs_addr"] = fs_addr.replace("0x", "00")
+        info_json_data["download"]["core_addr"] = core_addr.replace("0x", "00").strip()
+        info_json_data["download"]["script_addr"] = script_addr.replace("0x", "00").strip()
+        info_json_data["download"]["fs_addr"] = fs_addr.replace("0x", "00").strip()
         if bsp == "ESP32C3":
             info_json_data["download"]["extra_param"] = "00ff0200"
         elif bsp == "ESP32S3":
@@ -112,6 +113,7 @@ if __name__=='__main__':
         if vm_64bit:
             info_json_data["script"]["bitw"] = 64
         json.dump(info_json_data, f)
+        print(json.dumps(info_json_data))
     
     if os.path.exists(out_file+'.soc'):
         os.remove(out_file+'.soc')
