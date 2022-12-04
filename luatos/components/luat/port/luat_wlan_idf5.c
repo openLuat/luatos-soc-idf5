@@ -15,6 +15,8 @@
 #define LUAT_LOG_TAG "wlan"
 #include "luat_log.h"
 
+void posix_network_set_ready(uint8_t ready);
+
 static uint8_t wlan_inited = 0;
 static uint8_t wlan_is_ready = 0;
 
@@ -161,6 +163,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     LLOGD("wifi event %d", event_id);
     if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
         wlan_is_ready = 0;
+#ifdef LUAT_USE_NETWORK
+        posix_network_set_ready(0);
+#endif
         wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
         memset(sta_connected_bssid, 0, sizeof(sta_connected_bssid));
     }
@@ -182,6 +187,9 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     LLOGD("ip event %d", event_id);
     if (event_id == IP_EVENT_STA_GOT_IP) {
         wlan_is_ready = 1;
+#ifdef LUAT_USE_NETWORK
+        posix_network_set_ready(1);
+#endif
         event = (ip_event_got_ip_t*)event_data;
         sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));

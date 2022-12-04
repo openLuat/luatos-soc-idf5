@@ -197,6 +197,10 @@ static const luaL_Reg loadedlibs[] = {
   {"http", luaopen_http},
   {"mqtt", luaopen_mqtt},
 #endif
+
+#ifdef LUAT_USE_NETWORK
+  {"socket", luaopen_socket_adapter},
+#endif
 #ifdef LUAT_USE_HTTPSRV
   {"httpsrv", luaopen_httpsrv},
 #endif
