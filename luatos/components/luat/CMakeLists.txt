@@ -65,10 +65,11 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/src
                                 ${LUATOS_ROOT}/components/rsa/binding
-                                ${LUATOS_ROOT}/components/network/adapter
-                                ${LUATOS_ROOT}/components/ethernet/common
-                                ${LUATOS_ROOT}/components/common
-                                ${LUATOS_ROOT}/components/rtos/freertos
+                                // ${LUATOS_ROOT}/components/network/adapter
+                                // ${LUATOS_ROOT}/components/ethernet/common
+                                // ${LUATOS_ROOT}/components/common
+                                // ${LUATOS_ROOT}/components/rtos/freertos
+                                // ${LUATOS_ROOT}/components/network/posix
                     EXCLUDE_SRCS
                                 ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
@@ -106,7 +107,6 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lvgl/exts/lv_gif
                                 ${LUATOS_ROOT}/components/lvgl/exts/lv_png
                                 ${LUATOS_ROOT}/components/lvgl/exts/lv_qrcode
-                                ${LUATOS_ROOT}/components/lvgl/lv_demos
                                 ${LUATOS_ROOT}/components/eink
                                 ${LUATOS_ROOT}/components/epaper
                                 ${LUATOS_ROOT}/components/tjpgd
@@ -115,9 +115,10 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/inc
                                 ${LUATOS_ROOT}/components/nimble/inc
-                                ${LUATOS_ROOT}/components/network/adapter
-                                ${LUATOS_ROOT}/components/ethernet/common
-                                ${LUATOS_ROOT}/components/common
+                                // ${LUATOS_ROOT}/components/network/adapter
+                                // ${LUATOS_ROOT}/components/ethernet/common
+                                // ${LUATOS_ROOT}/components/common
+                                // ${LUATOS_ROOT}/components/network/posix
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom http_parser mqtt esp_adc bt console spi_flash
                     )
