@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # change it!!
-set(LUATOS_ROOT "D://github/LuatOS/")
+set(LUATOS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../LuatOS/)
 
 set(EXTRA_COMPONENT_DIRS
              ./components/luat
