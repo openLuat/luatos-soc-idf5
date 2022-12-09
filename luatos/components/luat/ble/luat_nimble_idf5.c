@@ -35,10 +35,17 @@ int luat_nimble_trace_level(int level) {
     return 0;
 }
 
-int luat_nimble_init_server(uint8_t uart_idx, char* name, int mode);
+int luat_nimble_init_peripheral(uint8_t uart_idx, char* name, int mode);
+int luat_nimble_init_central(uint8_t uart_idx, char* name, int mode);
 
 int luat_nimble_init(uint8_t uart_idx, char* name, int mode) {
-    int ret = luat_nimble_init_server(uart_idx, name, mode);
+    int ret = -1;
+    if (mode == 0) {
+        ret = luat_nimble_init_peripheral(uart_idx, name, mode);
+    }
+    else if (mode == 1) {
+        ret = luat_nimble_init_central(uart_idx, name, mode);
+    }
     if (ret == 0) {
         nimble_port_freertos_init(bleprph_host_task);
     }
