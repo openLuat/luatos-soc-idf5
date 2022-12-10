@@ -100,7 +100,7 @@
 #define LUAT_USE_LCD
 #define LUAT_USE_TJPGD
 // EINK 是墨水屏
-// #define LUAT_USE_EINK
+#define LUAT_USE_EINK
 
 //---------------------
 // U8G2
