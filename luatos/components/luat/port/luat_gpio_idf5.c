@@ -87,7 +87,11 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
             gpio_set_intr_type(pin, GPIO_INTR_ANYEDGE);
             break;
         }
-        gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
+        if (gpio->irq_cb) {
+            gpio_isr_handler_add(pin, gpio->irq_cb, (void*)luat_gpio_get(pin));
+        }else{
+            gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
+        }
     }
     // 上拉/下拉状态
     switch (gpio->pull) {
