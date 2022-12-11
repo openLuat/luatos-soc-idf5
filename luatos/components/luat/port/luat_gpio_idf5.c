@@ -88,7 +88,7 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
             break;
         }
         if (gpio->irq_cb) {
-            gpio_isr_handler_add(pin, gpio->irq_cb, (void*)luat_gpio_get(pin));
+            gpio_isr_handler_add(pin, gpio->irq_cb, (void*)pin);
         }else{
             gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
         }
