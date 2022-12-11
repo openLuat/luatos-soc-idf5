@@ -23,8 +23,10 @@
 #define LUAT_HEAP_SIZE (64*1024)
 #endif
 static uint8_t vmheap[LUAT_HEAP_SIZE];
+#if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
 static const uint32_t heap_addr_start = (uint32_t) vmheap;
 static const uint32_t heap_addr_end = (uint32_t) vmheap + LUAT_HEAP_SIZE;
+#endif
 
 //------------------------------------------------
 //  管理系统内存
