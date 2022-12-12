@@ -7,6 +7,10 @@
 // 启用64位虚拟机
 // #define LUAT_CONF_VM_64bit
 
+#define LUAT_RET int
+#define LUAT_RT_RET_TYPE	void
+#define LUAT_RT_CB_PARAM void *param
+
 #define LUAT_USE_FS_VFS 1
 #define LUAT_USE_VFS_INLINE_LIB 1
 #define LUAT_COMPILER_NOWEAK
@@ -62,7 +66,7 @@
 #define LUAT_USE_FDB 1
 #define LUAT_USE_OTA 1
 #define LUAT_USE_I2CTOOLS 1
-// #define LUAT_USE_LORA 1
+#define LUAT_USE_LORA 1
 #define LUAT_USE_MLX90640 1
 // zlib压缩,更快更小的实现
 #define LUAT_USE_MINIZ 1

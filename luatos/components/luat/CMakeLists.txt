@@ -68,10 +68,8 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 # ${LUATOS_ROOT}/components/network/adapter
                                 # ${LUATOS_ROOT}/components/ethernet/common
                                 # ${LUATOS_ROOT}/components/common
-                                # ${LUATOS_ROOT}/components/rtos/freertos
+                                ${LUATOS_ROOT}/components/rtos/freertos
                                 # ${LUATOS_ROOT}/components/network/posix
-                    EXCLUDE_SRCS
-                                ${LUATOS_ROOT}/luat/modules/luat_lib_http.c
                     INCLUDE_DIRS ../../include
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
