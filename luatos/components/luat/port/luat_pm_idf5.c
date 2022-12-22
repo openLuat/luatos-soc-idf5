@@ -60,3 +60,8 @@ int luat_pm_dtimer_wakeup_id(int* id) {
 int luat_pm_dtimer_list(size_t* count, size_t* list) {
     return 0;
 }
+
+int luat_pm_poweroff(void) {
+    LLOGW("powerOff is not supported");
+    return -1;
+}
