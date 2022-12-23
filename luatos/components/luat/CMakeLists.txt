@@ -65,11 +65,13 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/src
                                 ${LUATOS_ROOT}/components/rsa/binding
-                                # ${LUATOS_ROOT}/components/network/adapter
-                                # ${LUATOS_ROOT}/components/ethernet/common
-                                # ${LUATOS_ROOT}/components/common
+                                ${LUATOS_ROOT}/components/network/adapter
+                                ${LUATOS_ROOT}/components/ethernet/common
+                                ${LUATOS_ROOT}/components/common
                                 ${LUATOS_ROOT}/components/rtos/freertos
-                                # ${LUATOS_ROOT}/components/network/posix
+                                ${LUATOS_ROOT}/components/network/posix
+                                ${LUATOS_ROOT}/components/network/websocket
+                                ${LUATOS_ROOT}/components/luatfonts
                     INCLUDE_DIRS ../../include
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
@@ -113,10 +115,12 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/lora/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/inc
                                 ${LUATOS_ROOT}/components/nimble/inc
-                                # ${LUATOS_ROOT}/components/network/adapter
-                                # ${LUATOS_ROOT}/components/ethernet/common
-                                # ${LUATOS_ROOT}/components/common
-                                # ${LUATOS_ROOT}/components/network/posix
+                                ${LUATOS_ROOT}/components/network/adapter
+                                ${LUATOS_ROOT}/components/ethernet/common
+                                ${LUATOS_ROOT}/components/common
+                                ${LUATOS_ROOT}/components/network/posix
+                                ${LUATOS_ROOT}/components/network/websocket
+                                ${LUATOS_ROOT}/components/luatfonts
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom http_parser mqtt esp_adc bt console spi_flash
                     )
