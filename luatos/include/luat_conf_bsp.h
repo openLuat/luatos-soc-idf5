@@ -19,6 +19,12 @@
 // 内存优化: 减少内存消耗, 会稍微减低性能
 #define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
 
+//PSRAM
+//如果是ESP32C3, 则启用PSRAM
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+#define LUAT_USE_PSRAM 1
+#endif
+
 //----------------------------------
 // 使用VFS(虚拟文件系统)和内置库文件, 必须启用
 #define LUAT_USE_FS_VFS 1

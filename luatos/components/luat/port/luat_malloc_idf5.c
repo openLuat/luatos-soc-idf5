@@ -69,9 +69,9 @@ void* IRAM_ATTR luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
     {
     	void* ptmp = bgetr(ptr, nsize);
     	if(ptmp == NULL && osize >= nsize)
-    	{
-    		return ptr;
-    	}
+        {
+            return ptr;
+        }
         return ptmp;
     }
     brel(ptr);
@@ -79,11 +79,11 @@ void* IRAM_ATTR luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 }
 
 void luat_meminfo_luavm(size_t *total, size_t *used, size_t *max_used) {
-	long curalloc, totfree, maxfree;
-	unsigned long nget, nrel;
-	bstats(&curalloc, &totfree, &maxfree, &nget, &nrel);
-	*used = curalloc;
-	*max_used = bstatsmaxget();
+    long curalloc, totfree, maxfree;
+    unsigned long nget, nrel;
+    bstats(&curalloc, &totfree, &maxfree, &nget, &nrel);
+    *used = curalloc;
+    *max_used = bstatsmaxget();
     *total = curalloc + totfree;
 }
 
@@ -114,14 +114,29 @@ void luat_meminfo_luavm(size_t *total, size_t *used, size_t *max_used) {
 
 #include "esp_system.h"
 #include "esp_heap_caps.h"
-
-void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used) {
+#include "esp_psram.h"
+void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
+{
     *total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
-	*used = *total - heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
-	*max_used = *total - heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
+    *used = *total - heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+    *max_used = *total - heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
 }
 
-void luat_heap_init(void) {
+void luat_heap_init(void)
+{
+#ifdef LUAT_USE_PSRAM
+    size_t t = esp_psram_get_size();
+    LLOGD("InitPSRAM The chip has %dMBITS PSRAM", t);
+    if (t > 0)
+    {
+        bpool(heap_caps_malloc(1024 * 1024 * 7, MALLOC_CAP_SPIRAM), 1024 * 1024 * 7);
+    }
+    else
+    {
+        bpool(vmheap, LUAT_HEAP_SIZE);
+    }
+#else
     bpool(vmheap, LUAT_HEAP_SIZE);
-    //LLOGD("vm heap range %08X %08X", heap_addr_start, heap_addr_end);
+#endif
+    // LLOGD("vm heap range %08X %08X", heap_addr_start, heap_addr_end);
 }

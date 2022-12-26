@@ -10,6 +10,7 @@ set(EXTRA_COMPONENT_DIRS
     )
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+idf_component_optional_requires(PRIVATE esp_psram)
 project(luatos)
 
 idf_build_set_property(COMPILE_OPTIONS "-D__LUATOS__=1" APPEND)
