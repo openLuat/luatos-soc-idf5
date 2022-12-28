@@ -24,6 +24,7 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
         LLOGE("too many PWM!!! only %d channels supported", LEDC_TIMER_MAX);
         return -1;
     }
+    resolution = ceil(log2(conf->precision));
     if (luat_pwm_idf[timer] == 0){
         ledc_timer_config_t ledc_timer = {
             .speed_mode = LEDC_LOW_SPEED_MODE,
@@ -31,8 +32,6 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
             .freq_hz = conf->period,
             .clk_cfg = LEDC_AUTO_CLK,
         };
-
-        resolution = ceil(log2(conf->precision));
         ledc_timer.duty_resolution = resolution;
 
         ret = ledc_timer_config(&ledc_timer);
