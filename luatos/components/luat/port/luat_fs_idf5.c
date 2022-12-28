@@ -95,7 +95,9 @@ FILE* luat_vfs_spiffs_fopen(void* userdata, const char *filename, const char *mo
 		sprintf(path, "/spiffs%s", filename);
 	else
 		sprintf(path, "/spiffs/%s", filename);
-    return fopen(path, mode);
+    FILE* fd = fopen(path, mode);
+    //LLOGD("fopen %s %s %s %p", filename, path, mode, fd);
+    return fd;
 }
 
 int luat_vfs_spiffs_getc(void* userdata, FILE* stream) {
@@ -126,14 +128,16 @@ int luat_vfs_spiffs_ferror(void* userdata, FILE *stream) {
 }
 size_t luat_vfs_spiffs_fread(void* userdata, void *ptr, size_t size, size_t nmemb, FILE *stream) {
     int ret = fread(ptr, size, nmemb, stream);
+    //LLOGD("fread %d %d %d", size, nmemb, ret);
 	if (ret > 0)
-		return size * nmemb;
+		return size * ret;
 	return 0;
 }
 size_t luat_vfs_spiffs_fwrite(void* userdata, const void *ptr, size_t size, size_t nmemb, FILE *stream) {
     int ret = fwrite(ptr, size, nmemb, stream);
+    //LLOGD("fwrite %d %d %d", size, nmemb, ret);
 	if (ret > 0)
-		return size * nmemb;
+		return size * ret;
 	return 0;
 }
 int luat_vfs_spiffs_remove(void* userdata, const char *filename) {
