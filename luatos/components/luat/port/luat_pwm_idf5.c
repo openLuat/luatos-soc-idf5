@@ -2,6 +2,8 @@
 #include "luat_base.h"
 #include "luat_pwm.h"
 
+#include <math.h>
+
 #include "driver/ledc.h"
 
 #include "luat_log.h"
@@ -10,6 +12,7 @@
 static uint8_t luat_pwm_idf[LEDC_TIMER_MAX] = {0};
 
 int luat_pwm_setup(luat_pwm_conf_t *conf){
+    int resolution = 0;
     int timer = -1;
     int ret = 0;
     for (size_t i = 0; i < LEDC_TIMER_MAX; i++){
@@ -24,11 +27,14 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
     if (luat_pwm_idf[timer] == 0){
         ledc_timer_config_t ledc_timer = {
             .speed_mode = LEDC_LOW_SPEED_MODE,
-            .duty_resolution = LEDC_TIMER_13_BIT,
             .timer_num = timer,
             .freq_hz = conf->period,
             .clk_cfg = LEDC_AUTO_CLK,
         };
+
+        resolution = ceil(log2(conf->precision));
+        ledc_timer.duty_resolution = resolution;
+
         ret = ledc_timer_config(&ledc_timer);
         if (ret) {
             return -1;
@@ -47,7 +53,7 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
         luat_pwm_idf[timer] = conf->channel+1;//避免使用0
     }
     ledc_set_freq(LEDC_LOW_SPEED_MODE, timer, conf->period);
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, timer, 8192 * conf->pulse / conf->precision );
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, timer, pow(2, resolution) * conf->pulse / conf->precision );
     ledc_update_duty(LEDC_LOW_SPEED_MODE, timer);
     return 0;
 }
