@@ -72,6 +72,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/network/posix
                                 ${LUATOS_ROOT}/components/network/websocket
                                 ${LUATOS_ROOT}/components/luatfonts
+                                ${LUATOS_ROOT}/components/fskv
                     INCLUDE_DIRS ../../include
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
@@ -121,6 +122,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/network/posix
                                 ${LUATOS_ROOT}/components/network/websocket
                                 ${LUATOS_ROOT}/components/luatfonts
+                                ${LUATOS_ROOT}/components/fskv
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom http_parser mqtt esp_adc bt console spi_flash esp_psram 
                     )
