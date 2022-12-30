@@ -69,7 +69,9 @@
 #define LUAT_USE_COREMARK 1
 #define LUAT_USE_IR 1
 // FDB 提供kv数据库, 与nvm库类似
-#define LUAT_USE_FDB 1
+// #define LUAT_USE_FDB 1
+// FSKV库提供fdb库的兼容API, 目标是替代fdb库
+#define LUAT_USE_FSKV 1
 #define LUAT_USE_OTA 1
 #define LUAT_USE_I2CTOOLS 1
 #define LUAT_USE_LORA 1
