@@ -10,8 +10,6 @@
 extern int Base_year;
 
 int luat_rtc_set(struct tm *tblock){
-    tblock->tm_year -= Base_year;
-    tblock->tm_mon--;
     time_t timeSinceEpoch = mktime(tblock);
     struct timeval now = {0};
     now.tv_sec = timeSinceEpoch;
@@ -23,8 +21,6 @@ int luat_rtc_get(struct tm *tblock){
     time_t now = {0};
     time(&now);
     localtime_r(&now, tblock);
-    tblock->tm_year += Base_year;
-    tblock->tm_mon++;
     return 0;
 }
 
