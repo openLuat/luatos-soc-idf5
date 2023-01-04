@@ -62,6 +62,10 @@ int luat_fs_init(void) {
 	luadb_partition = esp_partition_find_first(0x5A, 0x5A, "script");
 	if (luadb_partition != NULL) {
 		esp_partition_mmap(luadb_partition, 0, luadb_partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
+        if (map_ptr == NULL) {
+            LLOGE("luadb mmap failed, it is bug, try to build a small script zone Firmware");
+            return -1;
+        }
     	conf2.busname = (char*)map_ptr;
         if (!memcmp(map_ptr, "-rom1fs-", 8)) {
             LLOGI("script zone as romfs");
