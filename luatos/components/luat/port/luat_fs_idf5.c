@@ -2,6 +2,7 @@
 #include "luat_fs.h"
 #include "luat_msgbus.h"
 #include "luat_ota.h"
+#include "luat_timer.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -33,13 +34,43 @@ extern const struct luat_vfs_filesystem vfs_fs_romfs;
 static const void *map_ptr;
 static spi_flash_mmap_handle_t map_handle;
 const esp_partition_t * luadb_partition;
+extern const unsigned char bin2c_romfs_bin[3072];
 
 // 文件系统初始化函数
 static const esp_vfs_spiffs_conf_t spiffs_conf = {
     .base_path = "/spiffs",
     .partition_label = NULL,
     .max_files = 10,
-    .format_if_mount_failed = true};
+    .format_if_mount_failed = true
+};
+
+#include "luat_romfs.h"
+int idf5_romfs_read(void* userdata, char* buff, size_t offset, size_t len) {
+    // LLOGD("idf5_romfs_read %p, %p %04X", userdata, buff, len);
+    if (luadb_partition == NULL)
+        return -1;
+    esp_err_t ret = esp_partition_read(luadb_partition, offset, buff, len);
+    if (ret != 0) {
+        LLOGD("esp_partition_read ret %d", ret);
+    }
+    return ret;
+}
+
+int idf5_romfs_read2(void* userdata, char* buff, size_t offset, size_t len) {
+    // LLOGD("idf5_romfs_read2 %p %p %04X %04X", userdata, buff, offset, len);
+    memcpy(buff, ((char*)userdata) + offset, len);
+    return 0;
+}
+
+const luat_romfs_ctx idf5_romfs = {
+    .read = idf5_romfs_read,
+    .userdata = NULL
+};
+const luat_romfs_ctx idf5_romfs2 = {
+    .read = idf5_romfs_read2,
+    .userdata = (void*)bin2c_romfs_bin
+};
+
 
 int luat_fs_init(void) {
 	esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
@@ -59,22 +90,33 @@ int luat_fs_init(void) {
 	luat_fs_mount(&conf);
 	// 先注册luadb
 	luat_fs_conf_t conf2 = {0};
+    // luat_timer_mdelay(3000);
+    // LLOGD("spiffs_conf %p", &spiffs_conf);
 	luadb_partition = esp_partition_find_first(0x5A, 0x5A, "script");
 	if (luadb_partition != NULL) {
-		esp_partition_mmap(luadb_partition, 0, luadb_partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
-        if (map_ptr == NULL) {
-            LLOGE("luadb mmap failed, it is bug, try to build a small script zone Firmware");
-            return -1;
-        }
-    	conf2.busname = (char*)map_ptr;
-        if (!memcmp(map_ptr, "-rom1fs-", 8)) {
+        char tmp[8] = {0};
+        // 读取前32字节,判断脚本区的类型
+        ret = esp_partition_read(luadb_partition, 0, tmp, 8);
+        // TODO 判断ret,虽然不太可能有问题
+
+        // 如果是romfs
+        if (!memcmp(tmp, "-rom1fs-", 8)) {
             LLOGI("script zone as romfs");
+            const luat_romfs_ctx* rfs = &idf5_romfs;
+            conf2.busname = (char*)rfs;
             conf2.type = "romfs";
 		    conf2.filesystem = "romfs";
 		    conf2.mount_point = "/luadb/";
 	        luat_vfs_reg(&vfs_fs_romfs);
         }
+        // 如果还是luadb
         else {
+		    esp_partition_mmap(luadb_partition, 0, luadb_partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
+            if (map_ptr == NULL) {
+                LLOGE("luadb mmap failed, it is bug, try to build a small script zone Firmware");
+                return -1;
+            }
+            conf2.busname = (char*)map_ptr;
             LLOGI("script zone as luadb");
 		    conf2.type = "luadb",
 		    conf2.filesystem = "luadb",
