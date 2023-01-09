@@ -46,12 +46,13 @@ static const esp_vfs_spiffs_conf_t spiffs_conf = {
 
 #include "luat_romfs.h"
 int idf5_romfs_read(void* userdata, char* buff, size_t offset, size_t len) {
-    // LLOGD("idf5_romfs_read %p, %p %04X", userdata, buff, len);
+    // LLOGD("idf5_romfs_read %p %04X %04X", buff, offset, len);
     if (luadb_partition == NULL)
         return -1;
     esp_err_t ret = esp_partition_read(luadb_partition, offset, buff, len);
     if (ret != 0) {
-        LLOGD("esp_partition_read ret %d", ret);
+        LLOGE("esp_partition_read ret %d", ret);
+        //luat_timer_mdelay(3000);
     }
     return ret;
 }
