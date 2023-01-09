@@ -7,6 +7,8 @@
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 
+#include "idf5_io_def.h"
+
 #define LUAT_LOG_TAG "spi"
 #include "luat_log.h"
 
@@ -16,9 +18,9 @@ int luat_spi_setup(luat_spi_t *spi){
     esp_err_t ret = -1;
     if (spi->id == 2){
         spi_bus_config_t buscfg = {
-            .miso_io_num = 10,
-            .mosi_io_num = 3,
-            .sclk_io_num = 2,
+            .miso_io_num = SPI_MISO_IO_NUM,
+            .mosi_io_num = SPI_MOSI_IO_NUM,
+            .sclk_io_num = SPI_SCLK_IO_NUM,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
             .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
@@ -158,9 +160,9 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
     spi_dev->user_data = (void *)spi_device;
     if (bus_id == 2 && spi_bus == 0){
         spi_bus_config_t buscfg = {
-            .miso_io_num = 10,
-            .mosi_io_num = 3,
-            .sclk_io_num = 2,
+            .miso_io_num = SPI_MISO_IO_NUM,
+            .mosi_io_num = SPI_MOSI_IO_NUM,
+            .sclk_io_num = SPI_SCLK_IO_NUM,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
             .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE

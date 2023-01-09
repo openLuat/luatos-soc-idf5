@@ -8,6 +8,8 @@
 #include "driver/uart.h"
 #include "luat_msgbus.h"
 
+#include "idf5_io_def.h"
+
 #include "luat_log.h"
 #define LUAT_LOG_TAG "uart"
 
@@ -134,7 +136,7 @@ int luat_uart_setup(luat_uart_t *uart){
     case 1:
         if (uart_port[id].xHandle==NULL){
             uart_driver_install(1, uart->bufsz * 2, uart->bufsz * 2, 20, &(uart_port[1].xQueue), 0);
-            uart_set_pin(1, 0, 1, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+            uart_set_pin(1, UART1_TX_IO_NUM, UART1_RX_IO_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
             uart_param_config(id, &uart_config);
             uart_pattern_queue_reset(id, 20);
             xTaskCreate(uart1_irq_task, "uart1_irq_task", 2048, NULL, 10, &uart_port[id].xHandle);

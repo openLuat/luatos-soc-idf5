@@ -4,6 +4,8 @@
 
 #include "driver/i2c.h"
 
+#include "idf5_io_def.h"
+
 #define LUAT_LOG_TAG "i2c"
 #include "luat_log.h"
 
@@ -21,8 +23,8 @@ int luat_i2c_setup(int id, int speed){
     }
     i2c_config_t conf = {0};
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = 4;
-    conf.scl_io_num = 5;
+    conf.sda_io_num = I2C_SDA_IO_NUM;
+    conf.scl_io_num = I2C_SCL_IO_NUM;
     conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
     conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
     if (speed == 0)

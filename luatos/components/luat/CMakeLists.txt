@@ -75,7 +75,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/fskv
                                 ${LUATOS_ROOT}/components/sfd
                                 ${LUATOS_ROOT}/components/romfs
-                    INCLUDE_DIRS ../../include
+                                INCLUDE_DIRS ../../include
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
                                 ${LUATOS_ROOT}/components/shell
