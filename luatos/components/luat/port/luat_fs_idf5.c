@@ -112,7 +112,7 @@ int luat_fs_init(void) {
         }
         // 如果还是luadb
         else {
-		    esp_partition_mmap(luadb_partition, 0, luadb_partition->size  > 128 * 1024 ? 128 * 1024 : luadb_partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
+		    esp_partition_mmap(luadb_partition, 0, luadb_partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
             if (map_ptr == NULL) {
                 LLOGE("luadb mmap failed, it is bug, try to build a small script zone Firmware");
                 return -1;
