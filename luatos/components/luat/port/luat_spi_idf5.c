@@ -212,11 +212,14 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
             buscfg.miso_io_num = SPI2_MISO_IO_NUM;
             buscfg.mosi_io_num = SPI2_MOSI_IO_NUM;
             buscfg.sclk_io_num = SPI2_SCLK_IO_NUM;
-        }else{
+        }
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+        else{
             buscfg.miso_io_num = SPI3_MISO_IO_NUM;
             buscfg.mosi_io_num = SPI3_MOSI_IO_NUM;
             buscfg.sclk_io_num = SPI3_SCLK_IO_NUM;
         }
+#endif
         ret = spi_bus_initialize(bus_id-1, &buscfg, SPI_DMA_CH_AUTO);
         if (ret != 0){
             return ret;
