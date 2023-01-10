@@ -12,144 +12,179 @@
 #define LUAT_LOG_TAG "spi"
 #include "luat_log.h"
 
-static spi_device_handle_t spi_handle = {0};
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+#define SOC_SPI_NUM 2
+#else
+#define SOC_SPI_NUM 1
+#endif
+
+
+static spi_device_handle_t spi_handle[SOC_SPI_NUM] = {0};
 
 int luat_spi_setup(luat_spi_t *spi){
     esp_err_t ret = -1;
+    spi_bus_config_t buscfg = {
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
+    };
     if (spi->id == 2){
-        spi_bus_config_t buscfg = {
-            .miso_io_num = SPI_MISO_IO_NUM,
-            .mosi_io_num = SPI_MOSI_IO_NUM,
-            .sclk_io_num = SPI_SCLK_IO_NUM,
-            .quadwp_io_num = -1,
-            .quadhd_io_num = -1,
-            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
-        };
-        ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
-        if (ret != 0){
-            return ret;
-        }
-        spi_device_interface_config_t dev_config;
-        memset(&dev_config, 0, sizeof(dev_config));
-        if (spi->CPHA == 0){
-            if (spi->CPOL == 0)
-                dev_config.mode = 0;
-            if (spi->CPOL == 1)
-                dev_config.mode = 1;
-        }else{
-            if (spi->CPOL == 0)
-                dev_config.mode = 2;
-            if (spi->CPOL == 1)
-                dev_config.mode = 3;
-        }
-        dev_config.clock_speed_hz = spi->bandrate;
-        if (spi->cs == Luat_GPIO_MAX_ID)
-            dev_config.spics_io_num = -1;
-        else
-            dev_config.spics_io_num = spi->cs;
-        dev_config.queue_size = 7;
-        ret = spi_bus_add_device(SPI2_HOST, &dev_config, &spi_handle);
+        buscfg.miso_io_num = SPI2_MISO_IO_NUM;
+        buscfg.mosi_io_num = SPI2_MOSI_IO_NUM;
+        buscfg.sclk_io_num = SPI2_SCLK_IO_NUM;
+    }
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    else if(spi->id == 3){
+        buscfg.miso_io_num = SPI3_MISO_IO_NUM;
+        buscfg.mosi_io_num = SPI3_MOSI_IO_NUM;
+        buscfg.sclk_io_num = SPI3_SCLK_IO_NUM;
+    }
+#endif
+    else{
+        return -1;
+    }
+    ret = spi_bus_initialize(spi->id-1, &buscfg, SPI_DMA_CH_AUTO);
+    if (ret != 0){
         return ret;
     }
+    spi_device_interface_config_t dev_config;
+    memset(&dev_config, 0, sizeof(dev_config));
+    if (spi->CPHA == 0){
+        if (spi->CPOL == 0)
+            dev_config.mode = 0;
+        if (spi->CPOL == 1)
+            dev_config.mode = 1;
+    }else{
+        if (spi->CPOL == 0)
+            dev_config.mode = 2;
+        if (spi->CPOL == 1)
+            dev_config.mode = 3;
+    }
+    dev_config.clock_speed_hz = spi->bandrate;
+    if (spi->cs == Luat_GPIO_MAX_ID)
+        dev_config.spics_io_num = -1;
     else
-        return -1;
+        dev_config.spics_io_num = spi->cs;
+    dev_config.queue_size = 7;
+    ret = spi_bus_add_device(spi->id-1, &dev_config, &spi_handle[spi->id-2]);
+    return ret;
 }
 
 int luat_spi_close(int spi_id){
     esp_err_t ret = -1;
-    if (spi_id == 2){
-        ret = spi_bus_remove_device(spi_handle);
-        if (ret != 0){
-            return ret;
-        }
-        ret = spi_bus_free(SPI2_HOST);
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (spi_id > 3 || spi_id < 2){
+        return -1;
+    }
+#else
+    if (spi_id != 2){
+        return -1;
+    }
+#endif
+    ret = spi_bus_remove_device(spi_handle[spi_id-2]);
+    if (ret != 0){
         return ret;
     }
-    else
-        return -1;
+    ret = spi_bus_free(spi_id-1);
+    return ret;
 }
 
 int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char *recv_buf, size_t recv_length){
     esp_err_t ret = -1;
-    if (spi_id == 2){
-        spi_transaction_t send;
-        memset(&send, 0, sizeof(send));
-        while (send_length > 0) {
-            memset(&send, 0, sizeof(send));
-            if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
-                send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
-                send.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(spi_handle, &send);
-                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-            }
-            else {
-                send.length = send_length * 8;
-                send.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(spi_handle, &send);
-                break;
-            }
-        }
-        if (ret != 0){
-            return -2;
-        }
-        spi_transaction_t recv;
-        memset(&recv, 0, sizeof(recv));
-        recv.length = recv_length * 8;
-        recv.rxlength = recv_length * 8;
-        recv.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(spi_handle, &recv);
-        return ret == 0 ? recv_length : -1;
-    }
-    else
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (spi_id > 3 || spi_id < 2){
         return -1;
+    }
+#else
+    if (spi_id != 2){
+        return -1;
+    }
+#endif
+    spi_transaction_t send;
+    memset(&send, 0, sizeof(send));
+    while (send_length > 0) {
+        memset(&send, 0, sizeof(send));
+        if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+            send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            send.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
+            send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+        }
+        else {
+            send.length = send_length * 8;
+            send.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
+            break;
+        }
+    }
+    if (ret != 0){
+        return -2;
+    }
+    spi_transaction_t recv;
+    memset(&recv, 0, sizeof(recv));
+    recv.length = recv_length * 8;
+    recv.rxlength = recv_length * 8;
+    recv.rx_buffer = recv_buf;
+    ret = spi_device_polling_transmit(spi_handle[spi_id-2], &recv);
+    return ret == 0 ? recv_length : -1;
 }
 
 int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
     esp_err_t ret = -1;
-    if (spi_id == 2){
-        spi_transaction_t t;
-        memset(&t, 0, sizeof(t));
-        t.length = length * 8;
-        t.rxlength = length * 8;
-        t.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(spi_handle, &t);
-        return ret == 0 ? length : -1;
-    }
-    else
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (spi_id > 3 || spi_id < 2){
         return -1;
+    }
+#else
+    if (spi_id != 2){
+        return -1;
+    }
+#endif
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));
+    t.length = length * 8;
+    t.rxlength = length * 8;
+    t.rx_buffer = recv_buf;
+    ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
+    return ret == 0 ? length : -1;
 }
 
 int luat_spi_send(int spi_id, const char *send_buf, size_t length){
     spi_transaction_t t;
     esp_err_t ret = -1;
-    if (spi_id == 2){
-        while (length > 0) {
-            memset(&t, 0, sizeof(t));
-            if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
-                t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
-                t.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(spi_handle, &t);
-                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-                length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-            }
-            else {
-                t.length = length * 8;
-                t.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(spi_handle, &t);
-                break;
-            }
-        }
-        return ret == 0 ? length : -1;
-    }
-    else
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (spi_id > 3 || spi_id < 2){
         return -1;
+    }
+#else
+    if (spi_id != 2){
+        return -1;
+    }
+#endif
+    while (length > 0) {
+        memset(&t, 0, sizeof(t));
+        if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+            t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            t.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
+            send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+        }
+        else {
+            t.length = length * 8;
+            t.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
+            break;
+        }
+    }
+    return ret == 0 ? length : -1;
 }
 
 #define LUAT_SPI_CS_SELECT 0
 #define LUAT_SPI_CS_CLEAR 1
 
-static uint8_t spi_bus = 0;
+static uint8_t spi_bus[SOC_SPI_NUM] = {0};
 
 int luat_spi_device_setup(luat_spi_device_t *spi_dev){
     esp_err_t ret = -1;
@@ -158,20 +193,35 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
     if (spi_device == NULL)
         return ret;
     spi_dev->user_data = (void *)spi_device;
-    if (bus_id == 2 && spi_bus == 0){
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (bus_id > 3 || bus_id < 2){
+        return -1;
+    }
+#else
+    if (bus_id != 2){
+        return -1;
+    }
+#endif
+    if (spi_bus[bus_id-2] == 0){
         spi_bus_config_t buscfg = {
-            .miso_io_num = SPI_MISO_IO_NUM,
-            .mosi_io_num = SPI_MOSI_IO_NUM,
-            .sclk_io_num = SPI_SCLK_IO_NUM,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
             .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
         };
-        ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
+        if (spi_bus == 2){
+            buscfg.miso_io_num = SPI2_MISO_IO_NUM;
+            buscfg.mosi_io_num = SPI2_MOSI_IO_NUM;
+            buscfg.sclk_io_num = SPI2_SCLK_IO_NUM;
+        }else{
+            buscfg.miso_io_num = SPI3_MISO_IO_NUM;
+            buscfg.mosi_io_num = SPI3_MOSI_IO_NUM;
+            buscfg.sclk_io_num = SPI3_SCLK_IO_NUM;
+        }
+        ret = spi_bus_initialize(bus_id-1, &buscfg, SPI_DMA_CH_AUTO);
         if (ret != 0){
             return ret;
         }
-        spi_bus = 1;
+        spi_bus[bus_id-2] = 1;
     }
     spi_device_interface_config_t dev_config;
     memset(&dev_config, 0, sizeof(dev_config));
@@ -192,7 +242,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
     if (spi_dev->spi_config.mode == 0)
         dev_config.flags = SPI_DEVICE_HALFDUPLEX;
     if (bus_id == 2)
-        ret = spi_bus_add_device(SPI2_HOST, &dev_config, spi_device);
+        ret = spi_bus_add_device(bus_id-1, &dev_config, spi_device);
     if (ret != 0)
         luat_heap_free(spi_device);
     luat_gpio_mode(spi_dev->spi_config.cs, Luat_GPIO_OUTPUT, Luat_GPIO_DEFAULT, Luat_GPIO_HIGH);
@@ -202,9 +252,16 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
 int luat_spi_device_close(luat_spi_device_t *spi_dev){
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
-    if (bus_id == 2){
-        ret = spi_bus_remove_device(*(spi_device_handle_t *)(spi_dev->user_data));
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (bus_id > 3 || bus_id < 2){
+        return -1;
     }
+#else
+    if (bus_id != 2){
+        return -1;
+    }
+#endif
+    ret = spi_bus_remove_device(*(spi_device_handle_t *)(spi_dev->user_data));
     luat_heap_free((spi_device_handle_t *)(spi_dev->user_data));
     return ret;
 }
@@ -213,34 +270,41 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
-    if (bus_id == 2){
-        spi_transaction_t send;
-        memset(&send, 0, sizeof(send));
-        while (send_length > 0) {
-            memset(&send, 0, sizeof(send));
-            if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) {
-                send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
-                send.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
-                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-            }else {
-                send.length = send_length * 8;
-                send.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
-                break;
-            }
-        }
-        if (ret != 0){
-            return -2;
-        }
-        spi_transaction_t recv;
-        memset(&recv, 0, sizeof(recv));
-        recv.length = recv_length * 8;
-        recv.rxlength = recv_length * 8;
-        recv.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (bus_id > 3 || bus_id < 2){
+        return -1;
     }
+#else
+    if (bus_id != 2){
+        return -1;
+    }
+#endif
+    spi_transaction_t send;
+    memset(&send, 0, sizeof(send));
+    while (send_length > 0) {
+        memset(&send, 0, sizeof(send));
+        if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) {
+            send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            send.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
+            send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+        }else {
+            send.length = send_length * 8;
+            send.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
+            break;
+        }
+    }
+    if (ret != 0){
+        return -2;
+    }
+    spi_transaction_t recv;
+    memset(&recv, 0, sizeof(recv));
+    recv.length = recv_length * 8;
+    recv.rxlength = recv_length * 8;
+    recv.rx_buffer = recv_buf;
+    ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     return ret == 0 ? recv_length : -1;
 }
@@ -249,14 +313,21 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
-    if (bus_id == 2){
-        spi_transaction_t t;
-        memset(&t, 0, sizeof(t));
-        t.length = length * 8;
-        t.rxlength = length * 8;
-        t.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (bus_id > 3 || bus_id < 2){
+        return -1;
     }
+#else
+    if (bus_id != 2){
+        return -1;
+    }
+#endif
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));
+    t.length = length * 8;
+    t.rxlength = length * 8;
+    t.rx_buffer = recv_buf;
+    ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     return ret == 0 ? length : -1;
 }
@@ -265,23 +336,30 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
-    if (bus_id == 2){
-        spi_transaction_t t;
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    if (bus_id > 3 || bus_id < 2){
+        return -1;
+    }
+#else
+    if (bus_id != 2){
+        return -1;
+    }
+#endif
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));
+    while (length > 0) {
         memset(&t, 0, sizeof(t));
-        while (length > 0) {
-            memset(&t, 0, sizeof(t));
-            if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
-                t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
-                t.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
-                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-                length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-            }else {
-                t.length = length * 8;
-                t.tx_buffer = send_buf;
-                ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
-                break;
-            }
+        if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+            t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            t.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+            send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+        }else {
+            t.length = length * 8;
+            t.tx_buffer = send_buf;
+            ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+            break;
         }
     }
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
