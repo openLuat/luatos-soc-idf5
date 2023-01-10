@@ -23,8 +23,19 @@ int luat_i2c_setup(int id, int speed){
     }
     i2c_config_t conf = {0};
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = I2C_SDA_IO_NUM;
-    conf.scl_io_num = I2C_SCL_IO_NUM;
+    if (id == 0){
+        conf.sda_io_num = I2C0_SDA_IO_NUM;
+        conf.scl_io_num = I2C0_SCL_IO_NUM;
+    }
+#if SOC_I2C_NUM == 2
+    else if(id == 1){
+        conf.sda_io_num = I2C1_SDA_IO_NUM;
+        conf.scl_io_num = I2C1_SCL_IO_NUM;
+    }
+#endif
+    else{
+        return -1;
+    }
     conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
     conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
     if (speed == 0)
