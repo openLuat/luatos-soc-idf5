@@ -8,6 +8,8 @@
 /* UART */
 #define UART1_TX_IO_NUM	(0)
 #define UART1_RX_IO_NUM	(1)
+#define UART2_TX_IO_NUM	(0)
+#define UART2_RX_IO_NUM	(1)
 /* I2C */
 #define I2C0_SDA_IO_NUM	(4)
 #define I2C0_SCL_IO_NUM	(5)
@@ -64,6 +66,8 @@
 /* UART */
 #define UART1_TX_IO_NUM	(1)
 #define UART1_RX_IO_NUM	(2)
+#define UART2_TX_IO_NUM	(6)
+#define UART2_RX_IO_NUM	(7)
 /* I2C */
 #define I2C0_SDA_IO_NUM	(11)
 #define I2C0_SCL_IO_NUM	(12)

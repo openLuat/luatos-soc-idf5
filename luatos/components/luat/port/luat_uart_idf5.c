@@ -81,6 +81,28 @@ static void uart1_irq_task(void *arg){
     vTaskDelete(NULL);
 }
 
+#if SOC_UART_NUM > 2
+static void uart2_irq_task(void *arg){
+    uart_event_t event = {0};
+    rtos_msg_t msg = {0};
+    for (;;){
+        if (xQueueReceive(uart_port[2].xQueue, (void *)&event, (TickType_t)portMAX_DELAY)){
+            if (event.timeout_flag || event.size > (1024 * 2 - 200)){
+                if (uart_port[2].recv){
+                    msg.handler = l_uart_handler;
+                    msg.ptr = NULL;
+                    msg.arg1 = 2;
+                    msg.arg2 = 1;
+                    luat_msgbus_put(&msg, 0);
+                }
+                xQueueReset(uart_port[2].xQueue);
+            }
+        }
+    }
+    vTaskDelete(NULL);
+}
+#endif
+
 int luat_uart_setup(luat_uart_t *uart){
     int id = uart->id;
     if (UART_CHECK(id)){
@@ -142,6 +164,17 @@ int luat_uart_setup(luat_uart_t *uart){
             xTaskCreate(uart1_irq_task, "uart1_irq_task", 2048, NULL, 10, &uart_port[id].xHandle);
         }
         break;
+#if SOC_UART_NUM > 2
+    case 2:
+        if (uart_port[id].xHandle==NULL){
+            uart_driver_install(2, uart->bufsz * 2, uart->bufsz * 2, 20, &(uart_port[2].xQueue), 0);
+            uart_set_pin(2, UART2_TX_IO_NUM, UART2_RX_IO_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+            uart_param_config(id, &uart_config);
+            uart_pattern_queue_reset(id, 20);
+            xTaskCreate(uart2_irq_task, "uart2_irq_task", 2048, NULL, 10, &uart_port[id].xHandle);
+        }
+        break;
+#endif
     default:
         return -1;
         break;

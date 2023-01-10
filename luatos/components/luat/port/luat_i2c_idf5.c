@@ -27,7 +27,7 @@ int luat_i2c_setup(int id, int speed){
         conf.sda_io_num = I2C0_SDA_IO_NUM;
         conf.scl_io_num = I2C0_SCL_IO_NUM;
     }
-#if SOC_I2C_NUM == 2
+#if SOC_I2C_NUM >= 2
     else if(id == 1){
         conf.sda_io_num = I2C1_SDA_IO_NUM;
         conf.scl_io_num = I2C1_SCL_IO_NUM;
