@@ -68,7 +68,7 @@ int luat_pwm_close(int channel){
         return -1;
     }
     ledc_stop(LEDC_LOW_SPEED_MODE, timer, 0);
-    gpio_reset_pin(0);
+    gpio_reset_pin(channel);
     luat_pwm_idf[timer] = 0;
     return 0;
 }
