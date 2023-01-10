@@ -14,7 +14,7 @@ static uint8_t luat_pwm_idf[LEDC_TIMER_MAX] = {0};
 int luat_pwm_setup(luat_pwm_conf_t *conf){
     int resolution = 0;
     int timer = -1;
-    int ret = 0;
+    int ret = -1;
     for (size_t i = 0; i < LEDC_TIMER_MAX; i++){
         if (luat_pwm_idf[i]==0 || luat_pwm_idf[i]==conf->channel+1){
             timer = i;
@@ -64,10 +64,13 @@ int luat_pwm_close(int channel){
             timer = i;
         }
     }
-    if (channel < 0 || channel>=LEDC_TIMER_MAX || timer<0) {
+    if (channel < 0 || timer < 0) {
         return -1;
     }
-    ledc_stop(LEDC_LOW_SPEED_MODE, timer, 0);
+    int ret = ledc_stop(LEDC_LOW_SPEED_MODE, timer, 0);
+    if (ret) {
+        return -1;
+    }
     gpio_reset_pin(channel);
     luat_pwm_idf[timer] = 0;
     return 0;
