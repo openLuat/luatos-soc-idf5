@@ -208,7 +208,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
             .quadhd_io_num = -1,
             .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
         };
-        if (spi_bus == 2){
+        if (bus_id == 2){
             buscfg.miso_io_num = SPI2_MISO_IO_NUM;
             buscfg.mosi_io_num = SPI2_MOSI_IO_NUM;
             buscfg.sclk_io_num = SPI2_SCLK_IO_NUM;
@@ -244,8 +244,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
     dev_config.queue_size = 7;
     if (spi_dev->spi_config.mode == 0)
         dev_config.flags = SPI_DEVICE_HALFDUPLEX;
-    if (bus_id == 2)
-        ret = spi_bus_add_device(bus_id-1, &dev_config, spi_device);
+    ret = spi_bus_add_device(bus_id-1, &dev_config, spi_device);
     if (ret != 0)
         luat_heap_free(spi_device);
     luat_gpio_mode(spi_dev->spi_config.cs, Luat_GPIO_OUTPUT, Luat_GPIO_DEFAULT, Luat_GPIO_HIGH);
