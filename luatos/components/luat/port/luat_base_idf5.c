@@ -278,12 +278,12 @@ void luat_ota_reboot(int timeout_ms) {
 #include "freertos/task.h"
 #include "esp_rom_sys.h"
 
-static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+
 static uint8_t cri = 0;
 
 void luat_os_entry_cri(void) {
   if (cri == 0) {
-    portENTER_CRITICAL_SAFE(&mux);
+    vPortEnterCritical();
     cri = 1;
   }
 }
@@ -291,7 +291,7 @@ void luat_os_entry_cri(void) {
 void luat_os_exit_cri(void) {
   if (cri == 1) {
     cri = 0;
-    portENTER_CRITICAL_SAFE(&mux);
+    vPortExitCritical();
   }
 }
 
