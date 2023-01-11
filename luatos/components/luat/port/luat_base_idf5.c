@@ -281,9 +281,17 @@ void luat_ota_reboot(int timeout_ms) {
 
 static uint8_t cri = 0;
 
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S3)
+portMUX_TYPE lock;
+#endif
+
 void luat_os_entry_cri(void) {
   if (cri == 0) {
-    vPortEnterCritical();
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    vPortExitCritical(&lock);
+#else
+    vPortExitCritical();
+#endif
     cri = 1;
   }
 }
@@ -291,7 +299,11 @@ void luat_os_entry_cri(void) {
 void luat_os_exit_cri(void) {
   if (cri == 1) {
     cri = 0;
+#if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S3)
+    vPortExitCritical(&lock);
+#else
     vPortExitCritical();
+#endif
   }
 }
 
