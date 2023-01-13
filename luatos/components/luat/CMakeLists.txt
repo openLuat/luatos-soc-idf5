@@ -67,6 +67,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/rsa/binding
                                 ${LUATOS_ROOT}/components/network/adapter
                                 ${LUATOS_ROOT}/components/ethernet/common
+                                ${LUATOS_ROOT}/components/ethernet/w5500
                                 ${LUATOS_ROOT}/components/common
                                 ${LUATOS_ROOT}/components/rtos/freertos
                                 ${LUATOS_ROOT}/components/network/posix
@@ -120,6 +121,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/nimble/inc
                                 ${LUATOS_ROOT}/components/network/adapter
                                 ${LUATOS_ROOT}/components/ethernet/common
+                                ${LUATOS_ROOT}/components/ethernet/w5500
                                 ${LUATOS_ROOT}/components/common
                                 ${LUATOS_ROOT}/components/network/posix
                                 ${LUATOS_ROOT}/components/network/websocket
