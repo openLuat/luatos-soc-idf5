@@ -371,3 +371,7 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
 int luat_spi_device_config(luat_spi_device_t* spi_dev){
     return 0;
 }
+
+int luat_spi_config_dma(int spi_id, uint32_t tx_channel, uint32_t rx_channel) {
+    return 0;
+}
