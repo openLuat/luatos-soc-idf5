@@ -14,13 +14,27 @@
 
 static uint8_t warn_gpio18 = 0;
 static uint8_t warn_gpio19 = 0;
+
+typedef struct gpio_cb_args
+{
+    luat_gpio_irq_cb irq_cb;
+    void*irq_args;
+}gpio_cb_args_t;
+
+static gpio_cb_args_t gpio_isr_cb[SOC_GPIO_PIN_COUNT] = {0};
+
 static uint8_t gpio_isr_sta = 0;
 
 int luat_gpio_irq_default(int pin, void* args);
 
 static void IRAM_ATTR gpio_isr_handler(void *arg) {
     uint32_t pin = (uint32_t)arg;
-    luat_gpio_irq_default(pin, (void*)luat_gpio_get(pin));
+    if (gpio_isr_cb[pin].irq_cb)
+    {
+        gpio_isr_cb[pin].irq_cb(pin,gpio_isr_cb[pin].irq_args);
+    }
+    else
+        luat_gpio_irq_default(pin, (void*)luat_gpio_get(pin));
 }
 
 int luat_gpio_setup(luat_gpio_t *gpio) {
@@ -88,10 +102,13 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
             break;
         }
         if (gpio->irq_cb) {
-            gpio_isr_handler_add(pin, gpio->irq_cb, (void*)pin);
-        }else{
-            gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
+            gpio_isr_cb[pin].irq_cb = gpio->irq_cb;
+            gpio_isr_cb[pin].irq_args = gpio->irq_args;
+            // gpio_isr_handler_add(pin, gpio->irq_cb, (void*)pin);
+        // }else{
+            // gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
         }
+        gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
     }
     // 上拉/下拉状态
     switch (gpio->pull) {
@@ -132,6 +149,11 @@ int luat_gpio_get(int pin) {
 void luat_gpio_close(int pin) {
     if (GPIO_CHECK(pin)) {
         return;
+    }
+    if (gpio_isr_cb[pin].irq_cb)
+    {
+        gpio_isr_cb[pin].irq_cb = 0;
+        gpio_isr_cb[pin].irq_args = 0;
     }
     gpio_reset_pin(pin);
 }
