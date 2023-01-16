@@ -55,8 +55,6 @@
 #define LUAT_USE_IOTAUTH 1
 
 
-#define LUAT_USE_NETWORK 1
-#define LUAT_USE_W5500  1
 #define LUAT_USE_DNS  1
 #define LUAT_USE_DHCP  1
 
