@@ -104,9 +104,6 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
         if (gpio->irq_cb) {
             gpio_isr_cb[pin].irq_cb = gpio->irq_cb;
             gpio_isr_cb[pin].irq_args = gpio->irq_args;
-            // gpio_isr_handler_add(pin, gpio->irq_cb, (void*)pin);
-        // }else{
-            // gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
         }
         gpio_isr_handler_add(pin, gpio_isr_handler, (void *)pin);
     }

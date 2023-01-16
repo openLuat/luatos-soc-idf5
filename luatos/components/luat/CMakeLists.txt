@@ -8,6 +8,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/luat/vfs
                                 ${LUATOS_ROOT}/lua/src
                                 ${srcs}
+                                ${LUATOS_ROOT}/luat/freertos
                                 ${LUATOS_ROOT}/components/shell
                                 ${LUATOS_ROOT}/components/ymodem
                                 ${LUATOS_ROOT}/components/cmux
