@@ -36,3 +36,7 @@ int luat_rtc_timer_start(int id, struct tm *tblock){
 int luat_rtc_timer_stop(int id){
     return -1; // 暂不支持
 }
+
+int luat_rtc_timezone(int* timezone) {
+    return 32; // 暂不支持
+}
