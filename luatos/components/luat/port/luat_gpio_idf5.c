@@ -12,8 +12,9 @@
 
 #define GPIO_CHECK(pin) ((pin<0 || pin>=SOC_GPIO_PIN_COUNT) ? -1:0)
 
-static uint8_t warn_gpio18 = 0;
-static uint8_t warn_gpio19 = 0;
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+static uint8_t warn_c3_gpio1819 = 0;
+#endif
 
 typedef struct gpio_cb_args
 {
@@ -46,13 +47,13 @@ int luat_gpio_setup(luat_gpio_t *gpio) {
 
 #if defined(CONFIG_IDF_TARGET_ESP32C3)
     // 如果是GPIO18/19, 这两个2脚也用在USB, 在简约版会导致USB连接中断
-    if (pin == 18 && warn_gpio18 == 0) {
-        warn_gpio18 = 1;
-        LLOGI("GPIO 18/19 is use for USB too");
-    }
-    if (pin == 19 && warn_gpio19 == 0) {
-        warn_gpio19 = 1;
-        LLOGI("GPIO 18/19 is use for USB too");
+    if ((18 == pin || 19 == pin) && warn_c3_gpio1819 == 0) {
+        if (warn_c3_gpio1819 == 0) {
+            warn_c3_gpio1819 = 1;
+            LLOGI("GPIO 18/19 is use for USB too");
+            gpio_reset_pin(18);
+            gpio_reset_pin(19);
+        }
     }
 #elif defined(CONFIG_IDF_TARGET_ESP32S3)
 
