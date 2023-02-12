@@ -15,7 +15,13 @@
 #define LUAT_LOG_TAG "wlan"
 #include "luat_log.h"
 
-void posix_network_set_ready(uint8_t ready);
+#include "lwip/netif.h"
+#include "luat_network_adapter.h"
+#include "luat_timer.h"
+#include "net_lwip.h"
+#include "lwip/tcp.h"
+
+void net_lwip_set_link_state(uint8_t adapter_index, uint8_t updown);
 
 static uint8_t wlan_inited = 0;
 static uint8_t wlan_is_ready = 0;
@@ -164,9 +170,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
         wlan_is_ready = 0;
 #ifdef LUAT_USE_NETWORK
-        posix_network_set_ready(0);
+        net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 0);
 #endif
-        wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
+        // wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
         memset(sta_connected_bssid, 0, sizeof(sta_connected_bssid));
     }
     if (event_id == WIFI_EVENT_STA_CONNECTED) {
@@ -188,7 +194,8 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     if (event_id == IP_EVENT_STA_GOT_IP) {
         wlan_is_ready = 1;
 #ifdef LUAT_USE_NETWORK
-        posix_network_set_ready(1);
+        // posix_network_set_ready(1);
+        net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
 #endif
         event = (ip_event_got_ip_t*)event_data;
         sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
@@ -229,12 +236,32 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 
         ret = esp_wifi_init(&cfg);
         esp_wifi_set_mode(WIFI_MODE_STA);
+
+        #ifdef LUAT_USE_NETWORK
+        // luat_timer_mdelay(3000);
+        LLOGD("CALL net_lwip_init");
+        net_lwip_init();
+        // luat_timer_mdelay(3000);
+        LLOGD("CALL net_lwip_register_adapter");
+        net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        // luat_timer_mdelay(3000);
+        #endif
+        
+        struct netif *et0 = netif_get_by_index(1);
+        // LLOGD("netif_get_by_index %p", et0);
+        // luat_timer_mdelay(3000);
+        extern void net_lwip_set_netif(uint8_t adapter_index, struct netif *netif, void *init, uint8_t is_default);
+        net_lwip_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_STA, et0, NULL, 1);
         LLOGD("esp_wifi_init ret %d", ret);
     }
-
+#ifdef LUAT_USE_NIMBLE
+#if CONFIG_BT_ENABLED
+    //esp_wifi_set_ps(WIFI_PS_NONE);
+#endif
+#endif
     ret = esp_wifi_start();
     LLOGD("esp_wifi_start ret %d", ret);
-    //esp_wifi_set_ps(WIFI_PS_NONE);
+    
     wlan_inited = 1;
 
     // 自动开启ntp

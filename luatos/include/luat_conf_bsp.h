@@ -25,6 +25,10 @@
 #define LUAT_USE_PSRAM 1
 #endif
 
+#define LUAT_USE_NETWORK
+#define LUAT_USE_LWIP
+#define LUAT_USE_DNS
+
 //----------------------------------
 // 使用VFS(虚拟文件系统)和内置库文件, 必须启用
 #define LUAT_USE_FS_VFS 1
@@ -49,8 +53,8 @@
 // #define LUAT_USE_OTP 1
 
 #define LUAT_USE_WLAN 1
-#define LUAT_USE_HTTPSRV 1
-#define LUAT_USE_NIMBLE 1
+// #define LUAT_USE_HTTPSRV 1
+// #define LUAT_USE_NIMBLE 1
 
 #define LUAT_USE_IOTAUTH 1
 
@@ -64,38 +68,25 @@
 #define LUAT_USE_CJSON  1
 #define LUAT_USE_ZBUFF  1
 #define LUAT_USE_PACK  1
-#define LUAT_USE_LIBGNSS  1
+// #define LUAT_USE_LIBGNSS  1
 #define LUAT_USE_FS  1
-#define LUAT_USE_SENSOR  1
-#define LUAT_USE_SFUD  1
-#define LUAT_USE_STATEM 1
+// #define LUAT_USE_SENSOR  1
+// #define LUAT_USE_SFUD  1
+// #define LUAT_USE_STATEM 1
 // 性能测试
-#define LUAT_USE_COREMARK 1
-#define LUAT_USE_IR 1
+// #define LUAT_USE_COREMARK 1
+// #define LUAT_USE_IR 1
 // FDB 提供kv数据库, 与nvm库类似
 // #define LUAT_USE_FDB 1
 // FSKV库提供fdb库的兼容API, 目标是替代fdb库
-#define LUAT_USE_FSKV 1
-#define LUAT_USE_OTA 1
-#define LUAT_USE_I2CTOOLS 1
-#define LUAT_USE_LORA 1
-#define LUAT_USE_MLX90640 1
+// #define LUAT_USE_FSKV 1
+// #define LUAT_USE_OTA 1
+// #define LUAT_USE_I2CTOOLS 1
+// #define LUAT_USE_LORA 1
+// #define LUAT_USE_MLX90640 1
 // zlib压缩,更快更小的实现
-#define LUAT_USE_MINIZ 1
+// #define LUAT_USE_MINIZ 1
 
-// // 使用 TLSF 内存池, 实验性, 内存利用率更高一些
-// #define LUAT_USE_TLSF 1
-
-//---------------SDIO-FATFS特别配置
-// sdio库对接的是fatfs
-// fatfs的长文件名和非英文文件名支持需要180k的ROM, 非常奢侈
-// #define FF_USE_LFN 3
-// #define FF_LFN_UNICODE 3
-
-//----------------------------
-// 高通字体, 需配合芯片使用
-// #define LUAT_USE_GTFONT 1
-// #define LUAT_USE_GTFONT_UTF8
 
 //----------------------------
 // 高级功能, 其中shell是推荐启用, 除非你打算uart0也读数据
@@ -112,16 +103,16 @@
 //---------------------
 // UI
 // LCD  是彩屏, 若使用LVGL就必须启用LCD
-#define LUAT_USE_LCD
-#define LUAT_USE_TJPGD
+// #define LUAT_USE_LCD
+// #define LUAT_USE_TJPGD
 // EINK 是墨水屏
-#define LUAT_USE_EINK
+// #define LUAT_USE_EINK
 
 //---------------------
 // U8G2
 // 单色屏, 支持i2c/spi
 // #define LUAT_USE_DISP
-#define LUAT_USE_U8G2
+// #define LUAT_USE_U8G2
 
 /**************FONT*****************/
 // #define LUAT_USE_FONTS
@@ -143,7 +134,7 @@
 //---------------------
 // LVGL
 // 主推的UI库, 功能强大但API繁琐
-#define LUAT_USE_LVGL
+// #define LUAT_USE_LVGL
 #define LV_DISP_DEF_REFR_PERIOD 30
 #define LUAT_LV_DEBUG 0
 
