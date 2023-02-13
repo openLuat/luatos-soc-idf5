@@ -22,6 +22,7 @@ void lv_split_jpeg_init(void);
 #undef LUAT_USE_FONTS
 #undef LUAT_USE_GTFONT
 #undef LUAT_USE_RSA
+#undef LUAT_USE_NETWORK
 #endif
 
 LUAMOD_API int luaopen_nimble( lua_State *L );

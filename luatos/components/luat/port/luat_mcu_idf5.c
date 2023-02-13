@@ -63,7 +63,7 @@ void luat_mcu_set_clk_source(uint8_t source_main, uint8_t source_32k, uint32_t d
 void luat_mcu_us_timer_init() {
         /* Select and initialize basic parameters of the timer */
     const gptimer_config_t config = {
-        #if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C2)
+        #if defined(CONFIG_IDF_TARGET_ESP32)
         .clk_src = GPTIMER_CLK_SRC_APB,
         #else
         .clk_src = GPTIMER_CLK_SRC_XTAL,
