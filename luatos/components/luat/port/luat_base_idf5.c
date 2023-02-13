@@ -226,6 +226,9 @@ static const luaL_Reg loadedlibs[] = {
   {"rsa", luaopen_rsa},
 #endif
 #endif
+#ifdef LUAT_USE_FATFS
+  {"fatfs", luaopen_fatfs},
+#endif
   {NULL, NULL}
 };
 

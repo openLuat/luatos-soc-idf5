@@ -18,7 +18,7 @@
 #define SOC_SPI_NUM 1
 #endif
 
-
+static spi_device_interface_config_t spi_config[SOC_SPI_NUM] = {0};
 static spi_device_handle_t spi_handle[SOC_SPI_NUM] = {0};
 
 int luat_spi_setup(luat_spi_t *spi){
@@ -47,7 +47,7 @@ int luat_spi_setup(luat_spi_t *spi){
     if (ret != 0){
         return ret;
     }
-    spi_device_interface_config_t dev_config;
+    spi_device_interface_config_t dev_config = spi_config[spi->id-2];
     memset(&dev_config, 0, sizeof(dev_config));
     if (spi->CPHA == 0){
         if (spi->CPOL == 0)
@@ -59,6 +59,9 @@ int luat_spi_setup(luat_spi_t *spi){
             dev_config.mode = 2;
         if (spi->CPOL == 1)
             dev_config.mode = 3;
+    }
+    if (spi->mode == 0){
+        dev_config.flags |= SPI_DEVICE_HALFDUPLEX;
     }
     dev_config.clock_speed_hz = spi->bandrate;
     if (spi->cs == Luat_GPIO_MAX_ID)
@@ -102,31 +105,61 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
 #endif
     spi_transaction_t send;
     memset(&send, 0, sizeof(send));
-    while (send_length > 0) {
-        memset(&send, 0, sizeof(send));
-        if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
-            send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
-            send.tx_buffer = send_buf;
-            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
-            send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-            send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+    if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) != 0){
+        while (send_length > 0) {
+            memset(&send, 0, sizeof(send));
+            if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+                send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+                send.tx_buffer = send_buf;
+                ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
+                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            }
+            else {
+                send.length = send_length * 8;
+                send.tx_buffer = send_buf;
+                ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
+                break;
+            }
         }
-        else {
-            send.length = send_length * 8;
-            send.tx_buffer = send_buf;
-            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
-            break;
+        if (ret != 0){
+            return -2;
+        }
+        spi_transaction_t recv;
+        memset(&recv, 0, sizeof(recv));
+        recv.length = recv_length * 8;
+        recv.rxlength = recv_length * 8;
+        recv.rx_buffer = recv_buf;
+        ret = spi_device_polling_transmit(spi_handle[spi_id-2], &recv);
+    }else{
+        while (send_length > 0) {
+            memset(&send, 0, sizeof(send));
+            if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+                send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+                send.tx_buffer = send_buf;
+                send.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE * 8;
+                send.rx_buffer = recv_buf;
+                ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
+                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                recv_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            }
+            else {
+                send.length = send_length * 8;
+                send.tx_buffer = send_buf;
+                send.rxlength = send_length * 8;
+                send.rx_buffer = recv_buf;
+                ret = spi_device_polling_transmit(spi_handle[spi_id-2], &send);
+                break;
+            }
+        }
+        if (ret != 0){
+            return -2;
         }
     }
-    if (ret != 0){
-        return -2;
-    }
-    spi_transaction_t recv;
-    memset(&recv, 0, sizeof(recv));
-    recv.length = recv_length * 8;
-    recv.rxlength = recv_length * 8;
-    recv.rx_buffer = recv_buf;
-    ret = spi_device_polling_transmit(spi_handle[spi_id-2], &recv);
+    
+
     return ret == 0 ? recv_length : -1;
 }
 
@@ -226,7 +259,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
         }
         spi_bus[bus_id-2] = 1;
     }
-    spi_device_interface_config_t dev_config;
+    spi_device_interface_config_t dev_config = spi_config[bus_id-2];
     memset(&dev_config, 0, sizeof(dev_config));
     if (spi_dev->spi_config.CPHA == 0){
         if (spi_dev->spi_config.CPOL == 0)
@@ -239,11 +272,13 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
         if (spi_dev->spi_config.CPOL == 1)
             dev_config.mode = 3;
     }
+    if (spi_dev->spi_config.mode == 0){
+        dev_config.flags |= SPI_DEVICE_HALFDUPLEX;
+    }
     dev_config.clock_speed_hz = spi_dev->spi_config.bandrate;
     dev_config.spics_io_num = -1; 
     dev_config.queue_size = 7;
-    if (spi_dev->spi_config.mode == 0)
-        dev_config.flags = SPI_DEVICE_HALFDUPLEX;
+
     ret = spi_bus_add_device(bus_id-1, &dev_config, spi_device);
     if (ret != 0)
         luat_heap_free(spi_device);
@@ -377,5 +412,14 @@ int luat_spi_config_dma(int spi_id, uint32_t tx_channel, uint32_t rx_channel) {
 }
 
 int luat_spi_change_speed(int spi_id, uint32_t speed) {
+    // 无法这样使用
+    // spi_device_interface_config_t dev_config = spi_config[spi_id-2];
+    // dev_config.clock_speed_hz = speed;
+    // int ret = spi_bus_remove_device(spi_handle[spi_id-2]);
+    // if (ret != 0){
+    //     return ret;
+    // }
+    // ret =  spi_bus_add_device(spi_id-1, &dev_config, &spi_handle[spi_id-2]);
+    // return ret;
     return 0;
 }

@@ -87,6 +87,8 @@
 // zlib压缩,更快更小的实现
 // #define LUAT_USE_MINIZ 1
 
+#define LUAT_USE_FATFS
+// #define LUAT_USE_FATFS_CHINESE 3
 
 //----------------------------
 // 高级功能, 其中shell是推荐启用, 除非你打算uart0也读数据
