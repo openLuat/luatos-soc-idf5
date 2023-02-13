@@ -35,6 +35,7 @@ static const void *map_ptr;
 static spi_flash_mmap_handle_t map_handle;
 const esp_partition_t * luadb_partition;
 extern const unsigned char bin2c_romfs_bin[3072];
+extern size_t luat_luadb_act_size;
 
 // 文件系统初始化函数
 static const esp_vfs_spiffs_conf_t spiffs_conf = {
@@ -117,6 +118,7 @@ int luat_fs_init(void) {
                 LLOGE("luadb mmap failed, it is bug, try to build a small script zone Firmware");
                 return -1;
             }
+            luat_luadb_act_size = luadb_partition->size;
             conf2.busname = (char*)map_ptr;
             LLOGI("script zone as luadb");
 		    conf2.type = "luadb",
