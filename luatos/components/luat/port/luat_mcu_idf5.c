@@ -63,13 +63,13 @@ void luat_mcu_set_clk_source(uint8_t source_main, uint8_t source_32k, uint32_t d
 void luat_mcu_us_timer_init() {
         /* Select and initialize basic parameters of the timer */
     const gptimer_config_t config = {
-        #ifdef GPTIMER_CLK_SRC_XTAL
-        .clk_src = GPTIMER_CLK_SRC_XTAL,
-        #else
+        #if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C2)
         .clk_src = GPTIMER_CLK_SRC_APB,
+        #else
+        .clk_src = GPTIMER_CLK_SRC_XTAL,
         #endif
         .direction = GPTIMER_COUNT_UP,
-        .resolution_hz = 1000000,
+        .resolution_hz = 1000000, // us
     }; // default clock source is APB
     int ret = gptimer_new_timer(&config, &us_timer);
     // LLOGD("gptimer_new_timer %d", ret);
