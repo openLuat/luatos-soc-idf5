@@ -5,7 +5,7 @@
 ## 支持状态
 
 * 芯片支持 ESP32C3/ESP32C2/ESP32/ESP32S3
-* 库支持: 所有基础外设,wifi,ble,http2,mqtt,httpsrv. 当前尚未支持socket/libnet
+* 库支持: 所有基础外设,wifi,ble,http2,mqtt,httpsrv,socket(TCP/UDP)
 
 ## 技术支持和文档
 
