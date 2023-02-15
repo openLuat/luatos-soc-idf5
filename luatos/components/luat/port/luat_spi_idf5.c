@@ -47,29 +47,29 @@ int luat_spi_setup(luat_spi_t *spi){
     if (ret != 0){
         return ret;
     }
-    spi_device_interface_config_t dev_config = spi_config[spi->id-2];
-    memset(&dev_config, 0, sizeof(dev_config));
+    spi_device_interface_config_t* dev_config = &spi_config[spi->id-2];
+    memset(dev_config, 0, sizeof(spi_device_interface_config_t));
     if (spi->CPHA == 0){
         if (spi->CPOL == 0)
-            dev_config.mode = 0;
+            dev_config->mode = 0;
         if (spi->CPOL == 1)
-            dev_config.mode = 1;
+            dev_config->mode = 1;
     }else{
         if (spi->CPOL == 0)
-            dev_config.mode = 2;
+            dev_config->mode = 2;
         if (spi->CPOL == 1)
-            dev_config.mode = 3;
+            dev_config->mode = 3;
     }
     if (spi->mode == 0){
-        dev_config.flags |= SPI_DEVICE_HALFDUPLEX;
+        dev_config->flags |= SPI_DEVICE_HALFDUPLEX;
     }
-    dev_config.clock_speed_hz = spi->bandrate;
+    dev_config->clock_speed_hz = spi->bandrate;
     if (spi->cs == Luat_GPIO_MAX_ID)
-        dev_config.spics_io_num = -1;
+        dev_config->spics_io_num = -1;
     else
-        dev_config.spics_io_num = spi->cs;
-    dev_config.queue_size = 7;
-    ret = spi_bus_add_device(spi->id-1, &dev_config, &spi_handle[spi->id-2]);
+        dev_config->spics_io_num = spi->cs;
+    dev_config->queue_size = 7;
+    ret = spi_bus_add_device(spi->id-1, dev_config, &spi_handle[spi->id-2]);
     return ret;
 }
 
@@ -270,27 +270,27 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev){
         }
         spi_bus[bus_id-2] = 1;
     }
-    spi_device_interface_config_t dev_config = spi_config[bus_id-2];
-    memset(&dev_config, 0, sizeof(dev_config));
+    spi_device_interface_config_t* dev_config = &spi_config[bus_id-2];
+    memset(dev_config, 0, sizeof(spi_device_interface_config_t));
     if (spi_dev->spi_config.CPHA == 0){
         if (spi_dev->spi_config.CPOL == 0)
-            dev_config.mode = 0;
+            dev_config->mode = 0;
         if (spi_dev->spi_config.CPOL == 1)
-            dev_config.mode = 1;
+            dev_config->mode = 1;
     }else{
         if (spi_dev->spi_config.CPOL == 0)
-            dev_config.mode = 2;
+            dev_config->mode = 2;
         if (spi_dev->spi_config.CPOL == 1)
-            dev_config.mode = 3;
+            dev_config->mode = 3;
     }
     if (spi_dev->spi_config.mode == 0){
-        dev_config.flags |= SPI_DEVICE_HALFDUPLEX;
+        dev_config->flags |= SPI_DEVICE_HALFDUPLEX;
     }
-    dev_config.clock_speed_hz = spi_dev->spi_config.bandrate;
-    dev_config.spics_io_num = -1; 
-    dev_config.queue_size = 7;
+    dev_config->clock_speed_hz = spi_dev->spi_config.bandrate;
+    dev_config->spics_io_num = -1; 
+    dev_config->queue_size = 7;
 
-    ret = spi_bus_add_device(bus_id-1, &dev_config, spi_device);
+    ret = spi_bus_add_device(bus_id-1, dev_config, spi_device);
     if (ret != 0)
         luat_heap_free(spi_device);
     luat_gpio_mode(spi_dev->spi_config.cs, Luat_GPIO_OUTPUT, Luat_GPIO_DEFAULT, Luat_GPIO_HIGH);
@@ -443,13 +443,13 @@ int luat_spi_config_dma(int spi_id, uint32_t tx_channel, uint32_t rx_channel) {
 
 int luat_spi_change_speed(int spi_id, uint32_t speed) {
     // 无法这样使用
-    // spi_device_interface_config_t dev_config = spi_config[spi_id-2];
-    // dev_config.clock_speed_hz = speed;
+    // spi_device_interface_config_t* dev_config = &spi_config[spi_id-2];
+    // dev_config->clock_speed_hz = speed;
     // int ret = spi_bus_remove_device(spi_handle[spi_id-2]);
     // if (ret != 0){
     //     return ret;
     // }
-    // ret =  spi_bus_add_device(spi_id-1, &dev_config, &spi_handle[spi_id-2]);
+    // ret =  spi_bus_add_device(spi_id-1, dev_config, &spi_handle[spi_id-2]);
     // return ret;
     return 0;
 }
