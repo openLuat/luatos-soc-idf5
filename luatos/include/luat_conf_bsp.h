@@ -17,7 +17,9 @@
 #define LUAT_GPIO_PIN_MAX (CONFIG_SOC_GPIO_PIN_COUNT+1)
 
 // 内存优化: 减少内存消耗, 会稍微减低性能
+#if !defined(CONFIG_IDF_TARGET_ESP32S3)
 #define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
+#endif
 
 //PSRAM
 //如果是ESP32S3, 则启用PSRAM
