@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 
 #if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
-#define LUAT_HEAP_SIZE (96*1024)
+#define LUAT_HEAP_SIZE (128*1024)
 #elif defined(CONFIG_IDF_TARGET_ESP32C2)
 #define LUAT_HEAP_SIZE (68*1024)
 #else
@@ -24,8 +24,8 @@
 #endif
 static uint8_t vmheap[LUAT_HEAP_SIZE];
 #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
-static const uint32_t heap_addr_start = (uint32_t) vmheap;
-static const uint32_t heap_addr_end = (uint32_t) vmheap + LUAT_HEAP_SIZE;
+static uint32_t heap_addr_start = (uint32_t) vmheap;
+static uint32_t heap_addr_end = (uint32_t) vmheap + LUAT_HEAP_SIZE;
 #endif
 
 //------------------------------------------------
@@ -127,9 +127,15 @@ void luat_heap_init(void)
 #ifdef LUAT_USE_PSRAM
     size_t t = esp_psram_get_size();
     LLOGD("InitPSRAM The chip has %dMBITS PSRAM", t);
+    #define LUAT_HEAP_PSRAM_SIZE (4 * 1024 * 1024)
     if (t > 0)
     {
-        bpool(heap_caps_malloc(1024 * 1024 * 7, MALLOC_CAP_SPIRAM), 1024 * 1024 * 7);
+        char* ptr = heap_caps_malloc(LUAT_HEAP_PSRAM_SIZE, MALLOC_CAP_SPIRAM);
+        #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
+        heap_addr_start = (uint32_t)ptr;
+        heap_addr_end = (uint32_t)ptr + LUAT_HEAP_PSRAM_SIZE;
+        #endif
+        bpool(ptr, LUAT_HEAP_PSRAM_SIZE);
     }
     else
     {
