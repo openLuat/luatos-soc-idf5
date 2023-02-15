@@ -158,8 +158,6 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
             return -2;
         }
     }
-    
-
     return ret == 0 ? recv_length : -1;
 }
 
@@ -175,11 +173,24 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
     }
 #endif
     spi_transaction_t t;
-    memset(&t, 0, sizeof(t));
-    t.length = length * 8;
-    t.rxlength = length * 8;
-    t.rx_buffer = recv_buf;
-    ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
+    while (length > 0) {
+        memset(&t, 0, sizeof(t));
+        if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+            t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            t.rx_buffer = recv_buf;
+            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
+            recv_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+        }
+        else {
+            t.length = length * 8;
+            t.rxlength = length * 8;
+            t.rx_buffer = recv_buf;
+            ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
+            break;
+        }
+    }
     return ret == 0 ? length : -1;
 }
 
@@ -360,11 +371,24 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
     }
 #endif
     spi_transaction_t t;
-    memset(&t, 0, sizeof(t));
-    t.length = length * 8;
-    t.rxlength = length * 8;
-    t.rx_buffer = recv_buf;
-    ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+    while (length > 0) {
+        memset(&t, 0, sizeof(t));
+        if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
+            t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            t.rx_buffer = recv_buf;
+            ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+            recv_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+        }
+        else {
+            t.length = length * 8;
+            t.rxlength = length * 8;
+            t.rx_buffer = recv_buf;
+            ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+            break;
+        }
+    }
     luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     return ret == 0 ? length : -1;
 }
