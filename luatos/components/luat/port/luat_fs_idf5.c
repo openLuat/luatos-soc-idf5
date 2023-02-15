@@ -30,6 +30,7 @@ static void lvgl_fs_codec_init(void);
 extern const struct luat_vfs_filesystem vfs_fs_spiffs;
 extern const struct luat_vfs_filesystem vfs_fs_luadb;
 extern const struct luat_vfs_filesystem vfs_fs_romfs;
+extern const struct luat_vfs_filesystem vfs_fs_lfs2;
 
 static const void *map_ptr;
 static spi_flash_mmap_handle_t map_handle;
@@ -131,6 +132,10 @@ int luat_fs_init(void) {
 	else {
 		LLOGE("script partition NOT Found !!!");
 	}
+    // 注册lfs2
+    #ifdef LUAT_USE_SFUD
+    luat_vfs_reg(&vfs_fs_lfs2);
+    #endif
 #ifdef LUAT_USE_LVGL
     lvgl_fs_codec_init();
 #endif
