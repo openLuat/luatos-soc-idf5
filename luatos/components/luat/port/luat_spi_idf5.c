@@ -315,7 +315,8 @@ int luat_spi_device_close(luat_spi_device_t *spi_dev){
 }
 
 int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, size_t send_length, char *recv_buf, size_t recv_length){
-    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
+    if (spi_dev->spi_config.cs != 255)
+        luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
@@ -353,12 +354,14 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
     recv.rxlength = recv_length * 8;
     recv.rx_buffer = recv_buf;
     ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
-    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
+    if (spi_dev->spi_config.cs != 255)
+        luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     return ret == 0 ? recv_length : -1;
 }
 
 int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t length){
-    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
+    if (spi_dev->spi_config.cs != 255)
+        luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
@@ -389,12 +392,14 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
             break;
         }
     }
-    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
+    if (spi_dev->spi_config.cs != 255)
+        luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     return ret == 0 ? length : -1;
 }
 
 int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_t length){
-    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
+    if (spi_dev->spi_config.cs != 255)
+        luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
@@ -423,7 +428,8 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
             break;
         }
     }
-    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
+    if (spi_dev->spi_config.cs != 255)
+        luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     return ret == 0 ? length : -1;
 }
 
