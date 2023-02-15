@@ -30,6 +30,7 @@
 #define LUAT_USE_NETWORK
 #define LUAT_USE_LWIP
 #define LUAT_USE_DNS
+// #define LUAT_USE_FTP
 
 //----------------------------------
 // 使用VFS(虚拟文件系统)和内置库文件, 必须启用
