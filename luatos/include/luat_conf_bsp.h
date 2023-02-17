@@ -30,7 +30,7 @@
 #define LUAT_USE_NETWORK
 #define LUAT_USE_LWIP
 #define LUAT_USE_DNS
-// #define LUAT_USE_TLS
+#define LUAT_USE_TLS
 // FTP暂不可用
 // #define LUAT_XXX_USE_FTP
 

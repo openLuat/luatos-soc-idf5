@@ -2140,21 +2140,22 @@ static int net_lwip_get_local_ip_info(luat_ip_addr_t *ip, luat_ip_addr_t *submas
 
 static int net_lwip_get_full_ip_info(luat_ip_addr_t *ip, luat_ip_addr_t *submask, luat_ip_addr_t *gateway, luat_ip_addr_t *ipv6, void *user_data)
 {
-	uint8_t index = (uint32_t)user_data;
-	if (index >= NW_ADAPTER_INDEX_LWIP_NETIF_QTY) return -1;
-	if (!prvlwip.lwip_netif) return -1;
-	// *ip = prvlwip.lwip_netif->ip_addr;
-	// *submask = prvlwip.lwip_netif->netmask;
-	// *gateway = prvlwip.lwip_netif->gw;
-	luat_ip_addr_t *local_ip = net_lwip_get_ip6();
-	if (local_ip)
-	{
-		*ipv6 = *local_ip;
-	}
-	else
-	{
-		ipv6->type = 0xff;
-	}
+	// uint8_t index = (uint32_t)user_data;
+	// if (index >= NW_ADAPTER_INDEX_LWIP_NETIF_QTY) return -1;
+	// if (!prvlwip.lwip_netif) return -1;
+	// // *ip = prvlwip.lwip_netif->ip_addr;
+	// // *submask = prvlwip.lwip_netif->netmask;
+	// // *gateway = prvlwip.lwip_netif->gw;
+	// luat_ip_addr_t *local_ip = net_lwip_get_ip6();
+	// if (local_ip)
+	// {
+	// 	*ipv6 = *local_ip;
+	// }
+	// else
+	// {
+	// 	ipv6->type = 0xff;
+	// }
+	// return 0;
 	return 0;
 }
 
@@ -2200,15 +2201,15 @@ static int net_lwip_set_mac(uint8_t *mac, void *user_data)
 }
 int net_lwip_set_static_ip(luat_ip_addr_t *ip, luat_ip_addr_t *submask, luat_ip_addr_t *gateway, luat_ip_addr_t *ipv6, void *user_data)
 {
-	uint8_t index = (uint32_t)user_data;
-	if (index >= NW_ADAPTER_INDEX_LWIP_NETIF_QTY) return -1;
-	if (!prvlwip.lwip_netif[index]) return -1;
-	luat_ip_addr_t *p_ip = zalloc(sizeof(luat_ip_addr_t) * 5);
-	p_ip[0] = ip?(*ip):ip_addr_any_type;
-	p_ip[1] = submask?(*submask):ip_addr_any_type;
-	p_ip[2] = gateway?(*gateway):ip_addr_any_type;
-	p_ip[3] = ipv6?(*ipv6):ip_addr_any_type;
-	platform_send_event(prvlwip.task_handle, EV_LWIP_NETIF_SET_IP, p_ip, ipv6, user_data);
+	// uint8_t index = (uint32_t)user_data;
+	// if (index >= NW_ADAPTER_INDEX_LWIP_NETIF_QTY) return -1;
+	// if (!prvlwip.lwip_netif[index]) return -1;
+	// luat_ip_addr_t *p_ip = zalloc(sizeof(luat_ip_addr_t) * 5);
+	// p_ip[0] = ip?(*ip):ip_addr_any_type;
+	// p_ip[1] = submask?(*submask):ip_addr_any_type;
+	// p_ip[2] = gateway?(*gateway):ip_addr_any_type;
+	// p_ip[3] = ipv6?(*ipv6):ip_addr_any_type;
+	// platform_send_event(prvlwip.task_handle, EV_LWIP_NETIF_SET_IP, p_ip, ipv6, user_data);
 	return 0;
 }
 

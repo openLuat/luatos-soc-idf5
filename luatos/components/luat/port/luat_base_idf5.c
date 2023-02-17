@@ -22,7 +22,6 @@ void lv_split_jpeg_init(void);
 #undef LUAT_USE_FONTS
 #undef LUAT_USE_GTFONT
 #undef LUAT_USE_RSA
-#undef LUAT_USE_NETWORK
 #endif
 
 LUAMOD_API int luaopen_nimble( lua_State *L );
@@ -205,10 +204,10 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_WLAN
   {"wlan", luaopen_wlan},
-  {"http", luaopen_http},
-  {"mqtt", luaopen_mqtt},
 #endif
 #ifdef LUAT_USE_NETWORK
+  {"http", luaopen_http},
+  {"mqtt", luaopen_mqtt},
   {"socket", luaopen_socket_adapter},
   {"websocket", luaopen_websocket},
 #ifdef LUAT_USE_FTP
