@@ -1158,7 +1158,7 @@ static void net_lwip_task(void *param)
 				// LLOGD(">>>>>>>>> tcp_bind %d %d", socket_id, prvlwip.socket[socket_id].local_port);
 				// tcp_bind 有问题, 不知道为啥, 可能是本地ip为NULL?
 				// error = tcp_bind(prvlwip.socket[socket_id].pcb.tcp, local_ip, prvlwip.socket[socket_id].local_port);
-				// LLOGD(">>> tcp_bind %d", error);
+				LLOGD("tcp_connect %s %d", ipaddr_ntoa(p_ip), prvlwip.socket[socket_id].remote_port);
 				error = tcp_connect(prvlwip.socket[socket_id].pcb.tcp, p_ip, prvlwip.socket[socket_id].remote_port, net_lwip_tcp_connected_cb);
 				// LLOGD(">>> tcp_connect %d", error);
 				if (error)
@@ -1169,7 +1169,7 @@ static void net_lwip_task(void *param)
 			}
 			else
 			{
-				udp_bind(prvlwip.socket[socket_id].pcb.udp, local_ip, prvlwip.socket[socket_id].local_port);
+				// udp_bind(prvlwip.socket[socket_id].pcb.udp, local_ip, prvlwip.socket[socket_id].local_port);
 				error = udp_connect(prvlwip.socket[socket_id].pcb.udp, p_ip, prvlwip.socket[socket_id].remote_port);
 				if (error)
 				{
