@@ -864,7 +864,11 @@ void net_lwip_init(void)
 	// prvlwip.dhcp_timer = platform_create_timer(net_lwip_timer_cb, (void *)EV_LWIP_DHCP_TIMER, 0);
 	tcp_ticks = luat_mcu_tick64_ms() / TCP_SLOW_INTERVAL;
 	prvlwip.last_sleep_ms = luat_mcu_tick64_ms();
+	#ifdef LUAT_USE_TLS
+	platform_create_task(&prvlwip.task_handle, 16 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
+	#else
 	platform_create_task(&prvlwip.task_handle, 8 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
+	#endif
 	platform_start_timer(prvlwip.common_timer, 1000, 1);
 
 	prvlwip.dns_udp = udp_new();
@@ -996,7 +1000,7 @@ static void net_lwip_task(void *param)
 							}
 							else
 							{
-//								NET_DBG("tcp buf is full, wait ack and send again");
+								NET_DBG("tcp buf is full, wait ack and send again");
 								break;
 							}
 						}

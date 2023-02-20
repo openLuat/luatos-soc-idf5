@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 
 #if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
-#define LUAT_HEAP_SIZE (128*1024)
+#define LUAT_HEAP_SIZE (96*1024)
 #elif defined(CONFIG_IDF_TARGET_ESP32C2)
 #define LUAT_HEAP_SIZE (68*1024)
 #else
@@ -126,7 +126,7 @@ void luat_heap_init(void)
 {
 #ifdef LUAT_USE_PSRAM
     size_t t = esp_psram_get_size();
-    LLOGD("InitPSRAM The chip has %dMBITS PSRAM", t);
+    LLOGD("Found %d kbyte PSRAM", t / 1024);
     #define LUAT_HEAP_PSRAM_SIZE (4 * 1024 * 1024)
     if (t > 0)
     {
