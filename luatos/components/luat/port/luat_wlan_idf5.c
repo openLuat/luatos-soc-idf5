@@ -103,7 +103,8 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             LLOGD("IP_EVENT_STA_GOT_IP %s", sta_ip);
             lua_pushstring(L, "IP_READY");
             lua_pushstring(L, sta_ip);
-            lua_call(L, 2, 0);
+            lua_pushinteger(L, LWIP_STA);
+            lua_call(L, 3, 0);
         }
     }
     else if (msg->arg2 == 2) {
