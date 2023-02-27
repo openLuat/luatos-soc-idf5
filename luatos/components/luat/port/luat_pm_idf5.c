@@ -75,3 +75,7 @@ int luat_pm_get_poweron_reason(void)
 {
 	return 4;
 }
+
+int luat_pm_iovolt_ctrl(int id, int val) {
+    return -1;
+}
