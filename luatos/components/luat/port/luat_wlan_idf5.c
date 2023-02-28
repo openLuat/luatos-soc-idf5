@@ -392,6 +392,17 @@ int luat_wlan_get_mac(int id, char* mac) {
     }
 }
 
+int luat_wlan_set_mac(int id, char* mac) {
+    if (id >= 0 && id <= ESP_MAC_IEEE802154) {
+        esp_base_mac_addr_set((uint8_t*)mac);
+        return 0;
+    }
+    else {
+        LLOGW("no such mac id %d", id);
+        return -1;
+    }
+}
+
 static uint8_t ap_stack_inited = 0;
 
 int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
