@@ -231,6 +231,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_FATFS
   {"fatfs", luaopen_fatfs},
 #endif
+#ifdef LUAT_USE_MAX30102
+  {"max30102", luaopen_max30102},
+#endif
   {NULL, NULL}
 };
 

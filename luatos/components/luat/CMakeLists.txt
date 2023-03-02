@@ -80,7 +80,9 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/sfd
                                 ${LUATOS_ROOT}/components/romfs
                                 ${LUATOS_ROOT}/components/fatfs
+                                ${LUATOS_ROOT}/components/max30102
                                 INCLUDE_DIRS ../../include
+                                ${LUATOS_ROOT}/components/max30102
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
                                 ${LUATOS_ROOT}/components/shell
