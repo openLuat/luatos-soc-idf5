@@ -91,7 +91,7 @@ static const luaL_Reg loadedlibs[] = {
   {"rtc", luaopen_rtc},                   // 实时时钟
 #endif
 #ifdef LUAT_USE_OTP
-  {"otp", luaopen_otp},                   // OTP
+  // {"otp", luaopen_otp},                   // OTP
 #endif
 #ifdef LUAT_USE_TOUCHKEY
   {"touchkey", luaopen_touchkey},              // OTP
