@@ -30,7 +30,8 @@ int luat_pm_request(int mode) {
 }
 
 int luat_pm_dtimer_start(int id, size_t timeout) {
-    return -1;
+    esp_sleep_enable_timer_wakeup(timeout * 1000);
+    return 0;
 }
 
 int luat_pm_dtimer_stop(int id) {
@@ -71,8 +72,8 @@ int luat_pm_power_ctrl(int id, uint8_t onoff) {
     return -1;
 }
 
-int luat_pm_get_poweron_reason(void)
-{
+int luat_pm_get_poweron_reason(void){
+    // esp_sleep_get_wakeup_cause();
 	return 4;
 }
 
