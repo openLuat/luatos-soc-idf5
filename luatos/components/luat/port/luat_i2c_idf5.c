@@ -71,19 +71,22 @@ int luat_i2c_send(int id, int addr, void *buff, size_t len, uint8_t stop){
     esp_err_t ret;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     ret = i2c_master_start(cmd);
-    if (ret) return -1;
+    if (ret) goto error;
     ret = i2c_master_write_byte(cmd, addr << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
-    if (ret) return -1;
+    if (ret) goto error;
     ret = i2c_master_write(cmd, (const uint8_t *)buff, len, ACK_CHECK_EN);
-    if (ret) return -1;
+    if (ret) goto error;
     if (stop){
         ret = i2c_master_stop(cmd);
-        if (ret) return -1;
+        if (ret) goto error;
     }
     ret = i2c_master_cmd_begin(id, cmd, 1000 / portTICK_PERIOD_MS);
-    if (ret) return -1;
+    if (ret) goto error;
     i2c_cmd_link_delete(cmd);
     return 0;
+error:
+    i2c_cmd_link_delete(cmd);
+    return -1;
 }
 
 int luat_i2c_recv(int id, int addr, void *buff, size_t len){
@@ -93,15 +96,18 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len){
     esp_err_t ret;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     ret = i2c_master_start(cmd);
-    if (ret) return -1;
+    if (ret) goto error;
     ret = i2c_master_write_byte(cmd, addr << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
-    if (ret) return -1;
+    if (ret) goto error;
     ret = i2c_master_read(cmd, (uint8_t *)buff, len, I2C_MASTER_LAST_NACK);
-    if (ret) return -1;
+    if (ret) goto error;
     ret = i2c_master_stop(cmd);
-    if (ret) return -1;
+    if (ret) goto error;
     ret = i2c_master_cmd_begin(id, cmd, 1000 / portTICK_PERIOD_MS);
-    if (ret) return -1;
+    if (ret) goto error;
     i2c_cmd_link_delete(cmd);
     return 0;
+error:
+    i2c_cmd_link_delete(cmd);
+    return -1;
 }
