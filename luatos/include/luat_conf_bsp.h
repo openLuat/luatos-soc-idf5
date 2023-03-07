@@ -53,9 +53,6 @@
 #define LUAT_USE_PM  1
 #define LUAT_USE_MCU  1
 #define LUAT_USE_RTC 1
-// SDIO 仅支持TF/SD卡的挂载
-// #define LUAT_USE_SDIO 1
-// #define LUAT_USE_OTP 1
 
 #define LUAT_USE_WLAN 1
 // #define LUAT_USE_HTTPSRV 1
