@@ -17,6 +17,9 @@
 static uint8_t shell_state = 0;
 static char shell_buffer[1024] = {0};
 #endif
+
+#define LUAT_UART_QUEUE_SIZE 40
+
 typedef struct ifd_uart_port{
     TaskHandle_t xHandle;
     QueueHandle_t xQueue;
@@ -42,7 +45,7 @@ static void uart0_irq_task(void *arg){
                     msg.handler = l_uart_handler;
                     msg.ptr = NULL;
                     msg.arg1 = 0;
-                    msg.arg2 = 1;
+                    msg.arg2 = event.size;
                     luat_msgbus_put(&msg, 0);
                 }
 #ifdef LUAT_USE_SHELL
@@ -71,7 +74,7 @@ static void uart1_irq_task(void *arg){
                     msg.handler = l_uart_handler;
                     msg.ptr = NULL;
                     msg.arg1 = 1;
-                    msg.arg2 = 1;
+                    msg.arg2 = event.size;
                     luat_msgbus_put(&msg, 0);
                 }
                 xQueueReset(uart_port[1].xQueue);
@@ -92,7 +95,7 @@ static void uart2_irq_task(void *arg){
                     msg.handler = l_uart_handler;
                     msg.ptr = NULL;
                     msg.arg1 = 2;
-                    msg.arg2 = 1;
+                    msg.arg2 = event.size;
                     luat_msgbus_put(&msg, 0);
                 }
                 xQueueReset(uart_port[2].xQueue);
@@ -138,7 +141,7 @@ int luat_uart_setup(luat_uart_t *uart){
     uart_config.stop_bits = uart->stop_bits;
     uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
     uart_config.source_clk = UART_SCLK_DEFAULT;
-
+    uart_set_rx_timeout(id, 3);
     switch (id){
     case 0:
 #ifdef LUAT_USE_SHELL
@@ -148,30 +151,30 @@ int luat_uart_setup(luat_uart_t *uart){
         }
 #endif
         if (uart_port[id].xHandle==NULL){
-            uart_driver_install(0, uart->bufsz * 2, uart->bufsz * 2, 20, &(uart_port[0].xQueue), 0);
+            uart_driver_install(0, uart->bufsz * 2, uart->bufsz * 2, LUAT_UART_QUEUE_SIZE, &(uart_port[0].xQueue), 0);
             uart_set_pin(0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
             uart_param_config(id, &uart_config);
-            uart_pattern_queue_reset(id, 20);
-            xTaskCreate(uart0_irq_task, "uart0_irq_task", 2048, NULL, 10, &uart_port[id].xHandle);
+            uart_pattern_queue_reset(id, LUAT_UART_QUEUE_SIZE);
+            xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 12, &uart_port[id].xHandle);
         }
         break;
     case 1:
         if (uart_port[id].xHandle==NULL){
-            uart_driver_install(1, uart->bufsz * 2, uart->bufsz * 2, 20, &(uart_port[1].xQueue), 0);
+            uart_driver_install(1, uart->bufsz * 2, uart->bufsz * 2, LUAT_UART_QUEUE_SIZE, &(uart_port[1].xQueue), 0);
             uart_set_pin(1, UART1_TX_IO_NUM, UART1_RX_IO_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
             uart_param_config(id, &uart_config);
-            uart_pattern_queue_reset(id, 20);
-            xTaskCreate(uart1_irq_task, "uart1_irq_task", 2048, NULL, 10, &uart_port[id].xHandle);
+            uart_pattern_queue_reset(id, LUAT_UART_QUEUE_SIZE);
+            xTaskCreate(uart1_irq_task, "uart1_irq_task", 4096, NULL, 12, &uart_port[id].xHandle);
         }
         break;
 #if SOC_UART_NUM > 2
     case 2:
         if (uart_port[id].xHandle==NULL){
-            uart_driver_install(2, uart->bufsz * 2, uart->bufsz * 2, 20, &(uart_port[2].xQueue), 0);
+            uart_driver_install(2, uart->bufsz * 2, uart->bufsz * 2, LUAT_UART_QUEUE_SIZE, &(uart_port[2].xQueue), 0);
             uart_set_pin(2, UART2_TX_IO_NUM, UART2_RX_IO_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
             uart_param_config(id, &uart_config);
-            uart_pattern_queue_reset(id, 20);
-            xTaskCreate(uart2_irq_task, "uart2_irq_task", 2048, NULL, 10, &uart_port[id].xHandle);
+            uart_pattern_queue_reset(id, LUAT_UART_QUEUE_SIZE);
+            xTaskCreate(uart2_irq_task, "uart2_irq_task", 2048, NULL, 12, &uart_port[id].xHandle);
         }
         break;
 #endif
@@ -221,12 +224,12 @@ int luat_setup_cb(int uartid, int received, int sent){
 #ifdef LUAT_USE_SHELL
 void luat_shell_poweron(int _drv) {
     shell_state = 1;
-    uart_driver_install(0, 2048, 2048, 20, &(uart_port[0].xQueue), 0);
+    uart_driver_install(0, 2048, 2048, LUAT_UART_QUEUE_SIZE, &(uart_port[0].xQueue), 0);
     uart_set_pin(0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     uart_set_baudrate(0, 921600);
     // uart_param_config(0, &uart_config);
-    uart_pattern_queue_reset(0, 20);
-    xTaskCreate(uart0_irq_task, "uart0_irq_task", 2048, NULL, 10, &uart_port[0].xHandle);
+    uart_pattern_queue_reset(0, LUAT_UART_QUEUE_SIZE);
+    xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 12, &uart_port[0].xHandle);
 }
 #endif
 
