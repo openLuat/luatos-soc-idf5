@@ -865,9 +865,9 @@ void net_lwip_init(void)
 	tcp_ticks = luat_mcu_tick64_ms() / TCP_SLOW_INTERVAL;
 	prvlwip.last_sleep_ms = luat_mcu_tick64_ms();
 	#ifdef LUAT_USE_TLS
-	platform_create_task(&prvlwip.task_handle, 16 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
+	platform_create_task(&prvlwip.task_handle, 32 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
 	#else
-	platform_create_task(&prvlwip.task_handle, 8 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
+	platform_create_task(&prvlwip.task_handle, 16 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
 	#endif
 	platform_start_timer(prvlwip.common_timer, 1000, 1);
 
