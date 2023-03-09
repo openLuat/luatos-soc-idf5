@@ -42,6 +42,7 @@ static void luat_lvgl_callback(TimerHandle_t xTimer){
 #endif
 
 void app_main(void){
+    vTaskPrioritySet( NULL, 10);
     void luat_mcu_us_timer_init();
     luat_mcu_us_timer_init();
 #ifdef LUAT_USE_SHELL
