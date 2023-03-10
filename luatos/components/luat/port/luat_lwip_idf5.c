@@ -1683,7 +1683,18 @@ static int net_lwip_socket_receive(int socket_id, uint64_t tag,  uint8_t *buf, u
 		}
 		else
 		{
-			prvlwip.socket[socket_id].rx_wait_size -= net_lwip_socket_read_data(socket_id, buf + read_len, &read_len, len, p);
+			if (p)
+			{
+				if (remote_ip)
+				{
+					*remote_ip = p->ip;
+				}
+				if (remote_port)
+				{
+					*remote_port = p->port;
+				}
+				prvlwip.socket[socket_id].rx_wait_size -= net_lwip_socket_read_data(socket_id, buf + read_len, &read_len, len, p);
+			}
 		}
 		if (llist_empty(&prvlwip.socket[socket_id].rx_head))
 		{
