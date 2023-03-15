@@ -424,7 +424,7 @@ static socket_data_t * net_lwip_create_data_node(uint8_t socket_id, uint8_t *dat
 		}
 		else
 		{
-			p->ip.type = 0xff;
+			ip_addr_set_zero(&p->ip);
 		}
 		p->tag = prvlwip.socket[socket_id].tag;
 		if (data && len)
@@ -865,7 +865,7 @@ void net_lwip_init(void)
 	tcp_ticks = luat_mcu_tick64_ms() / TCP_SLOW_INTERVAL;
 	prvlwip.last_sleep_ms = luat_mcu_tick64_ms();
 	#ifdef LUAT_USE_TLS
-	platform_create_task(&prvlwip.task_handle, 32 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
+	platform_create_task(&prvlwip.task_handle, 16 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
 	#else
 	platform_create_task(&prvlwip.task_handle, 16 * 1024, 40, "lwip", net_lwip_task, NULL, 64);
 	#endif
@@ -1146,21 +1146,21 @@ static void net_lwip_task(void *param)
 				break;
 			}
 			p_ip = (ip_addr_t *)event.Param2;
-			local_ip = NULL;
-			if (p_ip->type == IPADDR_TYPE_V4)
-			{
-				local_ip = &prvlwip.lwip_netif[adapter_index]->ip_addr;
-			}
-			else
-			{
-				local_ip = net_lwip_get_ip6();
-			}
-			if (!local_ip)
-			{
-				NET_DBG("netif no ip !!!!!!");
-				net_lwip_tcp_error(adapter_index, socket_id);
-				break;
-			}
+			// local_ip = NULL;
+			// if (p_ip->type == IPADDR_TYPE_V4)
+			// {
+			// 	local_ip = &prvlwip.lwip_netif[adapter_index]->ip_addr;
+			// }
+			// else
+			// {
+			// 	local_ip = net_lwip_get_ip6();
+			// }
+			// if (!local_ip)
+			// {
+			// 	NET_DBG("netif no ip !!!!!!");
+			// 	net_lwip_tcp_error(adapter_index, socket_id);
+			// 	break;
+			// }
 			if (prvlwip.socket[socket_id].is_tcp)
 			{
 				// LLOGD(">>>>>>>>> tcp_bind %d %d", socket_id, prvlwip.socket[socket_id].local_port);
@@ -1385,22 +1385,9 @@ static void net_lwip_check_network_ready(uint8_t adapter_index)
 	// {
 	// 	dhcp_release_and_stop(netif);
 	// }
-#if LWIP_IPV4
-	if (netif->ip_addr.u_addr.ip4.addr)
-	{
+	if (!ip_addr_isany_val(netif->ip_addr)) {
 		ip_ready = 1;
 	}
-#endif
-#if LWIP_IPV6
-	for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++)
-	{
-	    if (ip6_addr_isinvalid(netif_ip6_addr_state(netif, i)))
-	    {
-	    	ip_ready = 1;
-	    	break;
-	    }
-	}
-#endif
 	if (!ip_ready)
 	{
 #if LWIP_DHCP
@@ -1431,16 +1418,13 @@ static void net_lwip_check_network_ready(uint8_t adapter_index)
 			NET_DBG("network ready");
 			// TODO 设置为本地的DNS配置
 			PV_Union puTmp = {.u8 = {223,5,5,5}};
-			prvlwip.dns_client.dns_server[0].u_addr.ip4.addr = puTmp.u32;
-			prvlwip.dns_client.dns_server[0].type = IPADDR_TYPE_V4;
+			ip_addr_set_ip4_u32(&prvlwip.dns_client.dns_server[0], puTmp.u32);
 			prvlwip.dns_client.is_static_dns[0] = 1;
 			PV_Union puTmp2 = {.u8 = {114,114,114,114}};
-			prvlwip.dns_client.dns_server[1].u_addr.ip4.addr = puTmp2.u32;
-			prvlwip.dns_client.dns_server[1].type = IPADDR_TYPE_V4;
-			prvlwip.dns_client.is_static_dns[1] = 1;
+			ip_addr_set_ip4_u32(&prvlwip.dns_client.dns_server[1], puTmp2.u32);
 			for(i = 0; i < MAX_DNS_SERVER; i++)
 			{
-				if (prvlwip.dns_client.dns_server[i].type != 0xff)
+				if (!ip_addr_isany_val(prvlwip.dns_client.dns_server[i]))
 				{
 					NET_DBG("DNS%d:%s",i, ipaddr_ntoa_r(&prvlwip.dns_client.dns_server[i], ip_string, sizeof(ip_string)));
 				}
