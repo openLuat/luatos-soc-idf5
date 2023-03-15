@@ -30,7 +30,7 @@
 #define LUAT_USE_NETWORK
 #define LUAT_USE_LWIP
 #define LUAT_USE_DNS
-// #define LUAT_USE_TLS
+#define LUAT_USE_TLS
 #define LUAT_USE_SNTP
 // FTP暂不可用
 // #define LUAT_XXX_USE_FTP
@@ -73,8 +73,8 @@
 #define LUAT_USE_PACK  1
 // #define LUAT_USE_LIBGNSS  1
 #define LUAT_USE_FS  1
-// #define LUAT_USE_SENSOR  1
-// #define LUAT_USE_SFUD  1
+#define LUAT_USE_SENSOR  1
+#define LUAT_USE_SFUD  1
 // #define LUAT_USE_STATEM 1
 // 性能测试
 // #define LUAT_USE_COREMARK 1
@@ -82,8 +82,8 @@
 // FDB 提供kv数据库, 与nvm库类似
 // #define LUAT_USE_FDB 1
 // FSKV库提供fdb库的兼容API, 目标是替代fdb库
-// #define LUAT_USE_FSKV 1
-// #define LUAT_USE_OTA 1
+#define LUAT_USE_FSKV 1
+#define LUAT_USE_OTA 1
 // #define LUAT_USE_I2CTOOLS 1
 // #define LUAT_USE_LORA 1
 // #define LUAT_USE_MAX30102 1
@@ -91,7 +91,7 @@
 // zlib压缩,更快更小的实现
 // #define LUAT_USE_MINIZ 1
 
-#define LUAT_USE_FATFS
+// #define LUAT_USE_FATFS
 // #define LUAT_USE_FATFS_CHINESE 3
 
 //----------------------------
@@ -102,7 +102,7 @@
 // #define LUAT_USE_VMX 1
 // #define LUAT_USE_PROTOBUF 1
 
-#define LUAT_USE_RSA 1
+// #define LUAT_USE_RSA 1
 
 // ------------------
 
@@ -123,10 +123,10 @@
 /**************FONT*****************/
 // #define LUAT_USE_FONTS
 /**********U8G2&LCD&EINK FONT*************/
-#define USE_U8G2_OPPOSANSM_ENGLISH 1
+// #define USE_U8G2_OPPOSANSM_ENGLISH 1
 // #define USE_U8G2_OPPOSANSM8_CHINESE
-#define USE_U8G2_OPPOSANSM10_CHINESE
-#define USE_U8G2_OPPOSANSM12_CHINESE
+// #define USE_U8G2_OPPOSANSM10_CHINESE
+// #define USE_U8G2_OPPOSANSM12_CHINESE
 // #define USE_U8G2_OPPOSANSM16_CHINESE
 // #define USE_U8G2_OPPOSANSM24_CHINESE
 // #define USE_U8G2_OPPOSANSM32_CHINESE
