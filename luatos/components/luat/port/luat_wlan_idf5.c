@@ -1,6 +1,7 @@
 #include "luat_base.h"
 #include "luat_msgbus.h"
 #include "luat_wlan.h"
+#include "luat_timer.h"
 
 
 #include "esp_attr.h"
@@ -240,19 +241,22 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 
         #ifdef LUAT_USE_NETWORK
         // luat_timer_mdelay(3000);
-        LLOGD("CALL net_lwip_init");
+        // LLOGD("CALL net_lwip_init");
         net_lwip_init();
         // luat_timer_mdelay(3000);
-        LLOGD("CALL net_lwip_register_adapter");
-        net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        // LLOGD("CALL net_lwip_register_adapter");
         // luat_timer_mdelay(3000);
-        #endif
-        
+        net_lwip_init();
+        extern void soc_lwip_init_hook(void);
+        soc_lwip_init_hook();
         struct netif *et0 = netif_get_by_index(1);
-        // LLOGD("netif_get_by_index %p", et0);
-        // luat_timer_mdelay(3000);
-        extern void net_lwip_set_netif(uint8_t adapter_index, struct netif *netif, void *init, uint8_t is_default);
-        net_lwip_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_STA, et0, NULL, 1);
+        // LLOGD("netif_get_by_index 0 %p", netif_get_by_index(0));
+        // LLOGD("netif_get_by_index 1 %p", netif_get_by_index(1));
+        // LLOGD("netif_get_by_index 2 %p", netif_get_by_index(2));
+        // LLOGD("netif_get_by_index 3 %p", netif_get_by_index(3));
+        net_lwip_set_netif(et0);
+        net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        #endif
         LLOGD("esp_wifi_init ret %d", ret);
     }
 #ifdef LUAT_USE_NIMBLE
