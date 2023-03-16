@@ -155,12 +155,8 @@ FILE* luat_vfs_spiffs_fopen(void* userdata, const char *filename, const char *mo
 }
 
 int luat_vfs_spiffs_getc(void* userdata, FILE* stream) {
-    uint8_t buff = 0;
-    int ret = luat_fs_fread(&buff, 1, 1, stream);
-    if (ret == 1) {
-        return buff;
-    }
-    return -1;
+    int ret = getc(stream);
+    return ret;
 }
 
 int luat_vfs_spiffs_fseek(void* userdata, FILE* stream, long int offset, int origin) {
