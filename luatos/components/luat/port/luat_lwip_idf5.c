@@ -730,7 +730,7 @@ static err_t net_lwip_dns_recv_cb(void *arg, struct udp_pcb *pcb, struct pbuf *p
 	struct pbuf *out_p;
 	ip_addr_t *t_ip;
 	int i;
-	LLOGD("%s:%d", __FILE__, __LINE__);
+	//LLOGD("%s:%d", __FILE__, __LINE__);
 	if (p)
 	{
 		OS_InitBuffer(&msg_buf, p->tot_len);
