@@ -90,9 +90,13 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             break;
         case WIFI_EVENT_AP_STACONNECTED :
             LLOGD("wifi ap sta connected");
+            lua_pushstring(L, "WLAN_AP_CONNECTED");
+            lua_call(L, 1, 0);
             break;
         case WIFI_EVENT_AP_STADISCONNECTED :
             LLOGD("wifi ap sta disconnected");
+            lua_pushstring(L, "WLAN_AP_DISCONNECTED");
+            lua_call(L, 1, 0);
             break;
         default:
             LLOGI("unkown event %d", event_id);
