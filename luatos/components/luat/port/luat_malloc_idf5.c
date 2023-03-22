@@ -14,7 +14,7 @@
 
 
 //-----------------------------------------------------------------------------
-
+#ifndef LUAT_HEAP_SIZE
 #if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
 #if defined(LUAT_USE_NIMBLE) || defined(LUAT_USE_TLS)
 #define LUAT_HEAP_SIZE (96*1024)
@@ -26,6 +26,8 @@
 #else
 #define LUAT_HEAP_SIZE (64*1024)
 #endif
+#endif // LUAT_HEAP_SIZE
+
 static uint8_t vmheap[LUAT_HEAP_SIZE];
 #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
 static uint32_t heap_addr_start = (uint32_t) vmheap;
