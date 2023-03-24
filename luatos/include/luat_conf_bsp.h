@@ -57,7 +57,7 @@
 
 #define LUAT_USE_WLAN 1
 #define LUAT_USE_HTTPSRV 1
-// #define LUAT_USE_NIMBLE 1
+#define LUAT_USE_NIMBLE 1
 
 #define LUAT_USE_IOTAUTH 1
 
@@ -84,12 +84,12 @@
 // FSKV库提供fdb库的兼容API, 目标是替代fdb库
 #define LUAT_USE_FSKV 1
 #define LUAT_USE_OTA 1
-// #define LUAT_USE_I2CTOOLS 1
+#define LUAT_USE_I2CTOOLS 1
 // #define LUAT_USE_LORA 1
 // #define LUAT_USE_MAX30102 1
 // #define LUAT_USE_MLX90640 1
 // zlib压缩,更快更小的实现
-// #define LUAT_USE_MINIZ 1
+#define LUAT_USE_MINIZ 1
 
 // #define LUAT_USE_FATFS
 // #define LUAT_USE_FATFS_CHINESE 3
@@ -102,31 +102,31 @@
 // #define LUAT_USE_VMX 1
 // #define LUAT_USE_PROTOBUF 1
 
-// #define LUAT_USE_RSA 1
+#define LUAT_USE_RSA 1
 
 // ------------------
 
 //---------------------
 // UI
 // LCD  是彩屏, 若使用LVGL就必须启用LCD
-// #define LUAT_USE_LCD
-// #define LUAT_USE_TJPGD
+#define LUAT_USE_LCD
+#define LUAT_USE_TJPGD
 // EINK 是墨水屏
-// #define LUAT_USE_EINK
+#define LUAT_USE_EINK
 
 //---------------------
 // U8G2
 // 单色屏, 支持i2c/spi
 // #define LUAT_USE_DISP
-// #define LUAT_USE_U8G2
+#define LUAT_USE_U8G2
 
 /**************FONT*****************/
-// #define LUAT_USE_FONTS
+#define LUAT_USE_FONTS
 /**********U8G2&LCD&EINK FONT*************/
-// #define USE_U8G2_OPPOSANSM_ENGLISH 1
+#define USE_U8G2_OPPOSANSM_ENGLISH 1
 // #define USE_U8G2_OPPOSANSM8_CHINESE
-// #define USE_U8G2_OPPOSANSM10_CHINESE
-// #define USE_U8G2_OPPOSANSM12_CHINESE
+#define USE_U8G2_OPPOSANSM10_CHINESE
+#define USE_U8G2_OPPOSANSM12_CHINESE
 // #define USE_U8G2_OPPOSANSM16_CHINESE
 // #define USE_U8G2_OPPOSANSM24_CHINESE
 // #define USE_U8G2_OPPOSANSM32_CHINESE
@@ -140,7 +140,7 @@
 //---------------------
 // LVGL
 // 主推的UI库, 功能强大但API繁琐
-// #define LUAT_USE_LVGL
+#define LUAT_USE_LVGL
 #define LV_DISP_DEF_REFR_PERIOD 30
 #define LUAT_LV_DEBUG 0
 
