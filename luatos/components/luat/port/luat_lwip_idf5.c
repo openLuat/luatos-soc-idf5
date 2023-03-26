@@ -184,7 +184,6 @@ static void net_lwip_callback_to_nw_task(uint8_t adapter_index, uint32_t event_i
 
 static void net_lwip_tcp_error(uint8_t adapter_index, int socket_id)
 {
-	LLOGD("tcp error ? %d", socket_id);
 	prvlwip.socket[socket_id].remote_close = 1;
 	net_lwip_callback_to_nw_task(adapter_index, EV_NW_SOCKET_ERROR, socket_id, 0, 0);
 }
@@ -192,7 +191,6 @@ static void net_lwip_tcp_error(uint8_t adapter_index, int socket_id)
 static err_t net_lwip_tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
 	int socket_id = ((uint32_t)arg) & 0x0000ffff;
-	LLOGD("tcp connected ? %d %d", socket_id, err);
 	uint8_t adapter_index = ((uint32_t)arg) >> 16;
 	prvlwip.socket_connect &= ~(1 << socket_id);
 	net_lwip_callback_to_nw_task(adapter_index, EV_NW_SOCKET_CONNECT_OK, socket_id, 0, 0);
@@ -400,7 +398,6 @@ static err_t net_lwip_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err
 static err_t net_lwip_udp_recv_cb(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     const ip_addr_t *addr, u16_t port)
 {
-	LLOGD("net_lwip_udp_recv_cb");
 	int socket_id = ((uint32_t)arg) & 0x0000ffff;
 	uint8_t adapter_index = ((uint32_t)arg) >> 16;
 	uint16_t len;
