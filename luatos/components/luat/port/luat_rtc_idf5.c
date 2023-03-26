@@ -40,3 +40,8 @@ int luat_rtc_timer_stop(int id){
 int luat_rtc_timezone(int* timezone) {
     return 32; // 暂不支持
 }
+
+void luat_rtc_set_tamp32(uint32_t tamp) {
+    LLOGD("luat_rtc_set_tamp32 not support yet");
+    return;
+}
