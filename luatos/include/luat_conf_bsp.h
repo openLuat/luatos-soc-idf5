@@ -103,6 +103,7 @@
 // #define LUAT_USE_PROTOBUF 1
 
 #define LUAT_USE_RSA 1
+// #define LUAT_USE_ICONV 1
 
 // ------------------
 
