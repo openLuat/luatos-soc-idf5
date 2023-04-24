@@ -305,6 +305,13 @@
                   "rsize": 40008,
                   "fsize": 274360,
                   "dft": false
+              },
+              {
+                  "name": "bit64",
+                  "content": "64位数据处理库",
+                  "rsize": 10008,
+                  "fsize": 274360,
+                  "dft": false
               }
            ],
            "fsize":365376,
