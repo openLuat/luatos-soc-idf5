@@ -240,6 +240,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_BIT64
   {"bit64", luaopen_bit64},
 #endif
+#ifdef LUAT_USE_GMSSL
+  {"gmssl", luaopen_gmssl},
+#endif
   {NULL, NULL}
 };
 

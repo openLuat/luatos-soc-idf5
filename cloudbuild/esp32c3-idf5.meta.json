@@ -300,6 +300,13 @@
                  "dft":false
               },
               {
+                  "name": "gmssl",
+                  "content": "国密算法SM2/SM3/SM4",
+                  "rsize": 20008,
+                  "fsize": 274360,
+                  "dft": false
+              },
+              {
                   "name": "iconv",
                   "content": "编码转换GB2312/UTF8/UNCIODE",
                   "rsize": 40008,
