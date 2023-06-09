@@ -153,29 +153,29 @@ int luat_uart_setup(luat_uart_t *uart){
         if (uart_port[id].xHandle==NULL){
             uart_driver_install(0, uart->bufsz * 2, uart->bufsz * 2, LUAT_UART_QUEUE_SIZE, &(uart_port[0].xQueue), 0);
             uart_set_pin(0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-            uart_param_config(id, &uart_config);
             uart_pattern_queue_reset(id, LUAT_UART_QUEUE_SIZE);
             xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 12, &uart_port[id].xHandle);
         }
+        uart_param_config(id, &uart_config);
         break;
     case 1:
         if (uart_port[id].xHandle==NULL){
             uart_driver_install(1, uart->bufsz * 2, uart->bufsz * 2, LUAT_UART_QUEUE_SIZE, &(uart_port[1].xQueue), 0);
             uart_set_pin(1, UART1_TX_IO_NUM, UART1_RX_IO_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-            uart_param_config(id, &uart_config);
             uart_pattern_queue_reset(id, LUAT_UART_QUEUE_SIZE);
             xTaskCreate(uart1_irq_task, "uart1_irq_task", 4096, NULL, 12, &uart_port[id].xHandle);
         }
+        uart_param_config(id, &uart_config);
         break;
 #if SOC_UART_NUM > 2
     case 2:
         if (uart_port[id].xHandle==NULL){
             uart_driver_install(2, uart->bufsz * 2, uart->bufsz * 2, LUAT_UART_QUEUE_SIZE, &(uart_port[2].xQueue), 0);
             uart_set_pin(2, UART2_TX_IO_NUM, UART2_RX_IO_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-            uart_param_config(id, &uart_config);
             uart_pattern_queue_reset(id, LUAT_UART_QUEUE_SIZE);
             xTaskCreate(uart2_irq_task, "uart2_irq_task", 2048, NULL, 12, &uart_port[id].xHandle);
         }
+        uart_param_config(id, &uart_config);
         break;
 #endif
     default:
