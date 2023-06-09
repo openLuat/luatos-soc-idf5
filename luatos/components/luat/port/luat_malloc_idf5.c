@@ -133,15 +133,24 @@ void luat_heap_init(void)
 #ifdef LUAT_USE_PSRAM
     size_t t = esp_psram_get_size();
     LLOGD("Found %d kbyte PSRAM", t / 1024);
+    size_t psram_sz = 0;
     #define LUAT_HEAP_PSRAM_SIZE (4 * 1024 * 1024)
     if (t > 0)
     {
-        char* ptr = heap_caps_malloc(LUAT_HEAP_PSRAM_SIZE, MALLOC_CAP_SPIRAM);
-        #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
-        heap_addr_start = (uint32_t)ptr;
-        heap_addr_end = (uint32_t)ptr + LUAT_HEAP_PSRAM_SIZE;
-        #endif
-        bpool(ptr, LUAT_HEAP_PSRAM_SIZE);
+        psram_sz = t / 2 ; // 默认占一半
+        char* ptr = heap_caps_malloc(psram_sz, MALLOC_CAP_SPIRAM);
+        if (ptr) {
+            LLOGD("Use %d kbyte PSRAM for Lua VM", t / 1024 / 2);
+            #if LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP
+            heap_addr_start = (uint32_t)ptr;
+            heap_addr_end = (uint32_t)ptr + psram_sz;
+            #endif
+            bpool(ptr, psram_sz);
+        }
+        else {
+            LLOGE("PSRAM malloc FAILED, fallback to Non-PSRAM mode");
+            bpool(vmheap, LUAT_HEAP_SIZE);
+        }
     }
     else
     {
