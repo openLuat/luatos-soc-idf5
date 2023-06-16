@@ -13,7 +13,7 @@
 #include "luat_log.h"
 #define LUAT_LOG_TAG "uart"
 
-#ifdef LUAT_USE_SHELL
+#if defined(LUAT_USE_SHELL) || defined(LUAT_USE_REPL)
 static uint8_t shell_state = 0;
 static char shell_buffer[1024] = {0};
 #endif
@@ -48,7 +48,7 @@ static void uart0_irq_task(void *arg){
                     msg.arg2 = event.size;
                     luat_msgbus_put(&msg, 0);
                 }
-#ifdef LUAT_USE_SHELL
+#if defined(LUAT_USE_SHELL) || defined(LUAT_USE_REPL)
             if (shell_state){
                 int len = luat_uart_read(0, shell_buffer, 1024);
                 if (len < 1)
@@ -144,7 +144,7 @@ int luat_uart_setup(luat_uart_t *uart){
     uart_set_rx_timeout(id, 3);
     switch (id){
     case 0:
-#ifdef LUAT_USE_SHELL
+#if defined(LUAT_USE_SHELL) || defined(LUAT_USE_REPL)
         if (shell_state){
             shell_state = 0;
             luat_uart_close(0);
@@ -221,7 +221,7 @@ int luat_setup_cb(int uartid, int received, int sent){
     return 0;
 }
 
-#ifdef LUAT_USE_SHELL
+#if defined(LUAT_USE_SHELL) || defined(LUAT_USE_REPL)
 void luat_shell_poweron(int _drv) {
     shell_state = 1;
     uart_driver_install(0, 2048, 2048, LUAT_UART_QUEUE_SIZE, &(uart_port[0].xQueue), 0);

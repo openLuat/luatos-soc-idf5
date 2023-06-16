@@ -164,6 +164,13 @@
            "content":"工具库",
            "rsize":0,
            "children":[
+               {
+                   "name": "repl",
+                   "content": "REPL(读取-解析-执行)循环",
+                   "rsize": 10908,
+                   "fsize": 284260,
+                   "dft": false
+               },
               {
                  "name":"cjson",
                  "content":"JSON序列化与反序列化",
@@ -228,7 +235,7 @@
               },
               {
                  "name":"shell",
-                 "content":"控制台,搭配dbg功能才可以在LuatIDE使用",
+                 "content":"控制台,会跟repl冲突",
                  "rsize":6848,
                  "fsize":372224,
                  "dft":false,

@@ -95,9 +95,10 @@
 // #define LUAT_USE_FATFS_CHINESE 3
 
 //----------------------------
-// 高级功能, 其中shell是推荐启用, 除非你打算uart0也读数据
-#define LUAT_USE_SHELL 1
-#define LUAT_USE_DBG
+// 高级功能, 推荐使用repl, shell已废弃
+// #define LUAT_USE_SHELL 1
+// #define LUAT_USE_DBG
+#define LUAT_USE_REPL 1
 // 多虚拟机支持,实验性,一般不启用
 // #define LUAT_USE_VMX 1
 // #define LUAT_USE_PROTOBUF 1
