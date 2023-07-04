@@ -98,6 +98,9 @@ if __name__=='__main__':
         info_json_data = json.load(f)
     with open(info_json_temp, "w") as f :
         print("script_size", script_size)
+        if "LUAT_USE_ROMFS" in os.environ:
+            print("USE ROMFS for script. Pls use LuaTools 2.2.3 +")
+            info_json_data["rom"]["fs"]["script"]["type"] = "romfs"
         info_json_data["rom"]["fs"]["script"]["size"] = script_size
         info_json_data["download"]["core_addr"] = core_addr.replace("0x", "00").strip()
         info_json_data["download"]["script_addr"] = script_addr.replace("0x", "00").strip()
