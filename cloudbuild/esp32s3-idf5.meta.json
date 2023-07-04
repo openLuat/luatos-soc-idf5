@@ -753,7 +753,43 @@
            ],
            "fsize":365376,
            "dft":false
-        }
+        },
+        {
+         "icon": "zmdi-puzzle-piece",
+         "name": "@rom",
+         "content": "Flash及脚本区配置",
+         "rsize": 0,
+         "children": [
+            {
+                "name": "@tips_123",
+                "content": "本小节的配置均有一定的风险,请慎重选择",
+                "rsize": 0,
+                "fsize": 1024,
+                "dft": false
+            },
+            {
+                "name": "romfs",
+                "content": "使用ROMFS作为脚本区格式. 这样能突破128k脚本区的大小限制, 文件名长度限制在15字节以内",
+                "rsize": 0,
+                "fsize": 1024,
+                "dft": false
+            },
+            {
+                "name": "flash_16m_script_8m",
+                "content": "使用16M字节的Flash, 其中8M字节作为脚本区",
+                "rsize": 0,
+                "fsize": 1024,
+                "dft": false
+            },
+            {
+                "name": "flash_16m_script_1m",
+                "content": "使用16M字节的Flash, 其中1M字节作为脚本区",
+                "rsize": 0,
+                "fsize": 1024,
+                "dft": false
+            }
+         ]
+      }
      ]
   }
 }
