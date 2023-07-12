@@ -224,9 +224,9 @@ static const luaL_Reg loadedlibs[] = {
 #if CONFIG_BT_ENABLED
   {"nimble", luaopen_nimble},
 #endif
+#endif
 #ifdef LUAT_USE_RSA
   {"rsa", luaopen_rsa},
-#endif
 #endif
 #ifdef LUAT_USE_FATFS
   {"fatfs", luaopen_fatfs},
