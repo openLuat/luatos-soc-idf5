@@ -411,7 +411,8 @@ int luat_wlan_set_mac(int id, char* mac) {
     }
 }
 
-static uint8_t ap_stack_inited = 0;
+// static uint8_t ap_stack_inited = 0;
+static esp_netif_t* wifiAP;
 
 int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     wifi_mode_t mode = 0;
@@ -425,10 +426,13 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     cfg.ap.ssid_len = strlen(apinfo->ssid);
     if (strlen(apinfo->password) >= 6) {
         memcpy(cfg.ap.password, apinfo->password, strlen(apinfo->password));
-        cfg.ap.authmode = WIFI_AUTH_WPA2_PSK;
+        cfg.ap.authmode = WIFI_AUTH_WPA_PSK;
     }
     else {
         cfg.ap.authmode = WIFI_AUTH_OPEN;
+    }
+    if (apinfo->channel) {
+        cfg.ap.channel = apinfo->channel;
     }
 
     LLOGD("softap %s %s", apinfo->ssid, apinfo->password);
@@ -436,9 +440,26 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     ret = esp_wifi_stop();
     LLOGD("esp_wifi_stop ret %d", ret);
 
-    if (ap_stack_inited == 0) {
-        ap_stack_inited = 1;
-        esp_netif_create_default_wifi_ap();
+    if (wifiAP == NULL) {
+        wifiAP = esp_netif_create_default_wifi_ap();
+    }
+    esp_netif_ip_info_t ipInfo = {0};
+    if (apinfo->gateway[0]) {
+        ipInfo.ip.addr = apinfo->gateway[0] + (apinfo->gateway[1] << 8) + (apinfo->gateway[2] << 16) + (apinfo->gateway[3] << 24);
+        ipInfo.gw.addr =   apinfo->gateway[0] + (apinfo->gateway[1] << 8) + (apinfo->gateway[2] << 16) + (apinfo->gateway[3] << 24);
+        ipInfo.netmask.addr =   apinfo->netmask[0] + (apinfo->netmask[1] << 8) + (apinfo->netmask[2] << 16) + (apinfo->netmask[3] << 24);
+        ret = esp_netif_dhcps_stop(wifiAP);
+        if (ret)
+            LLOGD("esp_netif_dhcps_stop ret %d", ret);
+        ret = esp_netif_set_ip_info(wifiAP, &ipInfo);
+        if (ret)
+            LLOGD("esp_netif_set_ip_info ret %d", ret);
+        ret = esp_netif_dhcps_start(wifiAP);
+        if (ret)
+            LLOGD("esp_netif_dhcps_start ret %d", ret);
+    }
+    else {
+        LLOGD("default gw 192.168.4.1 mask 255.255.255.0");
     }
 
     ret = esp_wifi_get_mode(&mode);
@@ -451,7 +472,7 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     LLOGD("esp_wifi_set_config ret %d", ret);
     ret = esp_wifi_start();
     LLOGD("esp_wifi_start ret %d", ret);
-    return 0;
+    return ret;
 }
 
 int luat_wlan_get_ip(int type, char* data) {
