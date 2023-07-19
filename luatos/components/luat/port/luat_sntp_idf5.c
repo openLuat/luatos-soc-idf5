@@ -56,7 +56,7 @@ void luat_ntp_autosync(void) {
 #ifdef CONFIG_SNTP_TIME_SYNC_METHOD_SMOOTH
     sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
 #endif
-    sntp_set_sync_interval(60*1000); // every 60s
+    sntp_set_sync_interval(900*1000); // every 60s
     sntp_set_time_sync_notification_cb(my_ntp_cb);
     sntp_init();
 }

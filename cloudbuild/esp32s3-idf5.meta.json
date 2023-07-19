@@ -125,6 +125,13 @@
                         "dft":false
                      },
                      {
+                        "name" : "LUAT_USE_SNTP_NOT_AUTO",
+                        "content":"禁用自动网络对时, 可自行定时调用SNTP",
+                        "rsize":0,
+                        "fsize":438832,
+                        "dft":false
+                     },
+                     {
                         "name":"tls",
                         "content":"启用TLS/SSL支持, 支持 https/mqtts/websockets/ftps",
                         "rsize":20456,

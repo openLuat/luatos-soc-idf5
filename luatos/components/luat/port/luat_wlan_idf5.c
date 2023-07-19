@@ -273,8 +273,10 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
     
     wlan_inited = 1;
 
-    // 自动开启ntp
+    // 是否自动开启ntp
+#ifndef LUAT_USE_SNTP_NOT_AUTO
     luat_ntp_autosync();
+#endif
 
     return 0;
 }
