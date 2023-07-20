@@ -1446,10 +1446,10 @@ void net_lwip_set_netif(struct netif *netif)
 {
 	prvlwip.lwip_netif = netif;
 	
-	char ip_string[64] = {0};
+	// char ip_string[64] = {0};
 	if (prvlwip.lwip_netif) {
-		ipaddr_ntoa_r(&prvlwip.lwip_netif->ip_addr, ip_string, 64);
-		LLOGD("netif ip %s", ip_string);
+		// ipaddr_ntoa_r(&prvlwip.lwip_netif->ip_addr, ip_string, 64);
+		// LLOGD("netif ip %s", ip_string);
 	}
 	if (!prvlwip.lwip_netif)
 	{
