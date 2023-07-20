@@ -7,6 +7,8 @@
 #include "luat_log.h"
 #define LUAT_LOG_TAG "rtc"
 
+void sntp_set_system_time(uint32_t sec, uint32_t us);
+
 extern int Base_year;
 
 int luat_rtc_set(struct tm *tblock){
@@ -42,6 +44,6 @@ int luat_rtc_timezone(int* timezone) {
 }
 
 void luat_rtc_set_tamp32(uint32_t tamp) {
-    LLOGD("luat_rtc_set_tamp32 not support yet");
+    sntp_set_system_time(tamp, 0);
     return;
 }
