@@ -1,9 +1,50 @@
 #ifndef __NET_LWIP_H__
 #define __NET_LWIP_H__
+
+#define MAX_SOCK_NUM 8
+#include "luat_base.h"
+#include "dns_def.h"
+#include "luat_network_adapter.h"
+
+typedef struct
+{
+	llist_head node;
+	uint64_t tag;	//考虑到socket复用的问题，必须有tag来做比对
+	luat_ip_addr_t ip;
+	uint8_t *data;
+	uint32_t read_pos;
+	uint16_t len;
+	uint16_t port;
+	uint8_t is_sending;
+	uint8_t is_need_ack;
+}socket_data_t;
+
+typedef struct
+{
+	uint64_t socket_tag;
+	dns_client_t dns_client;
+	socket_ctrl_t socket[MAX_SOCK_NUM];
+	ip_addr_t ec618_ipv6;
+	struct netif *lwip_netif;
+	CBFuncEx_t socket_cb;
+	void *user_data;
+	void *task_handle;
+	struct udp_pcb *dns_udp;
+	uint32_t socket_busy;
+	uint32_t socket_connect;
+	HANDLE dns_timer;//dhcp_fine_tmr,dhcp6_tmr
+	uint8_t dns_adapter_index;
+	uint8_t netif_network_ready;
+	uint8_t common_timer_active;
+//	uint8_t fast_sleep_enable;
+	uint8_t next_socket_index;
+}net_lwip_ctrl_struct;
+
+
 void net_lwip_register_adapter(uint8_t adapter_index);
-void net_lwip_init(void);
+void net_lwip_init(net_lwip_ctrl_struct* prvlwip, uint8_t adapter_index);
 int net_lwip_check_all_ack(int socket_id);
-void net_lwip_set_netif(struct netif *netif);
+void net_lwip_set_netif(struct netif *netif, int adapter_index);
 struct netif * net_lwip_get_netif(uint8_t adapter_index);
 void net_lwip_input_packets(struct netif *netif, struct pbuf *p);
 /*

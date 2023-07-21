@@ -30,7 +30,7 @@ static uint8_t wlan_is_ready = 0;
 static smartconfig_event_got_ssid_pswd_t *sc_evt;
 
 static char sta_ip[32];
-static char sta_gw[32];
+// static char sta_gw[32];
 static char sta_connected_bssid[6];
 
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
@@ -39,9 +39,10 @@ static uint8_t auto_reconnection = 0;
 static int l_wlan_handler(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     int32_t event_id = msg->arg1;
+    int32_t event_tp = msg->arg2;
     //esp_netif_ip_info_t ip_info;
     lua_getglobal(L, "sys_pub");
-    if (msg->arg2 == 0) {
+    if (event_tp == 0) {
 
         switch (event_id)
         {
@@ -103,7 +104,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             break;
         }
     }
-    else if (msg->arg2 == 1) {
+    else if (event_tp == 1) {
         if (event_id == IP_EVENT_STA_GOT_IP) {
             LLOGD("IP_EVENT_STA_GOT_IP %s", sta_ip);
             lua_pushstring(L, "IP_READY");
@@ -112,7 +113,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             lua_call(L, 3, 0);
         }
     }
-    else if (msg->arg2 == 2) {
+    else if (event_tp == 2) {
         if (event_id == SC_EVENT_SCAN_DONE) {
             LLOGD("smartconfig Scan done");
         }
@@ -201,13 +202,34 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         wlan_is_ready = 1;
 #ifdef LUAT_USE_NETWORK
         // posix_network_set_ready(1);
+        net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
         net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
+        /*
+        LLOGD("netif_get_by_index 0 %p", netif_get_by_index(0));
+        LLOGD("netif_get_by_index 1 %p", netif_get_by_index(1));
+        LLOGD("netif_get_by_index 2 %p", netif_get_by_index(2));
+        LLOGD("netif_get_by_index 3 %p", netif_get_by_index(3));
+
+        struct netif *et0 = NULL;
+        char ip_string[64];
+        
+        for (size_t i = 0; i < 3; i++)
+        {
+            et0 = netif_get_by_index(i);
+            if (et0 == NULL)
+                continue;
+		    ipaddr_ntoa_r(&et0->ip_addr, ip_string, 64);
+		    LLOGD("netif[%d] ip %s", i,  ip_string);
+        }
+        */
 #endif
         event = (ip_event_got_ip_t*)event_data;
         sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
-        sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
+        // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
     }
     luat_msgbus_put(&msg, 0);
+    // LLOGD("ip_event_handler is done");
 }
 
 static void sc_event_handler(void *arg, esp_event_base_t event_base,
@@ -243,24 +265,6 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
         ret = esp_wifi_init(&cfg);
         esp_wifi_set_mode(WIFI_MODE_STA);
 
-        #ifdef LUAT_USE_NETWORK
-        // luat_timer_mdelay(3000);
-        // LLOGD("CALL net_lwip_init");
-        net_lwip_init();
-        // luat_timer_mdelay(3000);
-        // LLOGD("CALL net_lwip_register_adapter");
-        // luat_timer_mdelay(3000);
-        net_lwip_init();
-        extern void soc_lwip_init_hook(void);
-        soc_lwip_init_hook();
-        struct netif *et0 = netif_get_by_index(1);
-        // LLOGD("netif_get_by_index 0 %p", netif_get_by_index(0));
-        // LLOGD("netif_get_by_index 1 %p", netif_get_by_index(1));
-        // LLOGD("netif_get_by_index 2 %p", netif_get_by_index(2));
-        // LLOGD("netif_get_by_index 3 %p", netif_get_by_index(3));
-        net_lwip_set_netif(et0);
-        net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
-        #endif
         LLOGD("esp_wifi_init ret %d", ret);
     }
 #ifdef LUAT_USE_NIMBLE
@@ -517,6 +521,14 @@ int luat_wlan_get_ap_rssi(void) {
 }
 
 int luat_wlan_get_ap_gateway(char* buff) {
-    memcpy(buff, sta_gw, strlen(sta_gw) + 1);
+    esp_netif_ip_info_t ipInfo = {0};
+    buff[0] = 0x00;
+    if (wifiAP == NULL) {
+        return 0;
+    }
+    int ret = esp_netif_get_ip_info(wifiAP, &ipInfo);
+    if (ret == 0) {
+        sprintf(buff, IPSTR, IP2STR(&ipInfo.gw));
+    }
     return 0;
 }
