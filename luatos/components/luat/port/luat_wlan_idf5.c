@@ -174,17 +174,30 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     msg.arg1 = event_id;
 
     LLOGD("wifi event %d", event_id);
-    if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        wlan_is_ready = 0;
-#ifdef LUAT_USE_NETWORK
-        net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 0);
-#endif
-        // wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
-        memset(sta_connected_bssid, 0, sizeof(sta_connected_bssid));
-    }
-    if (event_id == WIFI_EVENT_STA_CONNECTED) {
-        wifi_event_sta_connected_t *sta = (wifi_event_sta_connected_t*)event_data;
-        memcpy(sta_connected_bssid, sta->bssid, 6);
+    switch (event_id) {
+        case WIFI_EVENT_STA_DISCONNECTED: {
+            wlan_is_ready = 0;
+            net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 0);
+            // wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
+            memset(sta_connected_bssid, 0, sizeof(sta_connected_bssid));
+            break;
+        }
+        case WIFI_EVENT_STA_CONNECTED: {
+            wifi_event_sta_connected_t *sta = (wifi_event_sta_connected_t*)event_data;
+            memcpy(sta_connected_bssid, sta->bssid, 6);
+            net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+            break;
+        }
+        case WIFI_EVENT_AP_START: {
+            net_lwip_set_netif(netif_get_by_index(0), NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            break;
+        }
+        case WIFI_EVENT_AP_STOP: {
+            net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 0);
+            break;
+        }
     }
     luat_msgbus_put(&msg, 0);
 }
@@ -200,33 +213,10 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     LLOGD("ip event %d", event_id);
     if (event_id == IP_EVENT_STA_GOT_IP) {
         wlan_is_ready = 1;
-#ifdef LUAT_USE_NETWORK
-        // posix_network_set_ready(1);
-        net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
-        net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
-        net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
-        /*
-        LLOGD("netif_get_by_index 0 %p", netif_get_by_index(0));
-        LLOGD("netif_get_by_index 1 %p", netif_get_by_index(1));
-        LLOGD("netif_get_by_index 2 %p", netif_get_by_index(2));
-        LLOGD("netif_get_by_index 3 %p", netif_get_by_index(3));
-
-        struct netif *et0 = NULL;
-        char ip_string[64];
-        
-        for (size_t i = 0; i < 3; i++)
-        {
-            et0 = netif_get_by_index(i);
-            if (et0 == NULL)
-                continue;
-		    ipaddr_ntoa_r(&et0->ip_addr, ip_string, 64);
-		    LLOGD("netif[%d] ip %s", i,  ip_string);
-        }
-        */
-#endif
         event = (ip_event_got_ip_t*)event_data;
         sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
+        net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
     }
     luat_msgbus_put(&msg, 0);
     // LLOGD("ip_event_handler is done");
