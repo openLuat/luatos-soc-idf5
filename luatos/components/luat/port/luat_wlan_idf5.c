@@ -254,8 +254,8 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 
         ret = esp_wifi_init(&cfg);
         esp_wifi_set_mode(WIFI_MODE_STA);
-
-        LLOGD("esp_wifi_init ret %d", ret);
+        if (ret)
+            LLOGD("esp_wifi_init ret %d", ret);
     }
 #ifdef LUAT_USE_NIMBLE
 #if CONFIG_BT_ENABLED

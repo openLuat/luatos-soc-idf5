@@ -424,7 +424,7 @@ static err_t net_lwip_udp_recv_cb(void *arg, struct udp_pcb *pcb, struct pbuf *p
 	int socket_id = ((uint32_t)arg) & 0x0000ffff;
 	uint8_t adapter_index = ((uint32_t)arg) >> 16;
 	uint16_t len = 0;
-	LLOGD("net_lwip_udp_recv_cb %d %d", socket_id, adapter_index);
+	// LLOGD("net_lwip_udp_recv_cb %d %d", socket_id, adapter_index);
 	if (p)
 	{
 		len = p->tot_len;
