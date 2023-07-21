@@ -627,7 +627,7 @@ static void net_lwip_task(void *param)
 	uint8_t adapter_index;
 	socket_id = event.Param1;
 	adapter_index = event.Param3;
-	// char ip_string[64] = {0};
+	char ip_string[64] = {0};
 
 	// LLOGD("CALL net_lwip_task event %08X adapter_index %d", event.ID, adapter_index);
 
@@ -744,8 +744,8 @@ static void net_lwip_task(void *param)
 			break;
 		}
 		p_ip = (ip_addr_t *)event.Param2;
-		// ipaddr_ntoa_r(p_ip, ip_string, 64);
-		// LLOGD("connect %s:%d %s", ip_string, prvlwip.socket[socket_id].remote_port, prvlwip.socket[socket_id].is_tcp ? "TCP" : "UDP");
+		ipaddr_ntoa_r(p_ip, ip_string, 64);
+		LLOGD("connect %s:%d %s", ip_string, prvlwip.socket[socket_id].remote_port, prvlwip.socket[socket_id].is_tcp ? "TCP" : "UDP");
 		local_ip = NULL;
 		// if (p_ip->type == IPADDR_TYPE_V4)
 		// {
@@ -794,6 +794,10 @@ static void net_lwip_task(void *param)
 			}
 			else
 			{
+				if (!prvlwip.socket[socket_id].remote_port)
+				{
+					prvlwip.socket[socket_id].pcb.udp->flags &= ~UDP_FLAGS_CONNECTED;
+				}
 				net_lwip_callback_to_nw_task(adapter_index, EV_NW_SOCKET_CONNECT_OK, socket_id, 0, 0);
 			}
 
