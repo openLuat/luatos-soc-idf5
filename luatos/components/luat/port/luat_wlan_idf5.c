@@ -106,7 +106,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
     }
     else if (event_tp == 1) {
         if (event_id == IP_EVENT_STA_GOT_IP) {
-            LLOGD("IP_EVENT_STA_GOT_IP %s", sta_ip);
+            LLOGD("sta_ip %s", sta_ip);
             lua_pushstring(L, "IP_READY");
             lua_pushstring(L, sta_ip);
             lua_pushinteger(L, NW_ADAPTER_INDEX_LWIP_WIFI_STA);
