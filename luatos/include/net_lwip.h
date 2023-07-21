@@ -25,7 +25,7 @@ typedef struct
 	dns_client_t dns_client;
 	socket_ctrl_t socket[MAX_SOCK_NUM];
 	ip_addr_t ec618_ipv6;
-	struct netif *lwip_netif;
+	struct netif *lwip_netif[NW_ADAPTER_INDEX_LWIP_NETIF_QTY];
 	CBFuncEx_t socket_cb;
 	void *user_data;
 	void *task_handle;
@@ -34,19 +34,19 @@ typedef struct
 	uint32_t socket_connect;
 	HANDLE dns_timer;//dhcp_fine_tmr,dhcp6_tmr
 	uint8_t dns_adapter_index;
-	uint8_t netif_network_ready;
-	uint8_t common_timer_active;
+	uint8_t netif_network_ready[NW_ADAPTER_INDEX_LWIP_NETIF_QTY];
+	// uint8_t common_timer_active;
 //	uint8_t fast_sleep_enable;
 	uint8_t next_socket_index;
 }net_lwip_ctrl_struct;
 
 
 void net_lwip_register_adapter(uint8_t adapter_index);
-void net_lwip_init(net_lwip_ctrl_struct* prvlwip, uint8_t adapter_index);
+void net_lwip_init(uint8_t adapter_index);
 int net_lwip_check_all_ack(int socket_id);
-void net_lwip_set_netif(struct netif *netif, int adapter_index);
+void net_lwip_set_netif(struct netif *netif, uint8_t adapter_index);
 struct netif * net_lwip_get_netif(uint8_t adapter_index);
-void net_lwip_input_packets(struct netif *netif, struct pbuf *p);
+// void net_lwip_input_packets(struct netif *netif, struct pbuf *p);
 /*
  * 如果是需要使用静态IP，则需要先设置好IP，再设置linkup
  * 如果之前设置了静态IP，现在想用动态IP，需要先删掉静态IP，再linkup
