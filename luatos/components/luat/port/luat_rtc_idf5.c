@@ -22,7 +22,7 @@ int luat_rtc_set(struct tm *tblock){
 int luat_rtc_get(struct tm *tblock){
     time_t now = {0};
     time(&now);
-    localtime_r(&now, tblock);
+    gmtime_r(&now, tblock);
     return 0;
 }
 
