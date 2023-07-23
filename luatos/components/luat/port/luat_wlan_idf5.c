@@ -33,6 +33,8 @@ static char sta_ip[32];
 // static char sta_gw[32];
 static char sta_connected_bssid[6];
 
+char luat_sta_hostname[32];
+
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
 static uint8_t auto_reconnection = 0;
 
@@ -257,14 +259,12 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
         cfg.static_tx_buf_num = 2;
 
         ret = esp_wifi_init(&cfg);
-        esp_wifi_set_mode(WIFI_MODE_STA);
-        char hostname[64] = {0};
-        char mac[6];
-        esp_read_mac((uint8_t*)mac, 0);
-        sprintf_(hostname, "LUATOS_%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-        esp_netif_set_hostname(wifiSTA, hostname);
         if (ret)
             LLOGD("esp_wifi_init ret %d", ret);
+        esp_wifi_set_mode(WIFI_MODE_STA);
+        esp_netif_set_hostname(wifiSTA, luat_wlan_get_hostname(0));
+        if (ret)
+            LLOGD("esp_netif_set_hostname ret %d", ret);
     }
 #ifdef LUAT_USE_NIMBLE
 #if CONFIG_BT_ENABLED
@@ -528,3 +528,22 @@ int luat_wlan_get_ap_gateway(char* buff) {
     }
     return 0;
 }
+
+const char* luat_wlan_get_hostname(int id) {
+    if (luat_sta_hostname[0] == 0) {
+        char mac[6];
+        esp_read_mac((uint8_t*)mac, 0);
+        sprintf_(luat_sta_hostname, "LUATOS_%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    }
+    return (const char*)luat_sta_hostname;
+}
+
+int luat_wlan_set_hostname(int id, char* hostname) {
+    if (hostname == NULL || hostname[0] == 0) {
+        return 0;
+    }
+    memcpy(luat_sta_hostname, hostname, strlen(hostname) + 1);
+    esp_netif_set_hostname(wifiSTA, luat_sta_hostname);
+    return 0;
+}
+
