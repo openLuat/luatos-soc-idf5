@@ -36,6 +36,10 @@ static char sta_connected_bssid[6];
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
 static uint8_t auto_reconnection = 0;
 
+// static uint8_t ap_stack_inited = 0;
+static esp_netif_t* wifiAP;
+static esp_netif_t* wifiSTA;
+
 static int l_wlan_handler(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     int32_t event_id = msg->arg1;
@@ -246,7 +250,7 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
         esp_event_handler_register(IP_EVENT,   ESP_EVENT_ANY_ID, &ip_event_handler,   NULL);
         esp_event_handler_register(SC_EVENT,   ESP_EVENT_ANY_ID, &sc_event_handler,   NULL);
 
-        esp_netif_create_default_wifi_sta();
+        wifiSTA = esp_netif_create_default_wifi_sta();
 
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         cfg.static_rx_buf_num = 2;
@@ -254,6 +258,11 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 
         ret = esp_wifi_init(&cfg);
         esp_wifi_set_mode(WIFI_MODE_STA);
+        char hostname[64] = {0};
+        char mac[6];
+        esp_read_mac((uint8_t*)mac, 0);
+        sprintf_(hostname, "LUATOS_%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        esp_netif_set_hostname(wifiSTA, hostname);
         if (ret)
             LLOGD("esp_wifi_init ret %d", ret);
     }
@@ -406,9 +415,6 @@ int luat_wlan_set_mac(int id, char* mac) {
         return -1;
     }
 }
-
-// static uint8_t ap_stack_inited = 0;
-static esp_netif_t* wifiAP;
 
 int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     wifi_mode_t mode = 0;
