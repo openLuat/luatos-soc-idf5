@@ -91,7 +91,7 @@
 // #define LUAT_USE_MAX30102 1
 // #define LUAT_USE_MLX90640 1
 // zlib压缩,更快更小的实现
-#define LUAT_USE_MINIZ 1
+// #define LUAT_USE_YMODEM
 
 // #define LUAT_USE_FATFS
 // #define LUAT_USE_FATFS_CHINESE 3

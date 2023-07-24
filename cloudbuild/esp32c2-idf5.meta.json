@@ -297,6 +297,13 @@
                  "rsize":12608,
                  "fsize":557984,
                  "dft":false
+              },
+              {
+                  "name": "ymodem",
+                  "content": "Ymodem传输协议",
+                  "rsize": 3008,
+                  "fsize": 274360,
+                  "dft": false
               }
            ],
            "fsize":365376,
