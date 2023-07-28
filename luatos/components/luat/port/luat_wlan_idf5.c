@@ -438,7 +438,7 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     cfg.ap.ssid_len = strlen(apinfo->ssid);
     if (strlen(apinfo->password) >= 6) {
         memcpy(cfg.ap.password, apinfo->password, strlen(apinfo->password));
-        cfg.ap.authmode = WIFI_AUTH_WPA_PSK;
+        cfg.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
     }
     else {
         cfg.ap.authmode = WIFI_AUTH_OPEN;
