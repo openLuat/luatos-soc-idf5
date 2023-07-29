@@ -529,10 +529,10 @@ int luat_wlan_get_ap_rssi(void) {
 int luat_wlan_get_ap_gateway(char* buff) {
     esp_netif_ip_info_t ipInfo = {0};
     buff[0] = 0x00;
-    if (wifiAP == NULL) {
+    if (wifiSTA == NULL) {
         return 0;
     }
-    int ret = esp_netif_get_ip_info(wifiAP, &ipInfo);
+    int ret = esp_netif_get_ip_info(wifiSTA, &ipInfo);
     if (ret == 0) {
         sprintf(buff, IPSTR, IP2STR(&ipInfo.gw));
     }
