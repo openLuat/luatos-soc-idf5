@@ -193,16 +193,11 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         case WIFI_EVENT_STA_CONNECTED: {
             wifi_event_sta_connected_t *sta = (wifi_event_sta_connected_t*)event_data;
             memcpy(sta_connected_bssid, sta->bssid, 6);
-            #ifdef LUAT_USE_NETWORK
-            net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
-            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
-            #endif
             break;
         }
         case WIFI_EVENT_AP_START: {
             #ifdef LUAT_USE_NETWORK
             net_lwip_set_netif(netif_get_by_index(0), NW_ADAPTER_INDEX_LWIP_WIFI_AP);
-            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_AP);
             #endif
             break;
         }
@@ -211,6 +206,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 0);
             #endif
             break;
+        }
+        case WIFI_EVENT_STA_BEACON_TIMEOUT : {
+            LLOGD("wifi sta beacon timeout");
+            return;
         }
     }
     luat_msgbus_put(&msg, 0);
@@ -231,6 +230,7 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
         #ifdef LUAT_USE_NETWORK
+        net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
         net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
         #endif
     }
@@ -273,6 +273,10 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
             LLOGD("esp_wifi_init ret %d", ret);
         esp_wifi_set_mode(WIFI_MODE_STA);
         esp_netif_set_hostname(wifiSTA, luat_wlan_get_hostname(0));
+        #ifdef LUAT_USE_NETWORK
+            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        #endif
         if (ret)
             LLOGD("esp_netif_set_hostname ret %d", ret);
     }
