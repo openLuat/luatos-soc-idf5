@@ -118,6 +118,17 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             lua_pushinteger(L, NW_ADAPTER_INDEX_LWIP_WIFI_STA);
             lua_call(L, 3, 0);
         }
+        else if (event_id == IP_EVENT_AP_STAIPASSIGNED) {
+            LLOGD("wifi ap sta connected");
+            lua_pushstring(L, "WLAN_AP_STA_IP_READY");
+            char tmp[32];
+            esp_ip4_addr_t ip4 = {
+                .addr = (uint32_t)ptr
+            };
+            sprintf(tmp, IPSTR, IP2STR(&ip4));
+            lua_pushstring(L, tmp);
+            lua_call(L, 2, 0);
+        }
     }
     else if (event_tp == 2) {
         if (event_id == SC_EVENT_SCAN_DONE) {
@@ -222,6 +233,7 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     msg.arg1 = event_id;
     msg.arg2 = 1;
     ip_event_got_ip_t *event;
+    ip_event_ap_staipassigned_t* ap_sta_event;
 
     LLOGD("ip event %d", event_id);
     if (event_id == IP_EVENT_STA_GOT_IP) {
@@ -233,6 +245,13 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
         net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
         #endif
+    }
+    else if (event_id == IP_EVENT_AP_STAIPASSIGNED) {
+        ap_sta_event = (ip_event_ap_staipassigned_t*)event_data;
+        char tmp[32];
+        sprintf(tmp, IPSTR, IP2STR(&ap_sta_event->ip));
+        LLOGD("ap sta ip %s", tmp);
+        msg.ptr = (void*)ap_sta_event->ip.addr;
     }
     luat_msgbus_put(&msg, 0);
     // LLOGD("ip_event_handler is done");
