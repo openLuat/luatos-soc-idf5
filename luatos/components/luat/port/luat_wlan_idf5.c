@@ -305,7 +305,8 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
 #endif
 #endif
     ret = esp_wifi_start();
-    LLOGD("esp_wifi_start ret %d", ret);
+    if (ret)
+        LLOGD("esp_wifi_start ret %d", ret);
     
     wlan_inited = 1;
 
@@ -355,7 +356,8 @@ int luat_wlan_connect(luat_wlan_conninfo_t* info) {
     auto_reconnection = 1;
     
     ret = esp_wifi_connect();
-    LLOGD("esp_wifi_connect ret %d", ret);
+    if (ret)
+        LLOGD("esp_wifi_connect ret %d", ret);
     return 0;
 }
 
@@ -363,7 +365,8 @@ int luat_wlan_disconnect(void) {
     int ret = 0;
     auto_reconnection = 0;
     ret = esp_wifi_disconnect();
-    LLOGD("esp_wifi_disconnect ret %d", ret);
+    if (ret)
+        LLOGD("esp_wifi_disconnect ret %d", ret);
     return 0;
 }
 
@@ -473,7 +476,8 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     LLOGD("softap %s %s", apinfo->ssid, apinfo->password);
 
     ret = esp_wifi_stop();
-    LLOGD("esp_wifi_stop ret %d", ret);
+    if (ret)
+        LLOGD("esp_wifi_stop ret %d", ret);
 
     if (wifiAP == NULL) {
         wifiAP = esp_netif_create_default_wifi_ap();
@@ -501,12 +505,15 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     if (mode == WIFI_MODE_NULL || mode == WIFI_MODE_STA) {
         LLOGI("auto set to APSTA mode");
         ret = esp_wifi_set_mode(WIFI_MODE_APSTA);
-        LLOGD("esp_wifi_set_mode ret %d", ret);
+        if (ret)
+            LLOGD("esp_wifi_set_mode ret %d", ret);
     }
     ret = esp_wifi_set_config(WIFI_IF_AP, &cfg);
-    LLOGD("esp_wifi_set_config ret %d", ret);
+    if (ret)
+        LLOGD("esp_wifi_set_config ret %d", ret);
     ret = esp_wifi_start();
-    LLOGD("esp_wifi_start ret %d", ret);
+    if (ret)
+        LLOGD("esp_wifi_start ret %d", ret);
     return ret;
 }
 
