@@ -12,6 +12,7 @@
 #include "esp_wifi_types.h"
 #include "esp_smartconfig.h"
 #include "esp_mac.h"
+#include "esp_netif_net_stack.h"
 
 #define LUAT_LOG_TAG "wlan"
 #include "luat_log.h"
@@ -208,7 +209,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         }
         case WIFI_EVENT_AP_START: {
             #ifdef LUAT_USE_NETWORK
-            net_lwip_set_netif(netif_get_by_index(0), NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            net_lwip_set_netif(esp_netif_get_netif_impl(wifiAP), NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 1);
             #endif
             break;
         }
