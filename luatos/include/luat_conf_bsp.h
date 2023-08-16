@@ -4,28 +4,12 @@
 
 #define LUAT_BSP_VERSION "V1005"
 
-// 启用64位虚拟机
-// #define LUAT_CONF_VM_64bit
 
-#define LUAT_RET int
-#define LUAT_RT_RET_TYPE	void
-#define LUAT_RT_CB_PARAM void *param
-
-#define LUAT_USE_FS_VFS 1
-#define LUAT_USE_VFS_INLINE_LIB 1
-#define LUAT_COMPILER_NOWEAK
-#define LUAT_GPIO_PIN_MAX (CONFIG_SOC_GPIO_PIN_COUNT+1)
-
-// 内存优化: 减少内存消耗, 会稍微减低性能
-#if !defined(CONFIG_IDF_TARGET_ESP32S3)
-#define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
-#endif
-
-//PSRAM
-//如果是ESP32S3, 则启用PSRAM
-#if defined(CONFIG_IDF_TARGET_ESP32S3)
-#define LUAT_USE_PSRAM 1
-#endif
+//------------------------------------------------------
+// 以下custom --> 到  <-- custom 之间的内容,是供用户配置的
+// 同时也是云编译可配置的部分. 提交代码时切勿删除会修改标识
+//custom -->
+//------------------------------------------------------
 
 #define LUAT_USE_NETWORK
 #define LUAT_USE_LWIP
@@ -37,12 +21,6 @@
 // FTP暂不可用
 // #define LUAT_XXX_USE_FTP
 
-//----------------------------------
-// 使用VFS(虚拟文件系统)和内置库文件, 必须启用
-#define LUAT_USE_FS_VFS 1
-#define LUAT_USE_VFS_INLINE_LIB 1
-#define LUA_USE_VFS_FILENAME_OFFSET 1
-//----------------------------------
 
 //----------------------------
 // 外设,按需启用, 最起码启用uart和wdt库
@@ -62,10 +40,6 @@
 #define LUAT_USE_NIMBLE 1
 
 #define LUAT_USE_IOTAUTH 1
-
-
-// #define LUAT_USE_DNS  1
-// #define LUAT_USE_DHCP  1
 
 //----------------------------
 // 常用工具库, 按需启用, cjson和pack是强烈推荐启用的
@@ -158,10 +132,6 @@
 // LVGL
 // 主推的UI库, 功能强大但API繁琐
 #define LUAT_USE_LVGL
-#define LV_DISP_DEF_REFR_PERIOD 30
-#define LUAT_LV_DEBUG 0
-
-#define LV_MEM_CUSTOM 1
 
 #define LUAT_USE_LVGL_INDEV 1 // 输入设备
 
@@ -199,6 +169,46 @@
 #define LUAT_USE_LVGL_TILEVIEW   //平铺视图 依赖页面PAGE
 #define LUAT_USE_LVGL_WIN   //窗口 依赖容器CONT 按钮BTN 标签LABEL 图片IMG 页面PAGE
 
+// 启用64位虚拟机
+// #define LUAT_CONF_VM_64bit
+
+
+//-------------------------------------------------------------------------------
+//<-- custom
+//------------------------------------------------------------------------------
+
+#define LUAT_RET int
+#define LUAT_RT_RET_TYPE	void
+#define LUAT_RT_CB_PARAM void *param
+
+#define LUAT_USE_FS_VFS 1
+#define LUAT_USE_VFS_INLINE_LIB 1
+#define LUAT_COMPILER_NOWEAK
+#define LUAT_GPIO_PIN_MAX (CONFIG_SOC_GPIO_PIN_COUNT+1)
+
+// 内存优化: 减少内存消耗, 会稍微减低性能
+#if !defined(CONFIG_IDF_TARGET_ESP32S3)
+#define LUAT_USE_MEMORY_OPTIMIZATION_CODE_MMAP 1
+#endif
+
+//PSRAM
+//如果是ESP32S3, 则启用PSRAM
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+#define LUAT_USE_PSRAM 1
+#endif
+
+
+//----------------------------------
+// 使用VFS(虚拟文件系统)和内置库文件, 必须启用
+#define LUAT_USE_FS_VFS 1
+#define LUAT_USE_VFS_INLINE_LIB 1
+#define LUA_USE_VFS_FILENAME_OFFSET 1
+//----------------------------------
+
+#define LV_DISP_DEF_REFR_PERIOD 30
+#define LUAT_LV_DEBUG 0
+
+#define LV_MEM_CUSTOM 1
 #define LV_HOR_RES_MAX          (160)
 #define LV_VER_RES_MAX          (80)
 #define LV_COLOR_DEPTH          16
