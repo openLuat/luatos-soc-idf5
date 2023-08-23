@@ -137,6 +137,13 @@
                         "rsize":20456,
                         "fsize":438832,
                         "dft":false
+                     },
+                     {
+                        "name":"ftp",
+                        "content":"启用FTP库",
+                        "rsize":5456,
+                        "fsize":438832,
+                        "dft":false
                      }
                  ]
               },
