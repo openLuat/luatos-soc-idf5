@@ -64,6 +64,8 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/mlx90640-library
                                 ${LUATOS_ROOT}/components/lora
                                 ${LUATOS_ROOT}/components/lora/sx126x
+                                ${LUATOS_ROOT}/components/lora2
+                                ${LUATOS_ROOT}/components/lora2/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/src
                                 ${LUATOS_ROOT}/components/rsa/binding
                                 ${LUATOS_ROOT}/components/network/adapter
@@ -130,6 +132,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/sfud
                                 ${LUATOS_ROOT}/components/mlx90640-library
                                 ${LUATOS_ROOT}/components/lora/sx126x
+                                ${LUATOS_ROOT}/components/lora2/sx126x
                                 ${LUATOS_ROOT}/components/network/httpsrv/inc
                                 ${LUATOS_ROOT}/components/nimble/inc
                                 ${LUATOS_ROOT}/components/network/adapter
