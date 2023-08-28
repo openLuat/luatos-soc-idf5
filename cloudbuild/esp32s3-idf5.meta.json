@@ -373,6 +373,13 @@
                   "dft": false
               },
               {
+               "name": "lora2",
+               "content": "lora2驱动(支持多挂)",
+               "rsize": 13196,
+               "fsize": 284548,
+               "dft": false
+               },
+              {
                   "name": "mlx90640",
                   "content": "红外成像mlx90640",
                   "rsize": 13196,
