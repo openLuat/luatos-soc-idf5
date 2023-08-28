@@ -156,3 +156,5 @@ void luat_mcu_us_timer_init() {
             gptimer_start(us_timer);
     }
 }
+
+void luat_mcu_set_hardfault_mode(int mode) {;}
