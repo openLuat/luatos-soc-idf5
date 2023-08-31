@@ -18,8 +18,8 @@
 #define LUAT_USE_SNTP
 // 禁用自动调用网络对时
 // #define LUAT_USE_SNTP_NOT_AUTO
-// FTP暂不可用
-#define LUAT_USE_FTP
+
+// #define LUAT_USE_FTP
 
 
 //----------------------------
