@@ -144,6 +144,13 @@
                         "rsize":5456,
                         "fsize":438832,
                         "dft":false
+                     },
+                     {
+                        "name":"w5500",
+                        "content":"支持w5500以太网",
+                        "rsize":25456,
+                        "fsize":438832,
+                        "dft":false
                      }
                  ]
               },

@@ -11,15 +11,13 @@
 //custom -->
 //------------------------------------------------------
 
-#define LUAT_USE_NETWORK
-#define LUAT_USE_LWIP
-#define LUAT_USE_DNS
-#define LUAT_USE_TLS
-#define LUAT_USE_SNTP
+// #define LUAT_USE_TLS
+// #define LUAT_USE_SNTP
 // 禁用自动调用网络对时
 // #define LUAT_USE_SNTP_NOT_AUTO
 
 // #define LUAT_USE_FTP
+// #define LUAT_USE_W5500 1
 
 
 //----------------------------
@@ -177,6 +175,16 @@
 //-------------------------------------------------------------------------------
 //<-- custom
 //------------------------------------------------------------------------------
+
+#ifdef LUAT_USE_W5500
+#define LUAT_USE_DHCP  1
+#endif
+
+#ifndef LUAT_USE_NETWORK
+#define LUAT_USE_NETWORK
+#define LUAT_USE_LWIP
+#define LUAT_USE_DNS
+#endif
 
 #define LUAT_RET int
 #define LUAT_RT_RET_TYPE	void
