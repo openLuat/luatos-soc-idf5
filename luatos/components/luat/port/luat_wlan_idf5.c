@@ -443,7 +443,7 @@ int luat_wlan_get_mac(int id, char* mac) {
     }
 }
 
-int luat_wlan_set_mac(int id, char* mac) {
+int luat_wlan_set_mac(int id, const char* mac) {
     if (id >= 0 && id <= ESP_MAC_IEEE802154) {
         esp_base_mac_addr_set((uint8_t*)mac);
         return 0;
@@ -589,3 +589,7 @@ int luat_wlan_set_hostname(int id, char* hostname) {
     return 0;
 }
 
+int luat_wlan_ap_stop(void) {
+    esp_wifi_stop();
+    return 0;
+}
