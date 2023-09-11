@@ -23,6 +23,7 @@ luatos_bin = os.path.join(out_path,"build","luatos.bin")
 luat_conf_bsp = os.path.join(out_path,"include","luat_conf_bsp.h")
 info_json = os.path.join(pack_path,"info.json")
 soc_download_exe = os.path.join(pack_path,"soc_download.exe")
+sdkconfig_path = os.path.join(pack_path,"..", "sdkconfig")
 
 def zip_dir(dirname,zipfilename):
     filelist = []
@@ -92,6 +93,7 @@ if __name__=='__main__':
     shutil.copy(luat_conf_bsp, temp)
     shutil.copy(info_json, temp)
     shutil.copy(soc_download_exe, temp)
+    shutil.copy(sdkconfig_path, temp)
     info_json_temp = os.path.join(temp,"info.json")
 
     with open(info_json_temp, "r") as f :
