@@ -265,10 +265,20 @@ int luat_vfs_spiffs_rmdir(void* userdata, char const* dir) {
 }
 int luat_vfs_spiffs_info(void* userdata, const char* path, luat_fs_info_t *conf) {
     memcpy(conf->filesystem, "spiffs", strlen("spiffs")+1);
-    conf->type = 0;
-    conf->total_block = 0;
-    conf->block_used = 0;
-    conf->block_size = 512;
+    size_t total_bytes = 0;
+    size_t used_bytes = 0;
+    if (esp_spiffs_info(NULL, &total_bytes, &used_bytes) == 0) {
+        conf->type = 0;
+        conf->total_block = total_bytes / 512;
+        conf->block_used = used_bytes / 512;
+        conf->block_size = 512;
+    }
+    else {
+        conf->type = 0;
+        conf->total_block = 0;
+        conf->block_used = 0;
+        conf->block_size = 512;
+    }
     return 0;
 }
 
