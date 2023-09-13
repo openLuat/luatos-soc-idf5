@@ -27,6 +27,12 @@
               "max":512,
               "dft":512
            }
+        },
+        "script": {
+            "min": 128,
+            "max": 128,
+            "dft": 128,
+            "unit": 64
         }
      },
      "sdk":{
@@ -212,7 +218,21 @@
                   "rsize":1032,
                   "fsize":371408,
                   "dft":false
-                }
+                },
+                {
+                   "name":"LUAT_CONF_FLASH_4M_1M_FS",
+                   "content":"可读写文件系统区,设置为1M字节.注意,不是脚本区大小!!",
+                   "rsize":0,
+                   "fsize":371408,
+                   "dft":false
+                 },
+                 {
+                    "name":"LUAT_CONF_FLASH_4M_2M_FS",
+                    "content":"可读写文件系统区,设置为2M字节.该配置下,基本上放不了中文字体.注意,不是脚本区大小!!",
+                    "rsize":0,
+                    "fsize":371408,
+                    "dft":false
+                  }
             ]
          },
         {
