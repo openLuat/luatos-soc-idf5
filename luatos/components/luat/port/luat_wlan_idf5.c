@@ -377,7 +377,7 @@ int luat_wlan_scan(void) {
     return esp_wifi_scan_start(&conf, false);
 }
 
-int luat_wlan_scan_get_result(luat_wlan_scan_result_t *results, int ap_limit) {
+int luat_wlan_scan_get_result(luat_wlan_scan_result_t *results, size_t ap_limit) {
     uint16_t num = ap_limit;
     luat_wlan_scan_result_t *tmp = results;
     wifi_ap_record_t *ap_info = luat_heap_malloc(sizeof(wifi_ap_record_t) * ap_limit);
@@ -580,7 +580,7 @@ const char* luat_wlan_get_hostname(int id) {
     return (const char*)luat_sta_hostname;
 }
 
-int luat_wlan_set_hostname(int id, char* hostname) {
+int luat_wlan_set_hostname(int id, const char* hostname) {
     if (hostname == NULL || hostname[0] == 0) {
         return 0;
     }
