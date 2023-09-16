@@ -182,7 +182,11 @@
 
 #ifndef LUAT_USE_NETWORK
 #define LUAT_USE_NETWORK
+#endif
+#ifndef LUAT_USE_LWIP
 #define LUAT_USE_LWIP
+#endif
+#ifndef LUAT_USE_DNS
 #define LUAT_USE_DNS
 #endif
 
