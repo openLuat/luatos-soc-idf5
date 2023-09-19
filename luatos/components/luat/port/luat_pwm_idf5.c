@@ -15,6 +15,8 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
     int resolution = 0;
     int timer = -1;
     int ret = -1;
+    if (conf->channel < 0)
+        return -1;
     for (size_t i = 0; i < LEDC_TIMER_MAX; i++){
         if (luat_pwm_idf[i]==0 || luat_pwm_idf[i]==conf->channel+1){
             timer = i;
@@ -59,12 +61,15 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
 
 int luat_pwm_close(int channel){
     int timer = -1;
+    if (channel < 0)
+        return -1;
     for (size_t i = 0; i < LEDC_TIMER_MAX; i++){
         if (luat_pwm_idf[i]==channel+1){
             timer = i;
+            break;
         }
     }
-    if (channel < 0 || timer < 0) {
+    if (timer < 0) {
         return -1;
     }
     int ret = ledc_stop(LEDC_LOW_SPEED_MODE, timer, 0);
