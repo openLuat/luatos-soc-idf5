@@ -143,7 +143,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
                 send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
                 send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
                 recv_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
-                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                recv_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
             }
             else {
                 send.length = send_length * 8;
