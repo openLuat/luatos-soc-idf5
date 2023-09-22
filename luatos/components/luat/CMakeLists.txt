@@ -9,6 +9,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/lua/src
                                 ${srcs}
                                 ${LUATOS_ROOT}/luat/freertos
+                                ${LUATOS_ROOT}/components/printf
                                 ${LUATOS_ROOT}/components/shell
                                 ${LUATOS_ROOT}/components/ymodem
                                 ${LUATOS_ROOT}/components/cmux
@@ -94,6 +95,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/max30102
                                 ${LUATOS_ROOT}/lua/include
                                 ${LUATOS_ROOT}/luat/include
+                                ${LUATOS_ROOT}/components/printf
                                 ${LUATOS_ROOT}/components/shell
                                 ${LUATOS_ROOT}/components/ymodem
                                 ${LUATOS_ROOT}/components/cmux
