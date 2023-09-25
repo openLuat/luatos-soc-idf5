@@ -229,4 +229,8 @@
 
 #define LV_COLOR_16_SWAP   1
 
+#ifdef LUAT_USE_SHELL
+#undef LUAT_USE_REPL
+#endif
+
 #endif
