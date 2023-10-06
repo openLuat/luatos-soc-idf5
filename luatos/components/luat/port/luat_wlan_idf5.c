@@ -30,24 +30,24 @@ static uint8_t wlan_is_ready = 0;
 
 static smartconfig_event_got_ssid_pswd_t *sc_evt;
 
-static char sta_ip[32];
-// static char sta_gw[32];
 static char sta_connected_bssid[6];
 
 char luat_sta_hostname[32];
 
 static uint8_t smartconfig_state = 0; // 0 - idle, 1 - running
 static uint8_t auto_reconnection = 0;
+static uint8_t dhcp_enable = 1;
 
 // static uint8_t ap_stack_inited = 0;
 static esp_netif_t* wifiAP;
 static esp_netif_t* wifiSTA;
 
+
 static int l_wlan_handler(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     int32_t event_id = msg->arg1;
     int32_t event_tp = msg->arg2;
-    //esp_netif_ip_info_t ip_info;
+    char buff[64] = {0};
     lua_getglobal(L, "sys_pub");
     if (event_tp == 0) {
 
@@ -65,6 +65,14 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             LLOGD("wifi connected!!!");
             lua_pushstring(L, "WLAN_STA_CONNECTED");
             lua_call(L, 1, 0);
+            if (!dhcp_enable) {
+                lua_getglobal(L, "sys_pub");
+                lua_pushstring(L, "IP_READY");
+                luat_wlan_get_ip(0, buff);
+                lua_pushstring(L, buff);
+                lua_pushinteger(L, NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+                lua_call(L, 3, 0);
+            }
             break;
         case WIFI_EVENT_STA_DISCONNECTED:
             LLOGD("wifi disconnected!!!");
@@ -113,9 +121,10 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
     }
     else if (event_tp == 1) {
         if (event_id == IP_EVENT_STA_GOT_IP) {
-            LLOGD("sta_ip %s", sta_ip);
+            luat_wlan_get_ip(0, buff);
+            LLOGD("sta_ip %s", buff);
             lua_pushstring(L, "IP_READY");
-            lua_pushstring(L, sta_ip);
+            lua_pushstring(L, buff);
             lua_pushinteger(L, NW_ADAPTER_INDEX_LWIP_WIFI_STA);
             lua_call(L, 3, 0);
         }
@@ -234,14 +243,14 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
     msg.handler = l_wlan_handler;
     msg.arg1 = event_id;
     msg.arg2 = 1;
-    ip_event_got_ip_t *event;
+    // ip_event_got_ip_t *event;
     ip_event_ap_staipassigned_t* ap_sta_event;
 
     LLOGD("ip event %d", event_id);
     if (event_id == IP_EVENT_STA_GOT_IP) {
         wlan_is_ready = 1;
-        event = (ip_event_got_ip_t*)event_data;
-        sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
+        // event = (ip_event_got_ip_t*)event_data;
+        // sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
         #ifdef LUAT_USE_NETWORK
         net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
@@ -454,6 +463,10 @@ int luat_wlan_set_mac(int id, const char* mac) {
     }
 }
 
+static inline uint32_t to_esp_ipv4(uint8_t* data) {
+    return data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
+}
+
 int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     wifi_mode_t mode = 0;
     int ret = 0;
@@ -520,7 +533,13 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
 }
 
 int luat_wlan_get_ip(int type, char* data) {
-    memcpy(data, sta_ip, strlen(sta_ip) + 1);
+    // memcpy(data, sta_ip, strlen(sta_ip) + 1);
+    struct netif* sta = netif_get_by_index(2);
+    if (sta == NULL) {
+        data[0] = 0;
+        return 0;
+    }
+    sprintf(data, IPSTR, IP2STR(&sta->ip_addr));
     return 0;
 }
 
@@ -592,4 +611,35 @@ int luat_wlan_set_hostname(int id, const char* hostname) {
 int luat_wlan_ap_stop(void) {
     esp_wifi_stop();
     return 0;
+}
+
+int luat_wlan_set_station_ip(luat_wlan_station_info_t *info) {
+    esp_netif_ip_info_t ipInfo = {0};
+    int ret = 0;
+    if (wifiSTA == NULL) {
+        LLOGE("call wlan.init() first");
+        return -1;
+    }
+    if (!info->dhcp_enable) {
+        esp_netif_dhcpc_stop(wifiSTA);
+        ipInfo.ip.addr = to_esp_ipv4(info->ipv4_addr);
+        ipInfo.gw.addr = to_esp_ipv4(info->ipv4_gateway);
+        ipInfo.netmask.addr = to_esp_ipv4(info->ipv4_netmask);
+        ret = esp_netif_set_ip_info(wifiSTA, &ipInfo);
+        if (ret)
+            LLOGD("esp_netif_set_ip_info ret %d", ret);
+        LLOGD("dhcp is disabled");
+        LLOGD("Sta IP %d.%d.%d.%d MASK %d.%d.%d.%d GW %d.%d.%d.%d", 
+                info->ipv4_addr[0],   info->ipv4_addr[1],   info->ipv4_addr[2],   info->ipv4_addr[3],
+                info->ipv4_netmask[0],info->ipv4_netmask[1],info->ipv4_netmask[2],info->ipv4_netmask[3],
+                info->ipv4_gateway[0],info->ipv4_gateway[1],info->ipv4_gateway[2],info->ipv4_gateway[3]
+        );
+    }
+    else {
+        ret = esp_netif_dhcpc_start(wifiSTA);
+        if (ret)
+            LLOGD("esp_netif_dhcpc_start ret %d", ret);
+        LLOGD("dhcp enabled");
+    }
+    return ret;
 }
