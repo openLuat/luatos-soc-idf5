@@ -11,13 +11,13 @@
 //custom -->
 //------------------------------------------------------
 
-// #define LUAT_USE_TLS
-// #define LUAT_USE_SNTP
+#define LUAT_USE_TLS
+#define LUAT_USE_SNTP
 // 禁用自动调用网络对时
 // #define LUAT_USE_SNTP_NOT_AUTO
 
-// #define LUAT_USE_FTP
-// #define LUAT_USE_W5500 1
+#define LUAT_USE_FTP
+#define LUAT_USE_W5500 1
 
 
 //----------------------------
