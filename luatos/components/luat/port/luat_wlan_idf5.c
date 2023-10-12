@@ -44,13 +44,14 @@ static esp_netif_t* wifiAP;
 static esp_netif_t* wifiSTA;
 
 // 从nvs恢复mac地址
-#if 0
+#if 1
 static void macaddr_restore(int id) {
     nvs_handle_t handle;
     uint8_t mac[16] = {0};
+    uint8_t mac2[16] = {0};
     int ret = 0;
     int8_t len = 6;
-    LLOGW("尝试恢复mac %d", id);
+    // LLOGW("尝试恢复mac %d", id);
     ret = nvs_open("macaddr", NVS_READONLY, &handle);
     if (ret) {
         LLOGD("未自定义mac地址");
@@ -59,25 +60,29 @@ static void macaddr_restore(int id) {
     if (id == 0) {
         ret = nvs_get_blob(handle, "sta", mac, &len);
         if (ret == 0 && wifiSTA) {
+            esp_netif_get_mac(wifiSTA, (uint8_t*)mac2);
+            // LLOGD("恢复sta的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
             ret = esp_netif_set_mac(wifiSTA, (uint8_t*)mac);
             if (ret) {
                 LLOGE("恢复sta的自定义mac地址失败");
             }
         }
         else {
-            LLOGD("没有sta的自定义mac地址");
+            // LLOGD("没有sta的自定义mac地址");
         }
     }
     else if (id == 1) {
         ret = nvs_get_blob(handle, "ap", mac, &len);
         if (ret == 0 && wifiAP) {
+            esp_netif_get_mac(wifiAP, (uint8_t*)mac2);
+            // LLOGD("恢复ap的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
             ret = esp_netif_set_mac(wifiAP, (uint8_t*)mac);
             if (ret) {
                 LLOGE("恢复ap的自定义mac地址失败");
             }
         }
         else {
-            LLOGD("没有ap的自定义mac地址");
+            // LLOGD("没有ap的自定义mac地址");
         }
     }
     
@@ -88,13 +93,14 @@ static void macaddr_restore(int id) {
 static void macaddr_set(int id, uint8_t* mac) {
     nvs_handle_t handle;
     int ret = 0;
-    LLOGD("保存mac地址到nvs %d", id);
+    // LLOGD("保存mac地址到nvs %d", id);
     ret = nvs_open("macaddr", NVS_READWRITE, &handle);
     if (ret) {
-        LLOGD("未自定义mac地址");
+        // LLOGD("未自定义mac地址");
         return;
     }
     if (id == 0) {
+        // LLOGD("存储sta的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         ret = nvs_set_blob(handle, "sta", mac, 6);
         if (ret) {
             LLOGE("存储sta的自定义mac地址失败");
@@ -104,6 +110,7 @@ static void macaddr_set(int id, uint8_t* mac) {
         }
     }
     else if (id == 1) {
+        // LLOGD("存储ap的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         ret = nvs_set_blob(handle, "ap", mac, 6);
         if (ret) {
             LLOGE("存储ap的自定义mac地址失败");
@@ -112,7 +119,7 @@ static void macaddr_set(int id, uint8_t* mac) {
             nvs_commit(handle);
         }
     }
-    LLOGD("保存结果 %d", ret);
+    // LLOGD("保存结果 %d", ret);
     nvs_close(handle);
 }
 #else
@@ -166,6 +173,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             break;
         case WIFI_EVENT_STA_START:
             LLOGD("wifi station start");
+            macaddr_restore(0);
             break;
         case WIFI_EVENT_STA_STOP:
             LLOGD("wifi station stop");
@@ -177,6 +185,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             break;
         case WIFI_EVENT_AP_START:
             LLOGD("wifi ap start");
+            macaddr_restore(1);
             break;
         case WIFI_EVENT_AP_STOP:
             LLOGD("wifi ap stop");
@@ -370,7 +379,6 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
         esp_event_handler_register(SC_EVENT,   ESP_EVENT_ANY_ID, &sc_event_handler,   NULL);
 
         wifiSTA = esp_netif_create_default_wifi_sta();
-        macaddr_restore(0);
 
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         cfg.static_rx_buf_num = 2;
@@ -532,7 +540,7 @@ int luat_wlan_get_mac(int id, char* mac) {
 }
 
 int luat_wlan_set_mac(int id, const char* mac) {
-    LLOGD("设置MAC地址 %d %02X%02X%02X%02X%02X%02X", id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    // LLOGD("设置MAC地址 %d %02X%02X%02X%02X%02X%02X", id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     int ret = -1;
     if (id == 0 && wifiSTA != NULL) {
         ret = esp_netif_set_mac(wifiSTA, (uint8_t*)mac);
@@ -584,7 +592,6 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
 
     if (wifiAP == NULL) {
         wifiAP = esp_netif_create_default_wifi_ap();
-        macaddr_restore(1);
     }
     esp_netif_ip_info_t ipInfo = {0};
     if (apinfo->gateway[0]) {
