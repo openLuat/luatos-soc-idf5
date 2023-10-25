@@ -359,6 +359,12 @@ const struct luat_vfs_filesystem vfs_fs_spiffs = {
 #include "lvgl.h"
 #include "luat_lvgl.h"
 #include "lv_sjpg.h"
+
+void luat_lv_fs_init(void);
+void lv_bmp_init(void);
+void lv_png_init(void);
+void lv_split_jpeg_init(void);
+
 static void lvgl_fs_codec_init(void) {
 	luat_lv_fs_init();
     #ifdef LUAT_USE_LVGL_BMP
