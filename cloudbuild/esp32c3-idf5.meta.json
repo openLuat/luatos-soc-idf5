@@ -623,10 +623,31 @@
                   "dft": false
                },
                {
-                  "name": "lvgl",
-                  "content": "轻量级图形化库",
-                  "rsize": 289024,
+                  "name": "@lvgl",
+                  "content": "轻量级图形化库,依赖lcd库. 虽然支持但SPI慢,效果不好",
+                  "rsize": 1024,
                   "children": [
+                     {
+                        "name": "lvgl",
+                        "content": "基础功能",
+                        "rsize": 260536,
+                        "fsize": 631888,
+                        "dft": false
+                     },
+                     {
+                        "name": "lvgl_jpg",
+                        "content": "JPG解码功能",
+                        "rsize": 260536,
+                        "fsize": 631888,
+                        "dft": false
+                     },
+                     {
+                        "name": "lvgl_png",
+                        "content": "PNG解码功能",
+                        "rsize": 260536,
+                        "fsize": 631888,
+                        "dft": false
+                     },
                      {
                         "name": "lvgl_anim",
                         "content": "自定义动画",

@@ -132,6 +132,10 @@
 // 主推的UI库, 功能强大但API繁琐
 #define LUAT_USE_LVGL
 
+#define LUAT_USE_LVGL_JPG 1 // 启用JPG解码支持
+// #define LUAT_USE_LVGL_PNG 1 // 启用PNG解码支持
+// #define LUAT_USE_LVGL_BMP 1 // 启用BMP解码支持
+
 #define LUAT_USE_LVGL_INDEV 1 // 输入设备
 
 #define LUAT_USE_LVGL_ARC   //圆弧 无依赖
