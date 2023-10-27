@@ -1,372 +1,373 @@
 {
-  "version":1,
-  "builder":{
-     "chip":{
-        "name":"esp32c2-idf5",
-        "io":44,
-        "memory":{
-           "min":128,
-           "max":128,
-           "dft":128
-        },
-        "layout":{
-           "total":4096,
-           "fs":{
-              "min":512,
-              "max":512,
-              "dft":512
-           },
-           "rom":{
-              "min":3670016,
-              "max":3670016,
-              "dft":3670016,
-              "rsize":256000
-           },
-           "bl":{
-              "min":512,
-              "max":512,
-              "dft":512
-           }
-        },
-        "script": {
+   "version": 1,
+   "builder": {
+      "chip": {
+         "name": "esp32c2-idf5",
+         "io": 44,
+         "memory": {
+            "min": 128,
+            "max": 128,
+            "dft": 128
+         },
+         "layout": {
+            "total": 4096,
+            "fs": {
+               "min": 512,
+               "max": 512,
+               "dft": 512
+            },
+            "rom": {
+               "min": 3670016,
+               "max": 3670016,
+               "dft": 3670016,
+               "rsize": 256000
+            },
+            "bl": {
+               "min": 512,
+               "max": 512,
+               "dft": 512
+            }
+         },
+         "script": {
             "min": 128,
             "max": 128,
             "dft": 128,
             "unit": 64
-        }
-     },
-     "sdk":{
-        "presets":[
-           {
-              "name":"dev",
-              "value":{
-                 "luatos":"head",
-                 "air101":"head"
-              }
-           }
-        ]
-     },
-     "component":[
-        {
-           "icon":"zmdi-input-composite",
-           "name":"@DEV",
-           "content":"基础外设",
-           "rsize":0,
-           "children":[
-              {
-                 "name":"gpio",
-                 "content":"通用输入输出",
-                 "rsize":4560,
-                 "fsize":369936,
-                 "dft":false
-              },
-              {
-                 "name":"uart",
-                 "content":"串口",
-                 "rsize":7120,
-                 "fsize":372496,
-                 "dft":false
-              },
-              {
-                 "name":"i2c",
-                 "content":"IIC协议",
-                 "rsize":13600,
-                 "fsize":378976,
-                 "dft":false
-              },
-              {
-                 "name":"spi",
-                 "content":"SPI协议",
-                 "rsize":16464,
-                 "fsize":381840,
-                 "dft":false
-              },
-              {
-                 "name":"adc",
-                 "content":"模数转换",
-                 "rsize":3952,
-                 "fsize":369328,
-                 "dft":false
-              },
-              {
-                 "name":"pwm",
-                 "content":"频率可控方波",
-                 "rsize":6480,
-                 "fsize":371856,
-                 "dft":false
-              },
-              {
-                 "name":"wdt",
-                 "content":"硬狗",
-                 "rsize":752,
-                 "fsize":366128,
-                 "dft":false
-              },
-              {
-                 "name":"crypto",
-                 "content":"加解密算法",
-                 "rsize":21216,
-                 "fsize":386592,
-                 "dft":false
-              },
-              {
-                 "name":"rtc",
-                 "content":"RTC定时器",
-                 "rsize":1424,
-                 "fsize":366800,
-                 "dft":false
-              },
-              {
-                 "name":"@socket",
-                 "content":"网络套接字(暂不可用)",
-                 "rsize":73456,
-                 "fsize":438832,
-                 "dft":false,
-                 "children" : [
-                     {
-                        "name":"sntp",
-                        "content":"网络对时",
-                        "rsize":1456,
-                        "fsize":438832,
-                        "dft":false
-                     },
-                     {
-                        "name" : "LUAT_USE_SNTP_NOT_AUTO",
-                        "content":"禁用自动网络对时, 可自行定时调用SNTP",
-                        "rsize":0,
-                        "fsize":438832,
-                        "dft":false
-                     },
-                     {
-                        "name":"tls",
-                        "content":"启用TLS/SSL支持, 支持 https/mqtts/websockets",
-                        "rsize":20456,
-                        "fsize":438832,
-                        "dft":false
-                     },
-                     {
-                        "name":"ftp",
-                        "content":"启用FTP库",
-                        "rsize":5456,
-                        "fsize":438832,
-                        "dft":false
-                     },
-                     {
-                        "name":"w5500",
-                        "content":"支持w5500以太网",
-                        "rsize":25456,
-                        "fsize":438832,
-                        "dft":false
-                     }
-                 ]
-              },
-              {
-                 "name":"wlan",
-                 "content":"wifi联网",
-                 "rsize":445472,
-                 "fsize":810848,
-                 "dft":false
-              },
-              {
-                 "name":"mcu",
-                 "content":"mcu特有API",
-                 "rsize":1536,
-                 "fsize":366912,
-                 "dft":false
-              },
-              {
-                 "name":"pm",
-                 "content":"功耗/电源管理",
-                 "rsize":1536,
-                 "fsize":366912,
-                 "dft":false
-              }
-           ],
-           "fsize":365376,
-           "dft":false
-        },
-        {
-           "icon":"zmdi-card-sd",
-           "name":"@LIB",
-           "content":"工具库",
-           "rsize":0,
-           "children":[
+         }
+      },
+      "sdk": {
+         "presets": [
+            {
+               "name": "dev",
+               "value": {
+                  "luatos": "head",
+                  "air101": "head"
+               }
+            }
+         ]
+      },
+      "component": [
+         {
+            "icon": "zmdi-input-composite",
+            "name": "@DEV",
+            "content": "基础外设",
+            "rsize": 0,
+            "children": [
                {
-                   "name": "repl",
-                   "content": "REPL(读取-解析-执行)循环",
-                   "rsize": 10908,
-                   "fsize": 284260,
-                   "dft": false
+                  "name": "gpio",
+                  "content": "通用输入输出",
+                  "rsize": 4560,
+                  "fsize": 369936,
+                  "dft": false
                },
-              {
-                 "name":"cjson",
-                 "content":"JSON序列化与反序列化",
-                 "rsize":6032,
-                 "fsize":371408,
-                 "dft":false
-                 }, {
-                    "name": "ota",
-                    "content": "脚本升级",
-                    "rsize": 4056,
-                    "fsize": 272408,
-                    "dft": false
-              },
-              {
-                 "name":"iotauth",
-                 "content":"云服务鉴权密钥生成",
-                 "rsize":14928,
-                 "fsize":418304,
-                 "dft":false
-              },
-              {
-                 "name":"ntp",
-                 "content":"NTP网络对时",
-                 "rsize":52928,
-                 "fsize":418304,
-                 "dft":false
-              },
-              {
-                 "name":"fs",
-                 "content":"文件系统状态",
-                 "rsize":832,
-                 "fsize":366208,
-                 "dft":false
-              },
-              {
-                 "name":"pack",
-                 "content":"数据打包与解包",
-                 "rsize":1968,
-                 "fsize":367344,
-                 "dft":false
-              },
-              {
-                 "name":"zbuff",
-                 "content":"C风格的内存数组操作库",
-                 "rsize":18256,
-                 "fsize":383632,
-                 "dft":false
-              },
-              {
-                 "name":"libgnss",
-                 "content":"NMEA解析",
-                 "rsize":6944,
-                 "fsize":372320,
-                 "dft":false
-              },
-              {
+               {
+                  "name": "uart",
+                  "content": "串口",
+                  "rsize": 7120,
+                  "fsize": 372496,
+                  "dft": false
+               },
+               {
+                  "name": "i2c",
+                  "content": "IIC协议",
+                  "rsize": 13600,
+                  "fsize": 378976,
+                  "dft": false
+               },
+               {
+                  "name": "spi",
+                  "content": "SPI协议",
+                  "rsize": 16464,
+                  "fsize": 381840,
+                  "dft": false
+               },
+               {
+                  "name": "adc",
+                  "content": "模数转换",
+                  "rsize": 3952,
+                  "fsize": 369328,
+                  "dft": false
+               },
+               {
+                  "name": "pwm",
+                  "content": "频率可控方波",
+                  "rsize": 6480,
+                  "fsize": 371856,
+                  "dft": false
+               },
+               {
+                  "name": "wdt",
+                  "content": "硬狗",
+                  "rsize": 752,
+                  "fsize": 366128,
+                  "dft": false
+               },
+               {
+                  "name": "crypto",
+                  "content": "加解密算法",
+                  "rsize": 21216,
+                  "fsize": 386592,
+                  "dft": false
+               },
+               {
+                  "name": "rtc",
+                  "content": "RTC定时器",
+                  "rsize": 1424,
+                  "fsize": 366800,
+                  "dft": false
+               },
+               {
+                  "name": "@socket",
+                  "content": "网络套接字(暂不可用)",
+                  "rsize": 73456,
+                  "fsize": 438832,
+                  "dft": false,
+                  "children": [
+                     {
+                        "name": "sntp",
+                        "content": "网络对时",
+                        "rsize": 1456,
+                        "fsize": 438832,
+                        "dft": false
+                     },
+                     {
+                        "name": "LUAT_USE_SNTP_NOT_AUTO",
+                        "content": "禁用自动网络对时, 可自行定时调用SNTP",
+                        "rsize": 0,
+                        "fsize": 438832,
+                        "dft": false
+                     },
+                     {
+                        "name": "tls",
+                        "content": "启用TLS/SSL支持, 支持 https/mqtts/websockets",
+                        "rsize": 20456,
+                        "fsize": 438832,
+                        "dft": false
+                     },
+                     {
+                        "name": "ftp",
+                        "content": "启用FTP库",
+                        "rsize": 5456,
+                        "fsize": 438832,
+                        "dft": false
+                     },
+                     {
+                        "name": "w5500",
+                        "content": "支持w5500以太网",
+                        "rsize": 25456,
+                        "fsize": 438832,
+                        "dft": false
+                     }
+                  ]
+               },
+               {
+                  "name": "wlan",
+                  "content": "wifi联网",
+                  "rsize": 445472,
+                  "fsize": 810848,
+                  "dft": false
+               },
+               {
+                  "name": "mcu",
+                  "content": "mcu特有API",
+                  "rsize": 1536,
+                  "fsize": 366912,
+                  "dft": false
+               },
+               {
+                  "name": "pm",
+                  "content": "功耗/电源管理",
+                  "rsize": 1536,
+                  "fsize": 366912,
+                  "dft": false
+               }
+            ],
+            "fsize": 365376,
+            "dft": false
+         },
+         {
+            "icon": "zmdi-card-sd",
+            "name": "@LIB",
+            "content": "工具库",
+            "rsize": 0,
+            "children": [
+               {
+                  "name": "repl",
+                  "content": "REPL(读取-解析-执行)循环",
+                  "rsize": 10908,
+                  "fsize": 284260,
+                  "dft": false
+               },
+               {
+                  "name": "cjson",
+                  "content": "JSON序列化与反序列化",
+                  "rsize": 6032,
+                  "fsize": 371408,
+                  "dft": false
+               },
+               {
+                  "name": "ota",
+                  "content": "脚本升级",
+                  "rsize": 4056,
+                  "fsize": 272408,
+                  "dft": false
+               },
+               {
+                  "name": "iotauth",
+                  "content": "云服务鉴权密钥生成",
+                  "rsize": 14928,
+                  "fsize": 418304,
+                  "dft": false
+               },
+               {
+                  "name": "ntp",
+                  "content": "NTP网络对时",
+                  "rsize": 52928,
+                  "fsize": 418304,
+                  "dft": false
+               },
+               {
+                  "name": "fs",
+                  "content": "文件系统状态",
+                  "rsize": 832,
+                  "fsize": 366208,
+                  "dft": false
+               },
+               {
+                  "name": "pack",
+                  "content": "数据打包与解包",
+                  "rsize": 1968,
+                  "fsize": 367344,
+                  "dft": false
+               },
+               {
+                  "name": "zbuff",
+                  "content": "C风格的内存数组操作库",
+                  "rsize": 18256,
+                  "fsize": 383632,
+                  "dft": false
+               },
+               {
+                  "name": "libgnss",
+                  "content": "NMEA解析",
+                  "rsize": 6944,
+                  "fsize": 372320,
+                  "dft": false
+               },
+               {
                   "name": "protobuf",
                   "content": "protobuf编解码",
                   "rsize": 12008,
                   "fsize": 274360,
                   "dft": false
-              },
-              {
-                 "name":"shell",
-                 "content":"控制台,会跟repl冲突",
-                 "rsize":6848,
-                 "fsize":372224,
-                 "dft":false,
-                 "children": [
+               },
+               {
+                  "name": "shell",
+                  "content": "控制台,会跟repl冲突",
+                  "rsize": 6848,
+                  "fsize": 372224,
+                  "dft": false,
+                  "children": [
                      {
-                         "name": "i2ctools",
-                         "content": "i2c探测",
-                         "rsize": 0,
-                         "fsize": 279800,
-                         "dft": false
+                        "name": "i2ctools",
+                        "content": "i2c探测",
+                        "rsize": 0,
+                        "fsize": 279800,
+                        "dft": false
                      }
-                 ]
-              },
-              {
-                 "name":"dbg",
-                 "content":"调试,搭配shell功能才可以在LuatIDE使用",
-                 "rsize":6848,
-                 "fsize":372224,
-                 "dft":false
-              },
-              {
-                 "name":"statem",
-                 "content":"状态机,可输出GPIO序列",
-                 "rsize":0,
-                 "fsize":365376,
-                 "dft":false
-              },
-              {
-                 "name":"fdb",
-                 "content":"kv数据库,掉电不丢",
-                 "rsize":8464,
-                 "fsize":373840,
-                 "dft":false
-              },
-              {
+                  ]
+               },
+               {
+                  "name": "dbg",
+                  "content": "调试,搭配shell功能才可以在LuatIDE使用",
+                  "rsize": 6848,
+                  "fsize": 372224,
+                  "dft": false
+               },
+               {
+                  "name": "statem",
+                  "content": "状态机,可输出GPIO序列",
+                  "rsize": 0,
+                  "fsize": 365376,
+                  "dft": false
+               },
+               {
+                  "name": "fdb",
+                  "content": "kv数据库,掉电不丢",
+                  "rsize": 8464,
+                  "fsize": 373840,
+                  "dft": false
+               },
+               {
                   "name": "fskv",
                   "content": "kv数据库,替代fdb",
                   "rsize": 10832,
                   "fsize": 298252,
                   "dft": false
-              },
-              {
-                 "name":"fatfs",
-                 "content":"通过SPI读写TF卡",
-                 "rsize":192608,
-                 "fsize":557984,
-                 "dft":false
-              },
-              {
-                 "name":"rsa",
-                 "content":"RSA加密解码签名验签",
-                 "rsize":12608,
-                 "fsize":557984,
-                 "dft":false
-              },
-              {
+               },
+               {
+                  "name": "fatfs",
+                  "content": "通过SPI读写TF卡",
+                  "rsize": 192608,
+                  "fsize": 557984,
+                  "dft": false
+               },
+               {
+                  "name": "rsa",
+                  "content": "RSA加密解码签名验签",
+                  "rsize": 12608,
+                  "fsize": 557984,
+                  "dft": false
+               },
+               {
                   "name": "ymodem",
                   "content": "Ymodem传输协议",
                   "rsize": 3008,
                   "fsize": 274360,
                   "dft": false
-              }
-           ],
-           "fsize":365376,
-           "dft":false
-        },
-        {
-           "icon":"zmdi-puzzle-piece",
-           "name":"@EXT",
-           "content":"扩展",
-           "rsize":0,
-           "children":[
-              {
-                 "name":"sensor",
-                 "content":"传感器库(ds18b20/ws2812等)",
-                 "rsize":5136,
-                 "fsize":370512,
-                 "dft":false
-              },
-              {
+               }
+            ],
+            "fsize": 365376,
+            "dft": false
+         },
+         {
+            "icon": "zmdi-puzzle-piece",
+            "name": "@EXT",
+            "content": "扩展",
+            "rsize": 0,
+            "children": [
+               {
+                  "name": "sensor",
+                  "content": "传感器库(ds18b20/ws2812等)",
+                  "rsize": 5136,
+                  "fsize": 370512,
+                  "dft": false
+               },
+               {
                   "name": "lora",
                   "content": "lora驱动",
                   "rsize": 13196,
                   "fsize": 284548,
                   "dft": false
-              },
-              {
-               "name": "lora2",
-               "content": "lora2驱动(支持多挂)",
-               "rsize": 13196,
-               "fsize": 284548,
-               "dft": false
                },
-              {
+               {
+                  "name": "lora2",
+                  "content": "lora2驱动(支持多挂)",
+                  "rsize": 13196,
+                  "fsize": 284548,
+                  "dft": false
+               },
+               {
                   "name": "mlx90640",
                   "content": "红外成像mlx90640",
                   "rsize": 13196,
                   "fsize": 284548,
                   "dft": false
-              }
-           ],
-           "fsize":365376,
-           "dft":false
-        }
-     ]
-  }
+               }
+            ],
+            "fsize": 365376,
+            "dft": false
+         }
+      ]
+   }
 }
