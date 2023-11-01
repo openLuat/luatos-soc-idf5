@@ -54,7 +54,7 @@ static void macaddr_restore(int id) {
     // LLOGW("尝试恢复mac %d", id);
     ret = nvs_open("macaddr", NVS_READONLY, &handle);
     if (ret) {
-        LLOGD("未自定义mac地址");
+        // LLOGD("未自定义mac地址");
         return;
     }
     if (id == 0) {
@@ -100,6 +100,10 @@ static void macaddr_set(int id, uint8_t* mac) {
         return;
     }
     if (id == 0) {
+        if (mac == NULL) {
+            nvs_erase_key(handle, "sta");
+            return;
+        }
         // LLOGD("存储sta的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         ret = nvs_set_blob(handle, "sta", mac, 6);
         if (ret) {
@@ -110,6 +114,10 @@ static void macaddr_set(int id, uint8_t* mac) {
         }
     }
     else if (id == 1) {
+        if (mac == NULL) {
+            nvs_erase_key(handle, "ap");
+            return;
+        }
         // LLOGD("存储ap的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         ret = nvs_set_blob(handle, "ap", mac, 6);
         if (ret) {
@@ -388,13 +396,22 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
         if (ret)
             LLOGD("esp_wifi_init ret %d", ret);
         esp_wifi_set_mode(WIFI_MODE_STA);
-        esp_netif_set_hostname(wifiSTA, luat_wlan_get_hostname(0));
+        ret = esp_netif_set_hostname(wifiSTA, luat_wlan_get_hostname(0));
         #ifdef LUAT_USE_NETWORK
             net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_AP);
             net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
         #endif
         if (ret)
             LLOGD("esp_netif_set_hostname ret %d", ret);
+        if (dhcp_enable) {
+            // LLOGD("自动启动dhcp");
+            ret = esp_netif_dhcpc_start(wifiSTA);
+            if (ret)
+                LLOGD("esp_netif_dhcpc_start ret %d", ret);
+        }
+        else {
+            // LLOGD("禁用dhcp");
+        }
     }
 #ifdef LUAT_USE_NIMBLE
 #if CONFIG_BT_ENABLED
@@ -540,15 +557,26 @@ int luat_wlan_get_mac(int id, char* mac) {
 }
 
 int luat_wlan_set_mac(int id, const char* mac) {
+    const char emac[6] = {0,0,0,0,0,0};
     // LLOGD("设置MAC地址 %d %02X%02X%02X%02X%02X%02X", id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     int ret = -1;
     if (id == 0 && wifiSTA != NULL) {
+        if (!memcmp(mac, emac, 6)) {
+            // 清除自定义mac
+            macaddr_set(0, NULL);
+            return 0;
+        }
         ret = esp_netif_set_mac(wifiSTA, (uint8_t*)mac);
         if (ret == 0) {
             macaddr_set(0, (uint8_t*)mac);
         }
     }
     if (id == 1 && wifiAP != NULL) {
+        if (!memcmp(mac, emac, 6)) {
+            // 清除自定义mac
+            macaddr_set(1, NULL);
+            return 0;
+        }
         ret = esp_netif_set_mac(wifiAP, (uint8_t*)mac);
         if (ret == 0) {
             macaddr_set(1, (uint8_t*)mac);
@@ -716,6 +744,7 @@ int luat_wlan_set_station_ip(luat_wlan_station_info_t *info) {
         LLOGE("call wlan.init() first");
         return -1;
     }
+    dhcp_enable = info->dhcp_enable;
     if (!info->dhcp_enable) {
         esp_netif_dhcpc_stop(wifiSTA);
         ipInfo.ip.addr = to_esp_ipv4(info->ipv4_addr);
