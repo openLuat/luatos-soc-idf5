@@ -49,6 +49,7 @@ static void macaddr_restore(int id) {
     nvs_handle_t handle;
     uint8_t mac[16] = {0};
     uint8_t mac2[16] = {0};
+    uint8_t empty[] = {0, 0, 0, 0, 0, 0};
     int ret = 0;
     int8_t len = 6;
     // LLOGW("尝试恢复mac %d", id);
@@ -59,9 +60,9 @@ static void macaddr_restore(int id) {
     }
     if (id == 0) {
         ret = nvs_get_blob(handle, "sta", mac, &len);
-        if (ret == 0 && wifiSTA) {
+        if (ESP_OK == ret && wifiSTA && 6 == len && memcmp(empty, mac, 6)) {
             esp_netif_get_mac(wifiSTA, (uint8_t*)mac2);
-            // LLOGD("恢复sta的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            LLOGD("恢复sta的自定义mac地址 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
             ret = esp_netif_set_mac(wifiSTA, (uint8_t*)mac);
             if (ret) {
                 LLOGE("恢复sta的自定义mac地址失败");
@@ -73,9 +74,9 @@ static void macaddr_restore(int id) {
     }
     else if (id == 1) {
         ret = nvs_get_blob(handle, "ap", mac, &len);
-        if (ret == 0 && wifiAP) {
+        if (ESP_OK == ret && wifiAP && 6 == len && memcmp(empty, mac, 6)) {
             esp_netif_get_mac(wifiAP, (uint8_t*)mac2);
-            // LLOGD("恢复ap的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            LLOGD("恢复ap的自定义mac地址 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
             ret = esp_netif_set_mac(wifiAP, (uint8_t*)mac);
             if (ret) {
                 LLOGE("恢复ap的自定义mac地址失败");
@@ -102,6 +103,8 @@ static void macaddr_set(int id, uint8_t* mac) {
     if (id == 0) {
         if (mac == NULL) {
             nvs_erase_key(handle, "sta");
+            nvs_commit(handle);
+            nvs_close(handle);
             return;
         }
         // LLOGD("存储sta的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
@@ -116,6 +119,8 @@ static void macaddr_set(int id, uint8_t* mac) {
     else if (id == 1) {
         if (mac == NULL) {
             nvs_erase_key(handle, "ap");
+            nvs_commit(handle);
+            nvs_close(handle);
             return;
         }
         // LLOGD("存储ap的mac地址为 %02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
