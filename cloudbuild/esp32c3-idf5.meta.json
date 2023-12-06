@@ -404,6 +404,13 @@
                   "rsize": 3008,
                   "fsize": 274360,
                   "dft": false
+               },
+               {
+                  "name": "miniz",
+                  "content": "兼容zlib/gzip的压缩/解压库",
+                  "rsize": 3008,
+                  "fsize": 274360,
+                  "dft": false
                }
             ],
             "fsize": 365376,
