@@ -161,3 +161,36 @@ void luat_heap_init(void)
 #endif
     // LLOGD("vm heap range %08X %08X", heap_addr_start, heap_addr_end);
 }
+
+void luat_heap_opt_init(LUAT_HEAP_TYPE_E type){
+    luat_heap_init();
+}
+
+void* luat_heap_opt_malloc(LUAT_HEAP_TYPE_E type,size_t len){
+    return luat_heap_malloc(len);
+}
+
+void luat_heap_opt_free(LUAT_HEAP_TYPE_E type,void* ptr){
+    luat_heap_free(ptr);
+}
+
+void* luat_heap_opt_realloc(LUAT_HEAP_TYPE_E type,void* ptr, size_t len){
+    return luat_heap_realloc(ptr, len);
+}
+
+void* luat_heap_opt_calloc(LUAT_HEAP_TYPE_E type,size_t count, size_t size){
+    return luat_heap_opt_zalloc(type,count*size);
+}
+
+void* luat_heap_opt_zalloc(LUAT_HEAP_TYPE_E type,size_t size){
+    void *ptr = luat_heap_opt_malloc(type,size);
+    if (ptr) {
+        memset(ptr, 0, size);
+    }
+    return ptr;
+}
+
+void luat_meminfo_opt_sys(LUAT_HEAP_TYPE_E type,size_t* total, size_t* used, size_t* max_used){
+    luat_meminfo_sys(total, used, max_used);
+}
+
