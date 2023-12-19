@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>//add for memset
 #include "bget.h"
-#include "luat_malloc.h"
+#include "luat_mem.h"
 #include "esp_system.h"
 #include "esp_attr.h"
 
@@ -52,6 +52,15 @@ void* luat_heap_realloc(void* ptr, size_t len) {
 void* luat_heap_calloc(size_t count, size_t _size) {
     return calloc(count, _size);
 }
+
+void* luat_heap_zalloc(size_t _size) {
+    void *ptr = luat_heap_malloc(_size);
+    if (ptr) {
+        memset(ptr, 0, _size);
+    }
+    return ptr;
+}
+
 //------------------------------------------------
 
 //------------------------------------------------
