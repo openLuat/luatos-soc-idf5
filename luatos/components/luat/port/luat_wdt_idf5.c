@@ -23,11 +23,10 @@ int luat_wdt_feed(void){
 
 int luat_wdt_set_timeout(size_t timeout){
     esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 0,
+        .timeout_ms = timeout,
         .idle_core_mask = 0,
-        .trigger_panic = false,
+        .trigger_panic = true,
     };
-    twdt_config.timeout_ms = timeout;
     esp_task_wdt_init(&twdt_config);
     return 0;
 }
