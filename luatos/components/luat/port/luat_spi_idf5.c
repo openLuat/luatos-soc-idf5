@@ -93,7 +93,10 @@ int luat_spi_close(int spi_id){
 }
 
 int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char *recv_buf, size_t recv_length){
+    spi_transaction_t send = {0};
+    spi_transaction_t recv = {0};
     esp_err_t ret = -1;
+    size_t transmit_length = send_length;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
     if (spi_id > 3 || spi_id < 2){
         return -1;
@@ -103,8 +106,6 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
         return -1;
     }
 #endif
-    spi_transaction_t send;
-    memset(&send, 0, sizeof(send));
     if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) != 0){
         while (send_length > 0) {
             memset(&send, 0, sizeof(send));
@@ -125,8 +126,6 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
         if (ret != 0){
             return -2;
         }
-        spi_transaction_t recv;
-        memset(&recv, 0, sizeof(recv));
         recv.length = recv_length * 8;
         recv.rxlength = recv_length * 8;
         recv.rx_buffer = recv_buf;
@@ -158,11 +157,13 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
             return -2;
         }
     }
-    return ret == 0 ? recv_length : -1;
+    return ret == 0 ? transmit_length : 0;
 }
 
 int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
+    spi_transaction_t t;
     esp_err_t ret = -1;
+    size_t transmit_length = length;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
     if (spi_id > 3 || spi_id < 2){
         return -1;
@@ -172,7 +173,6 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
         return -1;
     }
 #endif
-    spi_transaction_t t;
     while (length > 0) {
         memset(&t, 0, sizeof(t));
         if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
@@ -184,19 +184,19 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
             length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
         }
         else {
-            t.length = length * 8;
             t.rxlength = length * 8;
             t.rx_buffer = recv_buf;
             ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
             break;
         }
     }
-    return ret == 0 ? length : -1;
+    return ret == 0 ? transmit_length : 0;
 }
 
 int luat_spi_send(int spi_id, const char *send_buf, size_t length){
     spi_transaction_t t;
     esp_err_t ret = -1;
+    size_t transmit_length = length;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
     if (spi_id > 3 || spi_id < 2){
         return -1;
@@ -222,7 +222,7 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length){
             break;
         }
     }
-    return ret == 0 ? length : -1;
+    return ret == 0 ? transmit_length : 0;
 }
 
 #define LUAT_SPI_CS_SELECT 0
@@ -317,7 +317,10 @@ int luat_spi_device_close(luat_spi_device_t *spi_dev){
 int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, size_t send_length, char *recv_buf, size_t recv_length){
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
+    spi_transaction_t send = {0};
+    spi_transaction_t recv = {0};
     esp_err_t ret = -1;
+    size_t transmit_length = send_length;
     int bus_id = spi_dev->bus_id;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
     if (bus_id > 3 || bus_id < 2){
@@ -328,8 +331,6 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
         return -1;
     }
 #endif
-    spi_transaction_t send;
-    memset(&send, 0, sizeof(send));
     while (send_length > 0) {
         memset(&send, 0, sizeof(send));
         if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) {
@@ -348,21 +349,21 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
     if (ret != 0){
         return -2;
     }
-    spi_transaction_t recv;
-    memset(&recv, 0, sizeof(recv));
     recv.length = recv_length * 8;
     recv.rxlength = recv_length * 8;
     recv.rx_buffer = recv_buf;
     ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
-    return ret == 0 ? recv_length : -1;
+    return ret == 0 ? transmit_length : 0;
 }
 
 int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t length){
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
+    spi_transaction_t t = {0};
     esp_err_t ret = -1;
+    size_t transmit_length = length;
     int bus_id = spi_dev->bus_id;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
     if (bus_id > 3 || bus_id < 2){
@@ -373,7 +374,6 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
         return -1;
     }
 #endif
-    spi_transaction_t t;
     while (length > 0) {
         memset(&t, 0, sizeof(t));
         if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
@@ -394,13 +394,15 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
     }
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
-    return ret == 0 ? length : -1;
+    return ret == 0 ? transmit_length : 0;
 }
 
 int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_t length){
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
+    spi_transaction_t t = {0};
     esp_err_t ret = -1;
+    size_t transmit_length = length;
     int bus_id = spi_dev->bus_id;
 #if defined(CONFIG_IDF_TARGET_ESP32)||defined(CONFIG_IDF_TARGET_ESP32S2)||defined(CONFIG_IDF_TARGET_ESP32S3)
     if (bus_id > 3 || bus_id < 2){
@@ -411,8 +413,6 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
         return -1;
     }
 #endif
-    spi_transaction_t t;
-    memset(&t, 0, sizeof(t));
     while (length > 0) {
         memset(&t, 0, sizeof(t));
         if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
@@ -430,7 +430,7 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
     }
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
-    return ret == 0 ? length : -1;
+    return ret == 0 ? transmit_length : 0;
 }
 
 int luat_spi_device_config(luat_spi_device_t* spi_dev){
