@@ -35,7 +35,7 @@
 
 #define LUAT_USE_WLAN 1
 #define LUAT_USE_HTTPSRV 1
-#define LUAT_USE_NIMBLE 1
+// #define LUAT_USE_NIMBLE 1
 
 #define LUAT_USE_IOTAUTH 1
 
@@ -82,6 +82,7 @@
 #define LUAT_USE_RSA 1
 // #define LUAT_USE_ICONV 1
 // #define LUAT_USE_BIT64 1
+// #define LUAT_USE_XXTEA 1
 
 // ------------------
 

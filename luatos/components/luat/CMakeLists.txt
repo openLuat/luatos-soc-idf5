@@ -91,6 +91,8 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/gmssl/bind
                                 ${LUATOS_ROOT}/components/repl
                                 ${LUATOS_ROOT}/components/ymodem
+                                ${LUATOS_ROOT}/components/xxtea/src
+                                ${LUATOS_ROOT}/components/xxtea/binding
                                 INCLUDE_DIRS ../../include
                                 ${LUATOS_ROOT}/components/max30102
                                 ${LUATOS_ROOT}/lua/include
@@ -156,6 +158,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/gmssl/include
                                 ${LUATOS_ROOT}/components/repl
                                 ${LUATOS_ROOT}/components/ymodem
+                                ${LUATOS_ROOT}/components/xxtea/include
                     REQUIRES esp-tls lwip esp_http_client mbedtls spiffs driver heap esp_netif esp_event
                              esp_wifi esp_rom http_parser mqtt esp_adc bt console spi_flash esp_psram nvs_flash
                     )
