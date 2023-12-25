@@ -51,7 +51,7 @@ static void macaddr_restore(int id) {
     uint8_t mac2[16] = {0};
     uint8_t empty[] = {0, 0, 0, 0, 0, 0};
     int ret = 0;
-    int8_t len = 6;
+    size_t len = 6;
     // LLOGW("尝试恢复mac %d", id);
     ret = nvs_open("macaddr", NVS_READONLY, &handle);
     if (ret) {
@@ -163,6 +163,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             lua_pushstring(L, "WLAN_STA_CONNECTED");
             lua_call(L, 1, 0);
             if (!dhcp_enable) {
+                LLOGD("dhcp is disabled, static ip, send IP_READY");
                 lua_getglobal(L, "sys_pub");
                 lua_pushstring(L, "IP_READY");
                 luat_wlan_get_ip(0, buff);
@@ -352,7 +353,7 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         // sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
         #ifdef LUAT_USE_NETWORK
-        net_lwip_set_netif(netif_get_by_index(2), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        net_lwip_set_netif(esp_netif_get_netif_impl(wifiSTA), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
         net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
         #endif
     }
@@ -662,13 +663,20 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
 }
 
 int luat_wlan_get_ip(int type, char* data) {
-    // memcpy(data, sta_ip, strlen(sta_ip) + 1);
-    struct netif* sta = netif_get_by_index(2);
-    if (sta == NULL) {
+    struct netif* nt = NULL;
+    if (type == 0) {
+        if (wifiSTA != NULL)
+            nt = esp_netif_get_netif_impl(wifiSTA);
+    }
+    else {
+        if (wifiAP != NULL)
+            nt = esp_netif_get_netif_impl(wifiAP);
+    }
+    if (nt == NULL) {
         data[0] = 0;
         return 0;
     }
-    sprintf(data, IPSTR, IP2STR(&sta->ip_addr));
+    sprintf(data, IPSTR, IP2STR(&nt->ip_addr));
     return 0;
 }
 
