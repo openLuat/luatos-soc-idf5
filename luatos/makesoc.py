@@ -100,7 +100,7 @@ if __name__=='__main__':
         info_json_data = json.load(f)
     with open(info_json_temp, "w") as f :
         print("script_size", script_size)
-        if script_size > 256 : # 大于256k,自动启用romfs
+        if script_size > 256 and bsp == "ESP32S3": # 大于256k,自动启用romfs
             print("=================================================================================")
             print("====================== USE ROMFS for script. Pls use LuaTools 2.2.3 + ===========")
             print("=================================================================================")
