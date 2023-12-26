@@ -157,7 +157,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
             return -2;
         }
     }
-    return ret == 0 ? transmit_length : 0;
+    return ret == 0 ? transmit_length : -1;
 }
 
 int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
@@ -190,7 +190,7 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
             break;
         }
     }
-    return ret == 0 ? transmit_length : 0;
+    return ret == 0 ? transmit_length : -1;
 }
 
 int luat_spi_send(int spi_id, const char *send_buf, size_t length){
@@ -222,7 +222,7 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length){
             break;
         }
     }
-    return ret == 0 ? transmit_length : 0;
+    return ret == 0 ? transmit_length : -1;
 }
 
 #define LUAT_SPI_CS_SELECT 0
@@ -355,7 +355,7 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
     ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
-    return ret == 0 ? transmit_length : 0;
+    return ret == 0 ? transmit_length : -1;
 }
 
 int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t length){
@@ -394,7 +394,7 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
     }
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
-    return ret == 0 ? transmit_length : 0;
+    return ret == 0 ? transmit_length : -1;
 }
 
 int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_t length){
@@ -430,7 +430,7 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
     }
     if (spi_dev->spi_config.cs != 255)
         luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
-    return ret == 0 ? transmit_length : 0;
+    return ret == 0 ? transmit_length : -1;
 }
 
 int luat_spi_device_config(luat_spi_device_t* spi_dev){
