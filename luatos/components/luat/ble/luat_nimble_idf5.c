@@ -27,8 +27,20 @@ void bleprph_host_task(void *param)
 }
 
 int luat_nimble_deinit() {
-    LLOGE("deinit not support yet");
-    return -1;
+    int rc = nimble_port_stop();
+    if (rc != 0)
+    {
+        LLOGE("Error at nimble port stop");
+        return -1;
+    }
+
+    rc = nimble_port_deinit();
+    if (rc != 0)
+    {
+        LLOGE("Error at nimble_port_deinit %d", rc);
+        return rc;
+    }
+    return 0;
 }
 
 int luat_nimble_trace_level(int level) {
