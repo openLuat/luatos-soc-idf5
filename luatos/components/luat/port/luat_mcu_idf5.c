@@ -44,10 +44,10 @@ const char* luat_mcu_unique_id(size_t* t) {
         uint32_t tmpvalue = 0;
         esp_flash_read_id(chip, &tmpvalue);
         int rid = (tmpvalue >> 16) & 0xFF;
-        LLOGD("chip id %04X %02X", tmpvalue, rid);
+        // LLOGD("chip id %04X %02X", tmpvalue, rid);
         uid[0] = (uint8_t)rid;
         esp_flash_get_physical_size(chip, &tmpvalue);
-        LLOGD("physical_size %04X", tmpvalue);
+        // LLOGD("physical_size %04X", tmpvalue);
         uid[1] = (uint8_t)(tmpvalue >> 20);
         int dumy_bytes = 4;
 	    switch(rid)
