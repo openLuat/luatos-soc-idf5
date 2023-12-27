@@ -11,7 +11,7 @@
 //custom -->
 //------------------------------------------------------
 
-#define LUAT_USE_TLS
+// #define LUAT_USE_TLS
 #define LUAT_USE_SNTP
 // 禁用自动调用网络对时
 // #define LUAT_USE_SNTP_NOT_AUTO
