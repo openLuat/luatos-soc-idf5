@@ -176,10 +176,14 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
     char tmpbuff[SOC_SPI_MAXIMUM_BUFFER_SIZE];
     while (length > 0) {
         memset(&t, 0, sizeof(t));
-        t.tx_buffer = tmpbuff;
-        memset(tmpbuff, 0xFF, SOC_SPI_MAXIMUM_BUFFER_SIZE);
-        if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
-            t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+        if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) == 0){
+            t.tx_buffer = tmpbuff;
+            memset(tmpbuff, 0xFF, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        }
+        if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) {
+            if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) == 0){
+                t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            }
             t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
             t.rx_buffer = recv_buf;
             ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
@@ -189,7 +193,9 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length){
         else {
             t.rxlength = length * 8;
             t.rx_buffer = recv_buf;
-            t.length = length * 8;
+            if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) == 0){
+                t.length = length * 8;
+            }
             ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
             break;
         }
@@ -213,11 +219,16 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length){
     char tmpbuff[SOC_SPI_MAXIMUM_BUFFER_SIZE];
     while (length > 0) {
         memset(&t, 0, sizeof(t));
-        t.rx_buffer = tmpbuff;
-        memset(tmpbuff, 0xFF, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) != 0){
+            t.rx_buffer = tmpbuff;
+            memset(tmpbuff, 0xFF, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        }
         if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
             t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
             t.tx_buffer = send_buf;
+            if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) != 0){
+                t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            }
             ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
             send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
             length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
@@ -225,6 +236,9 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length){
         else {
             t.length = length * 8;
             t.tx_buffer = send_buf;
+            if ((spi_config[spi_id-2].flags & SPI_DEVICE_HALFDUPLEX) != 0){
+                t.rxlength = length  * 8;
+            }
             ret = spi_device_polling_transmit(spi_handle[spi_id-2], &t);
             break;
         }
@@ -381,13 +395,18 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
         return -1;
     }
 #endif
+    bool is_full_duplex = spi_dev->spi_config.mode;
     char tmpbuff[SOC_SPI_MAXIMUM_BUFFER_SIZE];
     while (length > 0) {
         memset(&t, 0, sizeof(t));
-        t.tx_buffer = tmpbuff;
-        memset(tmpbuff, 0xff, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        if (is_full_duplex) {
+            t.tx_buffer = tmpbuff;
+            memset(tmpbuff, 0xff, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        }
         if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
-            t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            if (is_full_duplex) {
+                t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            }
             t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
             t.rx_buffer = recv_buf;
             ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
@@ -395,7 +414,9 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
             length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
         }
         else {
-            t.length = length * 8;
+            if (is_full_duplex) {
+                t.length = length * 8;
+            }
             t.rxlength = length * 8;
             t.rx_buffer = recv_buf;
             ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
@@ -424,21 +445,28 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
     }
 #endif
     char tmpbuff[SOC_SPI_MAXIMUM_BUFFER_SIZE];
+    bool is_full_duplex = spi_dev->spi_config.mode;
     while (length > 0) {
         memset(&t, 0, sizeof(t));
-        t.rx_buffer = tmpbuff;
-        memset(tmpbuff, 0xff, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        if (is_full_duplex) {
+            t.rx_buffer = tmpbuff;
+            memset(tmpbuff, 0xff, SOC_SPI_MAXIMUM_BUFFER_SIZE);
+        }
         if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { 
             t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
             t.tx_buffer = send_buf;
-            t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            if (is_full_duplex) {
+                t.rxlength = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+            }
             ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
             send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
             length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
         }else {
             t.length = length * 8;
             t.tx_buffer = send_buf;
-            t.rxlength = length  * 8;
+            if (is_full_duplex) {
+                t.rxlength = length  * 8;
+            }
             ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
             break;
         }
