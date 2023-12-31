@@ -6,6 +6,7 @@
 #include "esp_flash.h"
 #include "driver/gptimer.h"
 #include "spi_flash/spi_flash_defs.h"
+#include "esp_pm.h"
 
 enum TYPE_FLASH_ID{
 	SPIFLASH_MID_GD = 0xC8,
@@ -24,10 +25,26 @@ enum TYPE_FLASH_ID{
 #include "luat_log.h"
 
 int luat_mcu_set_clk(size_t mhz) {
-    return 0;
+    esp_pm_config_t config = {0};
+    esp_pm_get_configuration(&config);
+    if (config.max_freq_mhz == mhz) {
+        return 0;
+    }
+    config.max_freq_mhz = mhz;
+    if (config.min_freq_mhz > config.max_freq_mhz) {
+        config.min_freq_mhz = config.max_freq_mhz;
+    }
+    int ret = esp_pm_configure(&config);
+    if (ret) {
+        LLOGD("set clk %d ret %d", mhz, ret);
+    }
+    return ret;
 }
+
 int luat_mcu_get_clk(void) {
-    return 160;
+    esp_pm_config_t config = {0};
+    esp_pm_get_configuration(&config);
+    return config.max_freq_mhz;
 }
 
 extern esp_flash_t *esp_flash_default_chip;
