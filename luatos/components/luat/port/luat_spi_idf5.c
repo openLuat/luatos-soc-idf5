@@ -495,3 +495,14 @@ int luat_spi_change_speed(int spi_id, uint32_t speed) {
     return ret;
     // return 0;
 }
+
+#ifdef LUAT_USE_FATFS
+#include "ff.h"
+#include "diskio.h"
+void luat_spi_set_sdhc_ctrl(block_disk_t *disk) {
+
+}
+
+void luat_sdio_set_sdhc_ctrl(block_disk_t *disk) {
+}
+#endif
