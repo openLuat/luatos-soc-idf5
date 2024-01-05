@@ -19,7 +19,7 @@
 #if defined(LUAT_USE_NIMBLE) || defined(LUAT_USE_TLS)
 #define LUAT_HEAP_SIZE (96*1024)
 #else
-#define LUAT_HEAP_SIZE (128*1024)
+#define LUAT_HEAP_SIZE (112*1024)
 #endif
 #elif defined(CONFIG_IDF_TARGET_ESP32C2)
 #define LUAT_HEAP_SIZE (68*1024)
