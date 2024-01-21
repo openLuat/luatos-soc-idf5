@@ -318,7 +318,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         }
         case WIFI_EVENT_AP_START: {
             #ifdef LUAT_USE_NETWORK
-            net_lwip_set_netif(esp_netif_get_netif_impl(wifiAP), NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            net_lwip_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_AP, esp_netif_get_netif_impl(wifiAP));
             net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 1);
             #endif
             break;
@@ -353,7 +353,7 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         // sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
         #ifdef LUAT_USE_NETWORK
-        net_lwip_set_netif(esp_netif_get_netif_impl(wifiSTA), NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+        net_lwip_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_STA, esp_netif_get_netif_impl(wifiSTA));
         net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
         #endif
     }
