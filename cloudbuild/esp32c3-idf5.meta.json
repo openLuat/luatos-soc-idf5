@@ -30,7 +30,7 @@
          },
          "script": {
             "min": 128,
-            "max": 2048,
+            "max": 8192,
             "dft": 128,
             "unit": 64
          }
@@ -236,6 +236,13 @@
                {
                   "name": "LUAT_CONF_FLASH_8M",
                   "content": "使用8M的Flash, 这需要自行更换Flash,开发板自带的是4M的",
+                  "rsize": 0,
+                  "fsize": 371408,
+                  "dft": false
+               },
+               {
+                  "name": "LUAT_CONF_FLASH_16M",
+                  "content": "使用16M的Flash, 这需要自行更换Flash,开发板自带的是4M的",
                   "rsize": 0,
                   "fsize": 371408,
                   "dft": false
