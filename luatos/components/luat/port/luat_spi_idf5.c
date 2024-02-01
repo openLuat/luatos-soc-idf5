@@ -485,11 +485,12 @@ int luat_spi_config_dma(int spi_id, uint32_t tx_channel, uint32_t rx_channel) {
 }
 
 int luat_spi_change_speed(int spi_id, uint32_t speed) {
+    int ret = 0;
     spi_device_interface_config_t* dev_config = &spi_config[spi_id-2];
     dev_config->clock_speed_hz = speed;
-    int ret = spi_bus_remove_device(spi_handle[spi_id-2]);
-    if (ret != 0){
-        return ret;
+    if (spi_handle[spi_id-2]) {
+        ret = spi_bus_remove_device(spi_handle[spi_id-2]);
+        // spi_handle[spi_id-2] = NULL;
     }
     ret =  spi_bus_add_device(spi_id-1, dev_config, &spi_handle[spi_id-2]);
     return ret;
