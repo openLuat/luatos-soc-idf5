@@ -21,10 +21,10 @@
 #include "lwip/netif.h"
 #include "luat_network_adapter.h"
 #include "luat_timer.h"
-#include "net_lwip.h"
+#include "net_lwip2.h"
 #include "lwip/tcp.h"
 
-void net_lwip_set_link_state(uint8_t adapter_index, uint8_t updown);
+void net_lwip2_set_link_state(uint8_t adapter_index, uint8_t updown);
 
 static uint8_t wlan_inited = 0;
 static uint8_t wlan_is_ready = 0;
@@ -305,7 +305,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         case WIFI_EVENT_STA_DISCONNECTED: {
             wlan_is_ready = 0;
             #ifdef LUAT_USE_NETWORK
-            net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 0);
+            net_lwip2_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 0);
             #endif
             // wifi_event_sta_disconnected_t* sta = (wifi_event_sta_disconnected_t*)event_data;
             memset(sta_connected_bssid, 0, sizeof(sta_connected_bssid));
@@ -318,14 +318,14 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         }
         case WIFI_EVENT_AP_START: {
             #ifdef LUAT_USE_NETWORK
-            net_lwip_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_AP, esp_netif_get_netif_impl(wifiAP));
-            net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 1);
+            net_lwip2_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_AP, esp_netif_get_netif_impl(wifiAP));
+            net_lwip2_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 1);
             #endif
             break;
         }
         case WIFI_EVENT_AP_STOP: {
             #ifdef LUAT_USE_NETWORK
-            net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 0);
+            net_lwip2_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_AP, 0);
             #endif
             break;
         }
@@ -353,8 +353,8 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         // sprintf(sta_ip, IPSTR, IP2STR(&event->ip_info.ip));
         // sprintf(sta_gw, IPSTR, IP2STR(&event->ip_info.gw));
         #ifdef LUAT_USE_NETWORK
-        net_lwip_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_STA, esp_netif_get_netif_impl(wifiSTA));
-        net_lwip_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
+        net_lwip2_set_netif(NW_ADAPTER_INDEX_LWIP_WIFI_STA, esp_netif_get_netif_impl(wifiSTA));
+        net_lwip2_set_link_state(NW_ADAPTER_INDEX_LWIP_WIFI_STA, 1);
         #endif
     }
     else if (event_id == IP_EVENT_AP_STAIPASSIGNED) {
@@ -404,8 +404,8 @@ int luat_wlan_init(luat_wlan_config_t *conf) {
         esp_wifi_set_mode(WIFI_MODE_STA);
         ret = esp_netif_set_hostname(wifiSTA, luat_wlan_get_hostname(0));
         #ifdef LUAT_USE_NETWORK
-            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_AP);
-            net_lwip_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
+            net_lwip2_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_AP);
+            net_lwip2_register_adapter(NW_ADAPTER_INDEX_LWIP_WIFI_STA);
         #endif
         if (ret)
             LLOGD("esp_netif_set_hostname ret %d", ret);
