@@ -132,3 +132,7 @@ int luat_pm_wakeup_pin(int pin, int val){
 #endif
     return 0;
 }
+
+uint32_t luat_pm_dtimer_remain(int id) {
+    return 0;
+}
