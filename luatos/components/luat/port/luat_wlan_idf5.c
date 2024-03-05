@@ -617,6 +617,12 @@ int luat_wlan_ap_start(luat_wlan_apinfo_t *apinfo) {
     if (apinfo->channel) {
         cfg.ap.channel = apinfo->channel;
     }
+    if (apinfo->hidden) {
+        cfg.ap.ssid_hidden = apinfo->hidden;
+    }
+    if (apinfo->max_conn) {
+        cfg.ap.max_connection = apinfo->max_conn;
+    }
 
     LLOGD("softap %s %s", apinfo->ssid, apinfo->password);
 
