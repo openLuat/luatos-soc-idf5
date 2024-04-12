@@ -39,7 +39,7 @@ static inline uint32_t ledc_calculate_divisor(uint32_t src_clk_freq, int freq_hz
 }
 
 // https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf#ledpwm
-static uint32_t ledc_find_suitable_duty_resolution(uint32_t src_clk_freq, uint32_t timer_freq)
+static uint32_t ledc_find_suitable_duty_resolution2(uint32_t src_clk_freq, uint32_t timer_freq)
 {
     uint32_t div = (src_clk_freq + timer_freq / 2) / timer_freq; // rounded
     uint32_t duty_resolution = ilog2(div);
@@ -87,7 +87,7 @@ int luat_pwm_setup(luat_pwm_conf_t *conf){
     }
 
 
-    duty_resolution = ledc_find_suitable_duty_resolution(80*1000*1000, conf->period);
+    duty_resolution = ledc_find_suitable_duty_resolution2(80*1000*1000, conf->period);
     
     int duty = (conf->pulse * (1 << duty_resolution)) / conf->precision;
     // LLOGD("freq=%d, pulse=%d, precision=%d, resolution=%08X, duty=%08X", (int)conf->period, (int)conf->pulse, (int)conf->precision, (int)(1 << duty_resolution), (int)duty);
