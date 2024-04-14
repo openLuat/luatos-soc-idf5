@@ -246,6 +246,13 @@
                   "rsize": 0,
                   "fsize": 371408,
                   "dft": false
+               },
+               {
+                  "name": "LUAT_CONF_WIFI_AND_BLE",
+                  "content": "需要同时使用wifi和ble,这个配置项会减少lua内存,增加sys内存",
+                  "rsize": 1024,
+                  "fsize": 371408,
+                  "dft": false
                }
             ]
          },

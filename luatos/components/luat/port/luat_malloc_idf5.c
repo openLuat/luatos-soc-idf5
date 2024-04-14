@@ -15,17 +15,23 @@
 
 //-----------------------------------------------------------------------------
 #ifndef LUAT_HEAP_SIZE
+
 #if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
-#if defined(LUAT_USE_NIMBLE) || defined(LUAT_USE_TLS)
-#define LUAT_HEAP_SIZE (72*1024)
-#else
-#define LUAT_HEAP_SIZE (112*1024)
-#endif
+    #if defined(LUAT_USE_NIMBLE) || defined(LUAT_USE_TLS)
+        #if LUAT_CONF_WIFI_AND_BLE
+            #define LUAT_HEAP_SIZE (72*1024)
+        #else
+            #define LUAT_HEAP_SIZE (92*1024)
+        #endif
+    #else
+        #define LUAT_HEAP_SIZE (112*1024)
+    #endif
 #elif defined(CONFIG_IDF_TARGET_ESP32C2)
-#define LUAT_HEAP_SIZE (68*1024)
+    #define LUAT_HEAP_SIZE (68*1024)
 #else
-#define LUAT_HEAP_SIZE (64*1024)
+    #define LUAT_HEAP_SIZE (64*1024)
 #endif
+
 #endif // LUAT_HEAP_SIZE
 
 static uint8_t vmheap[LUAT_HEAP_SIZE];
