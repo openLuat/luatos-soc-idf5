@@ -381,6 +381,21 @@
             "dft": false
          },
          {
+            "icon": "zmdi-card-sd",
+            "name": "@ETXS",
+            "content": "高级配置",
+            "rsize": 0,
+            "children": [
+               {
+                   "name": "LUAT_CONF_VM_64bit",
+                   "content": "64bit虚拟机,默认为32bit.",
+                   "rsize": 193240,
+                   "fsize": 1024,
+                   "dft": false
+               }
+            ]
+         },
+         {
             "icon": "zmdi-puzzle-piece",
             "name": "@EXT",
             "content": "扩展",

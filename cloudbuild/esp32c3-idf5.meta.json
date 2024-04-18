@@ -253,6 +253,13 @@
                   "rsize": 1024,
                   "fsize": 371408,
                   "dft": false
+               },
+               {
+                   "name": "LUAT_CONF_VM_64bit",
+                   "content": "64bit虚拟机,默认为32bit.",
+                   "rsize": 193240,
+                   "fsize": 1024,
+                   "dft": false
                }
             ]
          },
