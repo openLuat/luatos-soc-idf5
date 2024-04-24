@@ -77,6 +77,7 @@ idf_component_register(SRC_DIRS ${LUATOS_ROOT}/luat/modules
                                 ${LUATOS_ROOT}/components/network/libemqtt
                                 ${LUATOS_ROOT}/components/network/libsntp
                                 ${LUATOS_ROOT}/components/network/ulwip/binding/
+                                ${LUATOS_ROOT}/components/network/ulwip/src/
                                 ${LUATOS_ROOT}/components/ethernet/common
                                 ${LUATOS_ROOT}/components/ethernet/w5500
                                 ${LUATOS_ROOT}/components/common
