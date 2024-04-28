@@ -77,8 +77,9 @@ if __name__=='__main__':
             version_data = re.findall(r'#define LUAT_BSP_VERSION "(.+?)"', line)#[0]
             if version_data:
                 bsp_version = version_data[0]
-            if line == "#define LUAT_CONF_VM_64bit\r" or line == "#define LUAT_CONF_VM_64bit\n":
+            if line.startswith("#define LUAT_CONF_VM_64bit"):
                 vm_64bit = True
+                print("固件是64bit的VM")
 
     out_file_name="LuatOS-SoC_{}_{}".format(bsp_version, bsp)
     out_file = os.path.join(out_path,out_file_name)
