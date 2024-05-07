@@ -467,10 +467,11 @@ int luat_wlan_connect(luat_wlan_conninfo_t* info) {
     int ret = 0;
     wifi_config_t cfg = {0};
     // 允许重用一起的ssid和passwd数据直接重连
-    if (strlen(info->ssid)) {
+    if (strlen(info->ssid) || info->bssid[5]) {
         // LLOGD("connect %s %s", info->ssid, info->password);
         memcpy(cfg.sta.ssid, info->ssid, strlen(info->ssid));
         memcpy(cfg.sta.password, info->password, strlen(info->password));
+        memcpy(cfg.sta.bssid, info->bssid, 6);
         esp_wifi_set_config(WIFI_IF_STA, &cfg);
     }
     auto_reconnection = 1;
