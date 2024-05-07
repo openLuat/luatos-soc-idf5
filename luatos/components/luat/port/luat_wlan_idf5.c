@@ -479,7 +479,7 @@ int luat_wlan_connect(luat_wlan_conninfo_t* info) {
     ret = esp_wifi_connect();
     if (ret)
         LLOGD("esp_wifi_connect ret %d", ret);
-    return 0;
+    return ret;
 }
 
 int luat_wlan_disconnect(void) {
@@ -488,7 +488,7 @@ int luat_wlan_disconnect(void) {
     ret = esp_wifi_disconnect();
     if (ret)
         LLOGD("esp_wifi_disconnect ret %d", ret);
-    return 0;
+    return ret;
 }
 
 int luat_wlan_scan(void) {
