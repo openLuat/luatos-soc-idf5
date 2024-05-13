@@ -27,7 +27,7 @@ int luat_wdt_set_timeout(size_t timeout){
         .idle_core_mask = 0,
         .trigger_panic = true,
     };
-    esp_task_wdt_init(&twdt_config);
+    esp_task_wdt_reconfigure(&twdt_config);
     return 0;
 }
 
