@@ -162,6 +162,9 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             LLOGD("wifi connected!!!");
             lua_pushstring(L, "WLAN_STA_CONNECTED");
             lua_call(L, 1, 0);
+            lua_pushstring(L, "WLAN_STATUS");
+            lua_pushinteger(L, 1);
+            lua_call(L, 2, 0);
             if (!dhcp_enable) {
                 LLOGD("dhcp is disabled, static ip, send IP_READY");
                 lua_getglobal(L, "sys_pub");
@@ -176,6 +179,9 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             LLOGD("wifi disconnected!!!");
             lua_pushstring(L, "WLAN_STA_DISCONNECTED");
             lua_call(L, 1, 0);
+            lua_pushstring(L, "WLAN_STATUS");
+            lua_pushinteger(L, 0);
+            lua_call(L, 2, 0);
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_READY");
             lua_pushinteger(L, 0);
