@@ -175,3 +175,6 @@ void luat_mcu_us_timer_init() {
 }
 
 void luat_mcu_set_hardfault_mode(int mode) {;}
+void luat_mcu_xtal_ref_output(uint8_t main_enable, uint8_t slow_32k_enable) {;}
+int luat_uart_pre_setup(int uart_id, uint8_t use_alt_type){return -1;}
+int luat_i2c_set_iomux(int id, uint8_t value){return -1;}
