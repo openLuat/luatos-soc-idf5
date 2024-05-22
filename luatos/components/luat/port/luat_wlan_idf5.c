@@ -147,12 +147,10 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
     char buff[64] = {0};
     lua_getglobal(L, "sys_pub");
     if (event_tp == 0) {
-
         switch (event_id)
         {
         case WIFI_EVENT_WIFI_READY:
             LLOGD("wifi protocol is ready");
-            lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_READY");
             lua_pushinteger(L, 1);
             //esp_netif_get_ip_info(ESP_IF_WIFI_STA,&ip_info);
@@ -162,6 +160,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             LLOGD("wifi connected!!!");
             lua_pushstring(L, "WLAN_STA_CONNECTED");
             lua_call(L, 1, 0);
+            lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STATUS");
             lua_pushinteger(L, 1);
             lua_call(L, 2, 0);
@@ -179,6 +178,7 @@ static int l_wlan_handler(lua_State *L, void* ptr) {
             LLOGD("wifi disconnected!!!");
             lua_pushstring(L, "WLAN_STA_DISCONNECTED");
             lua_call(L, 1, 0);
+            lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STATUS");
             lua_pushinteger(L, 0);
             lua_call(L, 2, 0);
